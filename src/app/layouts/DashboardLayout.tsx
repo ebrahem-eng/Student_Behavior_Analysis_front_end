@@ -14,7 +14,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppStore } from "@/lib/store";
 
 export function DashboardLayout() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const userRole = useAppStore((state) => state.userRole);
   const setUserRole = useAppStore((state) => state.setUserRole);
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useAppStore } from "@/lib/store";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface RequireRoleProps {
   allowedRoles: string[];

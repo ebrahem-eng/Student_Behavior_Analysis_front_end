@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "react-i18next";
+
 import { useAppStore } from "@/lib/store";
 import { useNavigate } from "react-router-dom";
 
@@ -23,7 +23,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const { t } = useTranslation();
   const setUserRole = useAppStore((state) => state.setUserRole);
   const navigate = useNavigate();
 
@@ -47,7 +46,7 @@ export function LoginForm() {
     setUserRole(role);
     
     // Redirect based on role
-    navigate(\`/\${role}\`);
+    navigate(`/${role}`);
   }
 
   return (

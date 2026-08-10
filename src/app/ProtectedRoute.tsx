@@ -15,7 +15,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 
   // If specific roles are required and user does not match, redirect to unauthorized or their own dashboard
   if (allowedRoles && !allowedRoles.includes(userRole)) {
-    return <Navigate to={\`/\${userRole}\`} replace />;
+    return <Navigate to={`/${userRole}`} replace />;
   }
 
   return <Outlet />;
