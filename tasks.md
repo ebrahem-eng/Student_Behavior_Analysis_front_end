@@ -3,6 +3,7 @@
 ## Phase 0 — Project Setup & Design System
 - [ ] Scaffold Vite + React + TypeScript project; configure ESLint/Prettier, path aliases.
 - [ ] Set up Tailwind + shadcn/ui theme tokens; build the base design system (typography, spacing, color scales for risk levels: low/medium/high).
+- [ ] Establish a premium, stunning, and modern UI design framework (incorporating glassmorphism, micro-animations, dynamic hover states, and curated harmonious palettes).
 - [ ] Configure `react-i18next` with English + Arabic locale files and automatic `dir="rtl"`/`dir="ltr"` switching at the root layout.
 - [ ] Set up API client (Axios/fetch wrapper) with interceptors for auth tokens and error handling.
 - [ ] Set up React Query provider, Zustand store scaffolding, and the WebSocket client wrapper.
