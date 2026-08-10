@@ -10,7 +10,7 @@
 
 ## Phase 1 — Authentication & Role-Based Access
 - [x] Implement login screen (single entry point for all 5 roles), session handling, password reset flow.
-- [ ] Implement role-aware route guards: unauthorized routes redirect based on the user's role.
+- [x] Implement role-aware route guards: unauthorized routes redirect based on the user's role.
 - [ ] Implement permission-driven UI: hide/disable actions the current role/permission set doesn't allow.
 - [ ] Create global layout shell per role (top nav, side nav, notification bell, language switcher, profile menu).
 
