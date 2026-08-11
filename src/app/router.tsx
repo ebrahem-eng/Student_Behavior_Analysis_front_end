@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import AccountsPage from "@/features/admin/pages/AccountsPage";
 import InstitutionsPage from "@/features/admin/pages/InstitutionsPage";
+import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -22,7 +23,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "/admin",
-            element: <div className="text-white bg-card p-6 rounded-xl border border-white/10 shadow-lg">Admin Portal Dashboard Placeholder</div>,
+            element: <AdminDashboard />,
           },
           {
             path: "/admin/accounts",
