@@ -18,16 +18,16 @@
 - [x] Implement Accounts & permissions CRUD UI for the 5 user types with permission assignment.
 - [x] Implement Institution management: create schools/universities, configure structure.
 - [x] Build Admin dashboard: at-risk student count, top problem subjects, pass/absence rates (charts via Recharts).
-- [ ] Create Threshold configuration panel: sliders/inputs to set the risk %.
-- [ ] Implement Alert-tier configuration: define low/medium/high thresholds.
-- [ ] Build Audit log viewer: searchable/filterable table.
-- [ ] Add Data policy settings: toggle compliance rules, encryption/anonymization options.
-- [ ] Implement Backup & disaster-recovery panel.
-- [ ] Embed Operational monitoring view: Grafana dashboards for system health.
-- [ ] Build API key management: issue/revoke keys.
-- [ ] Configure Academic calendar setup: number/type of terms per institution.
-- [ ] Implement University role configuration: enable extra roles in university mode.
-- [ ] Add Load-test / scalability monitoring view.
+- [x] Create Threshold configuration panel: sliders/inputs to set the risk %.
+- [x] Implement Alert-tier configuration: define low/medium/high thresholds.
+- [x] Build Audit log viewer: searchable/filterable table.
+- [x] Add Data policy settings: toggle compliance rules, encryption/anonymization options.
+- [x] Implement Backup & disaster-recovery panel.
+- [x] Embed Operational monitoring view: Grafana dashboards for system health.
+- [x] Build API key management: issue/revoke keys.
+- [x] Configure Academic calendar setup: number/type of terms per institution.
+- [x] Implement University role configuration: enable extra roles in university mode.
+- [x] Add Load-test / scalability monitoring view.
 
 ## Phase 3 — Teacher / Faculty Portal
 - [ ] Create Data entry forms: grades, exam results, assignment submission status.

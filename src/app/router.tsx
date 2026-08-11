@@ -5,6 +5,7 @@ import { DashboardLayout } from "./layouts/DashboardLayout";
 import AccountsPage from "@/features/admin/pages/AccountsPage";
 import InstitutionsPage from "@/features/admin/pages/InstitutionsPage";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
+import SystemSettingsPage from "@/features/admin/pages/SystemSettingsPage";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
           {
             path: "/admin/institutions",
             element: <InstitutionsPage />,
+          },
+          {
+            path: "/admin/settings",
+            element: <SystemSettingsPage />,
           },
         ],
       },
