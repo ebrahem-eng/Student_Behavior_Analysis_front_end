@@ -15,7 +15,7 @@
 - [x] Create global layout shell per role (top nav, side nav, notification bell, language switcher, profile menu).
 
 ## Phase 2 — System Admin Console
-- [ ] Implement Accounts & permissions CRUD UI for the 5 user types with permission assignment.
+- [x] Implement Accounts & permissions CRUD UI for the 5 user types with permission assignment.
 - [ ] Implement Institution management: create schools/universities, configure structure.
 - [ ] Build Admin dashboard: at-risk student count, top problem subjects, pass/absence rates (charts via Recharts).
 - [ ] Create Threshold configuration panel: sliders/inputs to set the risk %.

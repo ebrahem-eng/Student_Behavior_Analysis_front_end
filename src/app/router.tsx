@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { DashboardLayout } from "./layouts/DashboardLayout";
+import AccountsPage from "@/features/admin/pages/AccountsPage";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
           {
             path: "/admin",
             element: <div className="text-white bg-card p-6 rounded-xl border border-white/10 shadow-lg">Admin Portal Dashboard Placeholder</div>,
+          },
+          {
+            path: "/admin/accounts",
+            element: <AccountsPage />,
           },
         ],
       },

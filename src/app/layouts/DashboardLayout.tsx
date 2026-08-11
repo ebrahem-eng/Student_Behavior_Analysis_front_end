@@ -1,6 +1,6 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Bell, Globe, LogOut, Menu, User } from "lucide-react";
+import { Bell, Globe, LogOut, Menu, User, Users, Building, LayoutDashboard, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,6 +30,8 @@ export function DashboardLayout() {
     navigate("/login");
   };
 
+  const location = useLocation();
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-slate-900/50 backdrop-blur-xl border-r border-white/10 p-4">
       <div className="flex items-center gap-3 mb-8 px-2">
@@ -37,14 +39,35 @@ export function DashboardLayout() {
         <span className="font-bold text-lg text-white">SBA Platform</span>
       </div>
       
-      <nav className="flex-1 space-y-2">
-        {/* Placeholder Navigation Items based on role */}
-        <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-white/10">
-          Dashboard
-        </Button>
-        <Button variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-white/10">
-          Settings
-        </Button>
+      <nav className="flex-1 space-y-2 mt-4">
+        {userRole === "admin" && (
+          <>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/admin' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/admin">
+                <LayoutDashboard className="mr-3 h-5 w-5" />
+                Dashboard
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/accounts') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/admin/accounts">
+                <Users className="mr-3 h-5 w-5" />
+                Accounts & Permissions
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/institutions') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/admin/institutions">
+                <Building className="mr-3 h-5 w-5" />
+                Institutions
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/admin/settings">
+                <Settings className="mr-3 h-5 w-5" />
+                System Settings
+              </Link>
+            </Button>
+          </>
+        )}
       </nav>
 
       <div className="mt-auto pt-4 border-t border-white/10">
