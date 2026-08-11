@@ -3,6 +3,7 @@ import LoginPage from "@/features/auth/pages/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import AccountsPage from "@/features/admin/pages/AccountsPage";
+import InstitutionsPage from "@/features/admin/pages/InstitutionsPage";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
           {
             path: "/admin/accounts",
             element: <AccountsPage />,
+          },
+          {
+            path: "/admin/institutions",
+            element: <InstitutionsPage />,
           },
         ],
       },
