@@ -13,6 +13,7 @@ import TeacherIncidentsPage from "@/features/teacher/pages/TeacherIncidentsPage"
 import AdvisorDashboardPage from "@/features/advisor/pages/AdvisorDashboardPage";
 import AdvisorInboxPage from "@/features/advisor/pages/AdvisorInboxPage";
 import AdvisorCommunicationsPage from "@/features/advisor/pages/AdvisorCommunicationsPage";
+import AdvisorAnalyticsPage from "@/features/advisor/pages/AdvisorAnalyticsPage";
 
 export const router = createBrowserRouter([
   {
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
           {
             path: "/advisor/communications",
             element: <AdvisorCommunicationsPage />,
+          },
+          {
+            path: "/advisor/analytics",
+            element: <AdvisorAnalyticsPage />,
           },
         ],
       },

@@ -46,10 +46,10 @@
 - [x] Create Recommendation review/edit UI: approve, adjust, or reject AI-generated recommendations.
 - [x] Build Parent communication portal: threaded, documented messages.
 - [x] Integrate Academic chatbot UI: ask analytical questions and display grounded answers.
-- [ ] Create Discovered-patterns view: surface recurring correlations.
+- [x] Create Discovered-patterns view: surface recurring correlations.
 - [ ] Build Graduation progress tracker for university students.
 - [ ] Implement Registration review screen: view/adjust student course & section registrations.
-- [ ] Build Retrospective accuracy dashboard: compare past predictions to actual outcomes.
+- [x] Build Retrospective accuracy dashboard: compare past predictions to actual outcomes.
 
 ## Phase 5 — Student Portal
 - [ ] Build Personal dashboard: current GPA, attendance %, activity level, weak subjects.
