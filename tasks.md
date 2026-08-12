@@ -92,7 +92,7 @@
 - [x] Perform cross-browser compatibility testing (Chrome, Safari, Firefox, Edge).
 
 ## Phase 10 — Deployment & CI/CD
-- [ ] Set up production build pipeline (Vite build, asset optimization, CDN-ready static output).
-- [ ] Configure environment-based variables (staging/production API base URLs, feature flags).
-- [ ] Set up CI (GitHub Actions): lint → test → build → deploy on merge to main.
-- [ ] Perform final smoke test across all 5 portals in staging before go-live.
+- [x] Set up production build pipeline (Vite build, asset optimization, CDN-ready static output).
+- [x] Configure environment-based variables (staging/production API base URLs, feature flags).
+- [x] Set up CI (GitHub Actions): lint → test → build → deploy on merge to main.
+- [x] Perform final smoke test across all 5 portals in staging before go-live.
