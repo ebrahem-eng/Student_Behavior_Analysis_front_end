@@ -72,10 +72,10 @@
 - [x] Enable Mobile/PWA push notifications without needing to repeatedly log in.
 
 ## Phase 7 — Shared Cross-Cutting Components
-- [ ] Build unified notification center (bell icon, toast, and push notification handling).
-- [ ] Create reusable risk badge / risk-level color system (low/medium/high).
-- [ ] Develop shared chatbot widget component (used by both Advisor and Student portals).
-- [ ] Create shared export button component (PDF/Excel).
+- [x] Build unified notification center (bell icon, toast, and push notification handling).
+- [x] Create reusable risk badge / risk-level color system (low/medium/high).
+- [x] Develop shared chatbot widget component (used by both Advisor and Student portals).
+- [x] Create shared export button component (PDF/Excel).
 - [ ] Build shared charts library wrappers (trend line, distribution, comparison).
 - [ ] Perform centralized RTL/LTR + i18n verification pass across every screen.
 

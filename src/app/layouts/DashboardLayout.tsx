@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppStore } from "@/lib/store";
+import { UnifiedNotificationCenter } from "@/components/shared/UnifiedNotificationCenter";
+import { ChatbotWidget } from "@/components/shared/ChatbotWidget";
 
 export function DashboardLayout() {
   const { i18n } = useTranslation();
@@ -226,15 +228,11 @@ export function DashboardLayout() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
+            <UnifiedNotificationCenter />
             <Button variant="ghost" size="icon" onClick={toggleLanguage} className="text-slate-300 hover:text-white hover:bg-white/10">
               <Globe className="h-5 w-5" />
             </Button>
             
-            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-white/10 relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-            </Button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full bg-primary/20 hover:bg-primary/30">
@@ -275,6 +273,11 @@ export function DashboardLayout() {
           </div>
         </main>
       </div>
+
+      {/* Shared Chatbot Widget (visible for student and advisor roles) */}
+      {(userRole === "student" || userRole === "advisor") && (
+        <ChatbotWidget />
+      )}
     </div>
   );
 }
