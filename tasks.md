@@ -66,10 +66,10 @@
 ## Phase 6 — Parent/Guardian Portal
 - [x] Implement Early-alert notifications for their child.
 - [x] Create Periodic/monthly report viewer.
-- [ ] Build Advisor communication portal (documented messaging tied to the student).
-- [ ] Implement Consent management on behalf of a minor.
-- [ ] Add Notification preferences: channel (email/SMS/app) and frequency.
-- [ ] Enable Mobile/PWA push notifications without needing to repeatedly log in.
+- [x] Build Advisor communication portal (documented messaging tied to the student).
+- [x] Implement Consent management on behalf of a minor.
+- [x] Add Notification preferences: channel (email/SMS/app) and frequency.
+- [x] Enable Mobile/PWA push notifications without needing to repeatedly log in.
 
 ## Phase 7 — Shared Cross-Cutting Components
 - [ ] Build unified notification center (bell icon, toast, and push notification handling).

@@ -21,6 +21,8 @@ import StudentAcademicsPage from "@/features/student/pages/StudentAcademicsPage"
 import StudentSettingsPage from "@/features/student/pages/StudentSettingsPage";
 import StudentRegistrationPage from "@/features/student/pages/StudentRegistrationPage";
 import ParentDashboardPage from "@/features/parent/pages/ParentDashboardPage";
+import ParentCommunicationsPage from "@/features/parent/pages/ParentCommunicationsPage";
+import ParentSettingsPage from "@/features/parent/pages/ParentSettingsPage";
 
 export const router = createBrowserRouter([
   {
@@ -132,6 +134,14 @@ export const router = createBrowserRouter([
           {
             path: "/parent",
             element: <ParentDashboardPage />,
+          },
+          {
+            path: "/parent/communications",
+            element: <ParentCommunicationsPage />,
+          },
+          {
+            path: "/parent/settings",
+            element: <ParentSettingsPage />,
           },
         ],
       },
