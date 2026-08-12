@@ -76,7 +76,7 @@
 - [x] Create reusable risk badge / risk-level color system (low/medium/high).
 - [x] Develop shared chatbot widget component (used by both Advisor and Student portals).
 - [x] Create shared export button component (PDF/Excel).
-- [ ] Build shared charts library wrappers (trend line, distribution, comparison).
+- [x] Build shared charts library wrappers (trend line, distribution, comparison).
 - [ ] Perform centralized RTL/LTR + i18n verification pass across every screen.
 
 ## Phase 8 — PWA & Mobile Experience
