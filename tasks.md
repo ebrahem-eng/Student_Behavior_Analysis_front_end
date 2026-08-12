@@ -77,7 +77,7 @@
 - [x] Develop shared chatbot widget component (used by both Advisor and Student portals).
 - [x] Create shared export button component (PDF/Excel).
 - [x] Build shared charts library wrappers (trend line, distribution, comparison).
-- [ ] Perform centralized RTL/LTR + i18n verification pass across every screen.
+- [x] Perform centralized RTL/LTR + i18n verification pass across every screen.
 
 ## Phase 8 — PWA & Mobile Experience
 - [ ] Configure installable PWA manifest, service worker, and offline caching for key screens.
