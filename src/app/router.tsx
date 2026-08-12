@@ -14,6 +14,7 @@ import AdvisorDashboardPage from "@/features/advisor/pages/AdvisorDashboardPage"
 import AdvisorInboxPage from "@/features/advisor/pages/AdvisorInboxPage";
 import AdvisorCommunicationsPage from "@/features/advisor/pages/AdvisorCommunicationsPage";
 import AdvisorAnalyticsPage from "@/features/advisor/pages/AdvisorAnalyticsPage";
+import AdvisorStudentViewPage from "@/features/advisor/pages/AdvisorStudentViewPage";
 
 export const router = createBrowserRouter([
   {
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
           {
             path: "/advisor/analytics",
             element: <AdvisorAnalyticsPage />,
+          },
+          {
+            path: "/advisor/student",
+            element: <AdvisorStudentViewPage />,
           },
         ],
       },

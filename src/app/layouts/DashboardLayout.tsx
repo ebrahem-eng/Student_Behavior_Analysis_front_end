@@ -130,6 +130,12 @@ export function DashboardLayout() {
                 Predictive Analytics
               </Link>
             </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/student') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/advisor/student">
+                <User className="mr-3 h-5 w-5" />
+                Student 360 View
+              </Link>
+            </Button>
           </>
         )}
       </nav>
