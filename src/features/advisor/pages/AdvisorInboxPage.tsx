@@ -25,24 +25,24 @@ export default function AdvisorInboxPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Inbox className="h-8 w-8 text-indigo-500" />
             Early-Alert Inbox
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Review incoming risk alerts and manage AI-generated intervention plans.
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="alerts" className="w-full">
-        <TabsList className="bg-slate-900/50 border border-white/5 mb-6">
-          <TabsTrigger value="alerts" className="data-[state=active]:bg-primary data-[state=active]:text-white relative">
+        <TabsList className="bg-card/50 border border-white/5 mb-6">
+          <TabsTrigger value="alerts" className="data-[state=active]:bg-primary data-[state=active]:text-foreground relative">
             <AlertOctagon className="w-4 h-4 mr-2" /> 
             Incoming Alerts
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse" />
           </TabsTrigger>
-          <TabsTrigger value="recommendations" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+          <TabsTrigger value="recommendations" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
             <FileText className="w-4 h-4 mr-2" /> 
             Intervention Review
           </TabsTrigger>
@@ -50,10 +50,10 @@ export default function AdvisorInboxPage() {
 
         <TabsContent value="alerts" className="space-y-4">
           <div className="relative w-full sm:w-96 mb-6">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search alerts by student..."
-              className="pl-9 bg-slate-900/50 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-primary/50"
+              className="pl-9 bg-card/50 border-border text-foreground placeholder:text-slate-500 focus-visible:ring-primary/50"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -61,21 +61,21 @@ export default function AdvisorInboxPage() {
 
           <div className="grid grid-cols-1 gap-4">
             {MOCK_INBOX_ALERTS.map(alert => (
-              <Card key={alert.id} className={`bg-slate-900/50 border-l-4 transition-all hover:bg-slate-900/80 ${alert.risk === 'Critical' ? 'border-l-rose-500 border-white/10' : 'border-l-orange-500 border-white/10'}`}>
+              <Card key={alert.id} className={`bg-card/50 border-l-4 transition-all hover:bg-card/80 ${alert.risk === 'Critical' ? 'border-l-rose-500 border-border' : 'border-l-orange-500 border-border'}`}>
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-semibold text-white text-lg">{alert.student}</h3>
+                        <h3 className="font-semibold text-foreground text-lg">{alert.student}</h3>
                         {alert.status === "Unread" && <Badge className="bg-indigo-500/20 text-indigo-400 border-indigo-500/20">New</Badge>}
                         <Badge variant="outline" className={alert.risk === 'Critical' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}>
                           {alert.risk} Risk
                         </Badge>
                       </div>
-                      <div className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                      <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                         <ShieldAlert className="w-4 h-4" /> Source: {alert.source}
                       </div>
-                      <p className="text-slate-300 bg-white/5 p-3 rounded-md border border-white/5 mt-2">
+                      <p className="text-muted-foreground bg-secondary/50 p-3 rounded-md border border-white/5 mt-2">
                         {alert.description}
                       </p>
                       <p className="text-xs text-slate-500 mt-2">
@@ -83,10 +83,10 @@ export default function AdvisorInboxPage() {
                       </p>
                     </div>
                     <div className="flex flex-col gap-2 w-full sm:w-auto">
-                      <Button className="w-full sm:w-auto bg-primary text-white hover:bg-primary/90">
+                      <Button className="w-full sm:w-auto bg-primary text-foreground hover:bg-primary/90">
                         View Profile <ChevronRight className="w-4 h-4 ml-1" />
                       </Button>
-                      <Button variant="outline" className="w-full sm:w-auto border-white/10 text-slate-300 hover:text-white hover:bg-white/5">
+                      <Button variant="outline" className="w-full sm:w-auto border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50">
                         <MessageSquare className="w-4 h-4 mr-2" /> Message Student
                       </Button>
                     </div>
@@ -100,8 +100,8 @@ export default function AdvisorInboxPage() {
         <TabsContent value="recommendations" className="space-y-4">
           <div className="grid grid-cols-1 gap-6">
             {MOCK_RECOMMENDATIONS.map(rec => (
-              <Card key={rec.id} className="bg-slate-900/50 border-white/10 overflow-hidden">
-                <div className="bg-indigo-500/10 p-4 border-b border-white/10 flex justify-between items-center">
+              <Card key={rec.id} className="bg-card/50 border-border overflow-hidden">
+                <div className="bg-indigo-500/10 p-4 border-b border-border flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-indigo-400" />
                     <span className="font-semibold text-indigo-400">AI Plan for {rec.student}</span>
@@ -113,25 +113,25 @@ export default function AdvisorInboxPage() {
                 <CardContent className="p-6">
                   {rec.status === "Pending" ? (
                     <div className="space-y-4">
-                      <div className="bg-white/5 p-4 rounded-lg border border-white/10">
-                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Proposed Action</label>
+                      <div className="bg-secondary/50 p-4 rounded-lg border border-border">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Proposed Action</label>
                         <Textarea 
                           defaultValue={rec.suggestion}
-                          className="bg-slate-950 border-white/20 text-white min-h-[100px]"
+                          className="bg-background border-border text-foreground min-h-[100px]"
                         />
                       </div>
                       <div className="flex flex-col sm:flex-row justify-end gap-3">
                         <Button variant="outline" className="border-rose-500/50 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300">
                           <XCircle className="w-4 h-4 mr-2" /> Reject Plan
                         </Button>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20">
+                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-foreground shadow-lg shadow-emerald-500/20">
                           <CheckCircle2 className="w-4 h-4 mr-2" /> Approve & Enact
                         </Button>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <p className="text-white text-lg">{rec.suggestion}</p>
+                      <p className="text-foreground text-lg">{rec.suggestion}</p>
                       <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20 w-fit">
                         <CheckCircle2 className="w-4 h-4" /> Approved & Active
                       </div>

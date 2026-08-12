@@ -59,7 +59,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input placeholder="name@school.edu" {...field} className="bg-white/5 border-white/10" />
+                <Input placeholder="name@school.edu" {...field} className="bg-secondary/50 border-border" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -72,13 +72,13 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} className="bg-white/5 border-white/10" />
+                <Input type="password" placeholder="••••••••" {...field} className="bg-secondary/50 border-border" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg transition-transform hover:scale-[1.02]">
+        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-foreground shadow-lg transition-transform hover:scale-[1.02]">
           Sign In
         </Button>
       </form>

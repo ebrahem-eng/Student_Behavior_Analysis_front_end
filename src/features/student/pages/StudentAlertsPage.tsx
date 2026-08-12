@@ -19,11 +19,11 @@ export default function StudentAlertsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Bell className="h-8 w-8 text-amber-400" />
             Alerts & Recommendations
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Stay on track with personalized insights and early warnings.
           </p>
         </div>
@@ -31,9 +31,9 @@ export default function StudentAlertsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
-          <Card className="bg-slate-900/50 border-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.1)]">
+          <Card className="bg-card/50 border-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.1)]">
             <CardHeader className="pb-3 border-b border-white/5">
-              <CardTitle className="text-lg text-white flex items-center gap-2">
+              <CardTitle className="text-lg text-foreground flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-rose-500" />
                 Risk Status
               </CardTitle>
@@ -43,34 +43,34 @@ export default function StudentAlertsPage() {
                 <div className="w-24 h-24 rounded-full border-4 border-amber-500 flex items-center justify-center mb-3 bg-amber-500/10">
                   <span className="text-2xl font-bold text-amber-400">Elevated</span>
                 </div>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-muted-foreground">
                   Your academic risk level has recently increased due to low assignment scores in Data Structures.
                 </p>
-                <Button className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-white">
+                <Button className="mt-4 w-full bg-amber-600 hover:bg-amber-700 text-foreground">
                   Speak to Advisor
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-900/50 border-white/10">
+          <Card className="bg-card/50 border-border">
             <CardHeader className="pb-3 border-b border-white/5">
-              <CardTitle className="text-lg text-white flex items-center gap-2">
-                <Bell className="h-5 w-5 text-slate-400" />
+              <CardTitle className="text-lg text-foreground flex items-center gap-2">
+                <Bell className="h-5 w-5 text-muted-foreground" />
                 Recent Notifications
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 p-0">
               <div className="divide-y divide-white/5">
                 {mockAlerts.map(alert => (
-                  <div key={alert.id} className="p-4 hover:bg-white/5 transition-colors">
+                  <div key={alert.id} className="p-4 hover:bg-secondary/50 transition-colors">
                     <div className="flex gap-3">
                       <div className={`mt-0.5 p-2 rounded-full h-fit ${alert.type === 'danger' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'}`}>
                         <alert.icon className="h-4 w-4" />
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold text-white mb-1">{alert.title}</h4>
-                        <p className="text-xs text-slate-400 leading-relaxed mb-2">{alert.message}</p>
+                        <h4 className="text-sm font-semibold text-foreground mb-1">{alert.title}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-2">{alert.message}</p>
                         <span className="text-[10px] text-slate-500 flex items-center gap-1">
                           <CalendarDays className="h-3 w-3" /> {alert.time}
                         </span>
@@ -84,15 +84,15 @@ export default function StudentAlertsPage() {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-          <Card className="bg-slate-900/50 border-white/10 h-full">
+          <Card className="bg-card/50 border-border h-full">
             <CardHeader className="pb-3 border-b border-white/5">
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <CardTitle className="text-xl text-foreground flex items-center gap-2">
                     <Lightbulb className="h-5 w-5 text-yellow-400" />
                     Personalized Recommendations
                   </CardTitle>
-                  <CardDescription className="text-slate-400 mt-1">
+                  <CardDescription className="text-muted-foreground mt-1">
                     AI-generated suggestions based on your learning patterns and current struggles.
                   </CardDescription>
                 </div>
@@ -104,24 +104,24 @@ export default function StudentAlertsPage() {
             <CardContent className="pt-6">
               <div className="space-y-4">
                 {mockRecommendations.map(rec => (
-                  <div key={rec.id} className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-950/50 p-5 hover:border-indigo-500/30 transition-colors">
+                  <div key={rec.id} className="group relative overflow-hidden rounded-xl border border-border bg-background/50 p-5 hover:border-indigo-500/30 transition-colors">
                     <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/50 group-hover:bg-indigo-500 transition-colors" />
                     
                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4 ml-2">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold text-white">{rec.title}</h3>
-                          <Badge variant="secondary" className="bg-slate-800 text-slate-300 text-[10px] h-5">
+                          <h3 className="text-lg font-semibold text-foreground">{rec.title}</h3>
+                          <Badge variant="secondary" className="bg-muted text-muted-foreground text-[10px] h-5">
                             {rec.impact}
                           </Badge>
                         </div>
-                        <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
+                        <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                           {rec.description}
                         </p>
                       </div>
                       
                       <div className="w-full sm:w-auto shrink-0 mt-2 sm:mt-0">
-                        <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/20">
+                        <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-foreground shadow-lg shadow-indigo-900/20">
                           <CheckCircle2 className="mr-2 h-4 w-4" /> {rec.action}
                         </Button>
                       </div>

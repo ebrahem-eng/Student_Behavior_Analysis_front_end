@@ -47,12 +47,12 @@ const performanceData = [
 ];
 
 const StatCard = ({ title, value, change, isPositive, icon: Icon, description }: any) => (
-  <Card className="bg-slate-900/50 border-white/10">
+  <Card className="bg-card/50 border-border">
     <CardContent className="p-6">
       <div className="flex justify-between items-start">
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-400">{title}</p>
-          <p className="text-3xl font-bold text-white">{value}</p>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-3xl font-bold text-foreground">{value}</p>
         </div>
         <div className="p-3 bg-primary/10 rounded-xl">
           <Icon className="w-5 h-5 text-primary" />
@@ -74,10 +74,10 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             System Overview
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Global metrics and analytics across all institutions.
           </p>
         </div>
@@ -119,9 +119,9 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
-            <CardTitle className="text-lg text-slate-200">System-wide Attendance Trends</CardTitle>
+            <CardTitle className="text-lg text-card-foreground">System-wide Attendance Trends</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
@@ -147,9 +147,9 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
-            <CardTitle className="text-lg text-slate-200">At-Risk Students by Subject</CardTitle>
+            <CardTitle className="text-lg text-card-foreground">At-Risk Students by Subject</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
@@ -169,9 +169,9 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10 lg:col-span-2">
+        <Card className="bg-card/50 border-border lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg text-slate-200">Global Performance Averages</CardTitle>
+            <CardTitle className="text-lg text-card-foreground">Global Performance Averages</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">

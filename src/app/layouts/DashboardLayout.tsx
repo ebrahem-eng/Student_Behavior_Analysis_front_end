@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppStore } from "@/lib/store";
 import { UnifiedNotificationCenter } from "@/components/shared/UnifiedNotificationCenter";
 import { ChatbotWidget } from "@/components/shared/ChatbotWidget";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function DashboardLayout() {
   const { i18n } = useTranslation();
@@ -35,34 +36,34 @@ export function DashboardLayout() {
   const location = useLocation();
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-slate-900/50 backdrop-blur-xl border-r border-white/10 p-4">
+    <div className="flex flex-col h-full bg-card/50 backdrop-blur-xl border-r border-border p-4">
       <div className="flex items-center gap-3 mb-8 px-2">
         <div className="w-8 h-8 bg-primary rounded-lg rotate-45 shrink-0" />
-        <span className="font-bold text-lg text-white">SBA Platform</span>
+        <span className="font-bold text-lg text-foreground">SBA Platform</span>
       </div>
       
       <nav className="flex-1 space-y-2 mt-4">
         {userRole === "admin" && (
           <>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/admin' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/admin' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/admin">
                 <LayoutDashboard className="mr-3 h-5 w-5" />
                 Dashboard
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/accounts') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/accounts') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/admin/accounts">
                 <Users className="mr-3 h-5 w-5" />
                 Accounts & Permissions
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/institutions') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/institutions') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/admin/institutions">
                 <Building className="mr-3 h-5 w-5" />
                 Institutions
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/admin/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/admin/settings">
                 <Settings className="mr-3 h-5 w-5" />
                 System Settings
@@ -73,31 +74,31 @@ export function DashboardLayout() {
 
         {userRole === "teacher" && (
           <>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/teacher' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/teacher' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/teacher">
                 <LayoutDashboard className="mr-3 h-5 w-5" />
                 Classroom Dashboard
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/grades') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/grades') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/teacher/grades">
                 <BookOpen className="mr-3 h-5 w-5" />
                 Data Entry & Grades
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/attendance') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/attendance') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/teacher/attendance">
                 <UserCheck className="mr-3 h-5 w-5" />
                 Attendance Logging
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/incidents') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/incidents') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/teacher/incidents">
                 <AlertOctagon className="mr-3 h-5 w-5" />
                 Incident Reports
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/feedback') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/feedback') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/teacher/feedback">
                 <Sparkles className="mr-3 h-5 w-5" />
                 AI Feedback Hub
@@ -108,31 +109,31 @@ export function DashboardLayout() {
 
         {userRole === "advisor" && (
           <>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/advisor' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/advisor' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/advisor">
                 <ShieldAlert className="mr-3 h-5 w-5" />
                 At-Risk Roster
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/inbox') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/inbox') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/advisor/inbox">
                 <Inbox className="mr-3 h-5 w-5" />
                 Early-Alert Inbox
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/communications') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/communications') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/advisor/communications">
                 <MessageCircle className="mr-3 h-5 w-5" />
                 Comms & AI Hub
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/analytics') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/analytics') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/advisor/analytics">
                 <Network className="mr-3 h-5 w-5" />
                 Predictive Analytics
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/student') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/advisor/student') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/advisor/student">
                 <User className="mr-3 h-5 w-5" />
                 Student 360 View
@@ -142,31 +143,31 @@ export function DashboardLayout() {
         )}
         {userRole === "student" && (
           <>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/student' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/student' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/student">
                 <LayoutDashboard className="mr-3 h-5 w-5" />
                 My Dashboard
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/alerts') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/alerts') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/student/alerts">
                 <Bell className="mr-3 h-5 w-5" />
                 Alerts & Feedback
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/academics') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/academics') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/student/academics">
                 <BookOpen className="mr-3 h-5 w-5" />
                 Academics & AI Guide
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/student/settings">
                 <Settings className="mr-3 h-5 w-5" />
                 Settings & Well-being
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/registration') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/registration') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/student/registration">
                 <CalendarDays className="mr-3 h-5 w-5" />
                 Registration & Progress
@@ -176,19 +177,19 @@ export function DashboardLayout() {
         )}
         {userRole === "parent" && (
           <>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/parent' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/parent' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/parent">
                 <Users className="mr-3 h-5 w-5" />
                 Family Dashboard
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/parent/communications') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/parent/communications') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/parent/communications">
                 <MessageCircle className="mr-3 h-5 w-5" />
                 Communications
               </Link>
             </Button>
-            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/parent/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/parent/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Link to="/parent/settings">
                 <Settings className="mr-3 h-5 w-5" />
                 Family Settings
@@ -198,14 +199,14 @@ export function DashboardLayout() {
         )}
       </nav>
 
-      <div className="mt-auto pt-4 border-t border-white/10">
-        <p className="text-xs text-slate-400 px-2 capitalize">Role: {userRole}</p>
+      <div className="mt-auto pt-4 border-t border-border">
+        <p className="text-xs text-muted-foreground px-2 capitalize">Role: {userRole}</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen flex bg-[#0B0F19] text-slate-200">
+    <div className="min-h-screen flex bg-background text-card-foreground">
       {/* Desktop Sidebar */}
       <aside className="hidden md:block w-64 shrink-0">
         <SidebarContent />
@@ -214,15 +215,15 @@ export function DashboardLayout() {
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-6 pb-0 z-10 sticky top-0">
-          <header className="h-16 flex items-center justify-between px-4 sm:px-6 glass rounded-full border border-white/10 shadow-lg bg-slate-900/40 backdrop-blur-md">
+          <header className="h-16 flex items-center justify-between px-4 sm:px-6 glass rounded-full border border-border shadow-lg bg-card/40 backdrop-blur-md">
             <div className="flex items-center gap-4">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden text-slate-300 hover:text-white rounded-full">
+                  <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-foreground rounded-full">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 bg-[#0B0F19] border-r-white/10 text-white w-64">
+                <SheetContent side="left" className="p-0 bg-background border-r-white/10 text-foreground w-64">
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
@@ -230,7 +231,8 @@ export function DashboardLayout() {
 
             <div className="flex items-center gap-2 sm:gap-4">
               <UnifiedNotificationCenter />
-              <Button variant="ghost" size="icon" onClick={toggleLanguage} className="text-slate-300 hover:text-white hover:bg-white/10 rounded-full">
+              <ThemeToggle className="text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full" />
+              <Button variant="ghost" size="icon" onClick={toggleLanguage} className="text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full">
                 <Globe className="h-5 w-5" />
               </Button>
               
@@ -240,21 +242,21 @@ export function DashboardLayout() {
                     <User className="h-4 w-4 text-primary" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 bg-slate-900 border-white/10 text-slate-200 rounded-xl" align="end" forceMount>
+                <DropdownMenuContent className="w-56 bg-card border-border text-card-foreground rounded-xl" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none text-white">John Doe</p>
-                      <p className="text-xs leading-none text-slate-400">john.doe@example.com</p>
+                      <p className="text-sm font-medium leading-none text-foreground">John Doe</p>
+                      <p className="text-xs leading-none text-muted-foreground">john.doe@example.com</p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-white/10" />
-                  <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer rounded-md">
+                  <DropdownMenuSeparator className="bg-secondary" />
+                  <DropdownMenuItem className="focus:bg-secondary focus:text-foreground cursor-pointer rounded-md">
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer rounded-md">
+                  <DropdownMenuItem className="focus:bg-secondary focus:text-foreground cursor-pointer rounded-md">
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuSeparator className="bg-secondary" />
                   <DropdownMenuItem className="focus:bg-red-500/20 focus:text-red-400 cursor-pointer text-red-400 rounded-md" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>

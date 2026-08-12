@@ -20,21 +20,21 @@ export default function ParentCommunicationsPage() {
     <div className="space-y-6 h-[calc(100vh-8rem)] flex flex-col">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <MessageCircle className="h-8 w-8 text-fuchsia-400" />
             Advisor Communications
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Direct messaging with your child's assigned academic advisor.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-slate-900/50 p-2 rounded-xl border border-white/10">
-          <span className="text-sm text-slate-400 font-medium px-2">Student:</span>
+        <div className="flex items-center gap-3 bg-card/50 p-2 rounded-xl border border-border">
+          <span className="text-sm text-muted-foreground font-medium px-2">Student:</span>
           <Select value={selectedChild} onValueChange={setSelectedChild}>
-            <SelectTrigger className="w-[200px] bg-slate-950 border-white/10 text-white">
+            <SelectTrigger className="w-[200px] bg-background border-border text-foreground">
               <SelectValue placeholder="Select a child" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-white/10 text-white">
+            <SelectContent className="bg-card border-border text-foreground">
               <SelectItem value="STU-001">Alice Johnson</SelectItem>
               <SelectItem value="STU-002">Bob Johnson</SelectItem>
             </SelectContent>
@@ -42,15 +42,15 @@ export default function ParentCommunicationsPage() {
         </div>
       </div>
 
-      <Card className="bg-slate-900/50 border-white/10 flex-1 flex flex-col min-h-0">
-        <CardHeader className="border-b border-white/10 shrink-0 bg-slate-950/50">
+      <Card className="bg-card/50 border-border flex-1 flex flex-col min-h-0">
+        <CardHeader className="border-b border-border shrink-0 bg-background/50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
-              <User className="w-6 h-6 text-slate-400" />
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center border border-border">
+              <User className="w-6 h-6 text-muted-foreground" />
             </div>
             <div>
-              <CardTitle className="text-lg text-white">Dr. Sarah Smith</CardTitle>
-              <CardDescription className="text-slate-400">Academic Advisor for Alice Johnson</CardDescription>
+              <CardTitle className="text-lg text-foreground">Dr. Sarah Smith</CardTitle>
+              <CardDescription className="text-muted-foreground">Academic Advisor for Alice Johnson</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -58,16 +58,16 @@ export default function ParentCommunicationsPage() {
         <ScrollArea className="flex-1 p-6">
           <div className="space-y-6">
             <div className="text-center">
-              <span className="text-xs text-slate-500 bg-slate-950 px-3 py-1 rounded-full border border-white/5">Today</span>
+              <span className="text-xs text-slate-500 bg-background px-3 py-1 rounded-full border border-white/5">Today</span>
             </div>
             {messages.map(msg => (
               <div key={msg.id} className={`flex gap-4 ${msg.sender === 'parent' ? 'flex-row-reverse' : ''}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.sender === 'parent' ? 'bg-fuchsia-600' : 'bg-slate-700'}`}>
-                  <User className="w-4 h-4 text-white" />
+                  <User className="w-4 h-4 text-foreground" />
                 </div>
                 <div className={`flex flex-col ${msg.sender === 'parent' ? 'items-end' : 'items-start'} max-w-[80%]`}>
-                  <span className="text-xs text-slate-400 mb-1 mx-1">{msg.name} • {msg.time}</span>
-                  <div className={`p-4 rounded-2xl border ${msg.sender === 'parent' ? 'bg-fuchsia-600/20 border-fuchsia-500/30 text-white rounded-tr-sm' : 'bg-slate-800/50 border-white/10 text-slate-200 rounded-tl-sm'}`}>
+                  <span className="text-xs text-muted-foreground mb-1 mx-1">{msg.name} • {msg.time}</span>
+                  <div className={`p-4 rounded-2xl border ${msg.sender === 'parent' ? 'bg-fuchsia-600/20 border-fuchsia-500/30 text-foreground rounded-tr-sm' : 'bg-muted/50 border-border text-card-foreground rounded-tl-sm'}`}>
                     <p>{msg.text}</p>
                   </div>
                 </div>
@@ -76,18 +76,18 @@ export default function ParentCommunicationsPage() {
           </div>
         </ScrollArea>
 
-        <div className="p-4 border-t border-white/10 bg-slate-950/80 shrink-0">
+        <div className="p-4 border-t border-border bg-background/80 shrink-0">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-white/10 shrink-0">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-secondary shrink-0">
               <Paperclip className="w-5 h-5" />
             </Button>
             <Input 
               placeholder="Type your message..." 
-              className="flex-1 bg-slate-900 border-white/10 text-white pl-4 h-12 rounded-xl focus-visible:ring-fuchsia-500" 
+              className="flex-1 bg-card border-border text-foreground pl-4 h-12 rounded-xl focus-visible:ring-fuchsia-500" 
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
             />
-            <Button size="icon" className="h-12 w-12 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-xl transition-transform hover:scale-105 shrink-0">
+            <Button size="icon" className="h-12 w-12 bg-fuchsia-600 hover:bg-fuchsia-700 text-foreground rounded-xl transition-transform hover:scale-105 shrink-0">
               <Send className="w-5 h-5" />
             </Button>
           </div>

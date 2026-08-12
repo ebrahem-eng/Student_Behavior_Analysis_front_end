@@ -35,79 +35,79 @@ export default function TeacherGradesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <BookOpen className="h-8 w-8 text-primary" />
             Data Entry & Grades
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Manage grades, exam results, and assignment submissions for your classes.
           </p>
         </div>
         <div className="flex gap-3">
           <Select defaultValue="math101">
-            <SelectTrigger className="w-[180px] bg-slate-900 border-white/10 text-white">
+            <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
               <SelectValue placeholder="Select Class" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-white/10 text-white">
+            <SelectContent className="bg-muted border-border text-foreground">
               <SelectItem value="math101">Mathematics 101</SelectItem>
               <SelectItem value="phys201">Physics 201</SelectItem>
               <SelectItem value="cs301">Computer Science 301</SelectItem>
             </SelectContent>
           </Select>
-          <Button className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all hover:scale-105">
+          <Button className="bg-primary hover:bg-primary/90 text-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105">
             <Save className="mr-2 h-4 w-4" /> Save All Changes
           </Button>
         </div>
       </div>
 
-      <div className="glass rounded-xl p-4 sm:p-6 border border-white/10">
+      <div className="glass rounded-xl p-4 sm:p-6 border border-border">
         <Tabs defaultValue="assignments" className="w-full">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <TabsList className="bg-slate-900/50 border border-white/5">
-              <TabsTrigger value="assignments" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+            <TabsList className="bg-card/50 border border-white/5">
+              <TabsTrigger value="assignments" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
                 <CheckSquare className="w-4 h-4 mr-2" /> Assignments
               </TabsTrigger>
-              <TabsTrigger value="exams" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <TabsTrigger value="exams" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
                 <FileText className="w-4 h-4 mr-2" /> Exam Results
               </TabsTrigger>
-              <TabsTrigger value="final" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <TabsTrigger value="final" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
                 <BookOpen className="w-4 h-4 mr-2" /> Final Grades
               </TabsTrigger>
             </TabsList>
 
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search students..."
-                className="pl-9 bg-slate-900/50 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-primary/50"
+                className="pl-9 bg-card/50 border-border text-foreground placeholder:text-slate-500 focus-visible:ring-primary/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="rounded-md border border-white/10 overflow-hidden bg-slate-900/30">
+          <div className="rounded-md border border-border overflow-hidden bg-card/30">
             <Table>
-              <TableHeader className="bg-slate-900/50">
-                <TableRow className="border-white/10 hover:bg-transparent">
-                  <TableHead className="text-slate-300 font-semibold">Student Name</TableHead>
-                  <TableHead className="text-slate-300 font-semibold">Assignment Status</TableHead>
-                  <TableHead className="text-slate-300 font-semibold">Exam Score</TableHead>
-                  <TableHead className="text-slate-300 font-semibold">Current Grade</TableHead>
-                  <TableHead className="text-right text-slate-300 font-semibold">Actions</TableHead>
+              <TableHeader className="bg-card/50">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground font-semibold">Student Name</TableHead>
+                  <TableHead className="text-muted-foreground font-semibold">Assignment Status</TableHead>
+                  <TableHead className="text-muted-foreground font-semibold">Exam Score</TableHead>
+                  <TableHead className="text-muted-foreground font-semibold">Current Grade</TableHead>
+                  <TableHead className="text-right text-muted-foreground font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredStudents.length === 0 ? (
-                  <TableRow className="border-white/10">
-                    <TableCell colSpan={5} className="text-center h-24 text-slate-400">
+                  <TableRow className="border-border">
+                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                       No students found.
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredStudents.map((student) => (
-                    <TableRow key={student.id} className="border-white/10 hover:bg-white/5 transition-colors">
-                      <TableCell className="font-medium text-white flex items-center gap-3">
+                    <TableRow key={student.id} className="border-border hover:bg-secondary/50 transition-colors">
+                      <TableCell className="font-medium text-foreground flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
                           {student.name.split(' ').map(n => n[0]).join('')}
                         </div>
@@ -116,10 +116,10 @@ export default function TeacherGradesPage() {
                       <TableCell>
                         {editingId === student.id ? (
                           <Select defaultValue={student.assignmentStatus}>
-                            <SelectTrigger className="w-[130px] h-8 bg-slate-950 border-white/20 text-white">
+                            <SelectTrigger className="w-[130px] h-8 bg-background border-border text-foreground">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-800 border-white/10 text-white">
+                            <SelectContent className="bg-muted border-border text-foreground">
                               <SelectItem value="Submitted">Submitted</SelectItem>
                               <SelectItem value="Late">Late</SelectItem>
                               <SelectItem value="Missing">Missing</SelectItem>
@@ -140,22 +140,22 @@ export default function TeacherGradesPage() {
                       </TableCell>
                       <TableCell>
                         {editingId === student.id ? (
-                          <Input type="number" defaultValue={student.exam} className="w-20 h-8 bg-slate-950 border-white/20 text-white" />
+                          <Input type="number" defaultValue={student.exam} className="w-20 h-8 bg-background border-border text-foreground" />
                         ) : (
-                          <span className="text-slate-300 font-mono">{student.exam}%</span>
+                          <span className="text-muted-foreground font-mono">{student.exam}%</span>
                         )}
                       </TableCell>
                       <TableCell>
                         {editingId === student.id ? (
-                          <Input type="number" defaultValue={student.grade} className="w-20 h-8 bg-slate-950 border-white/20 text-white" />
+                          <Input type="number" defaultValue={student.grade} className="w-20 h-8 bg-background border-border text-foreground" />
                         ) : (
-                          <span className="text-slate-300 font-mono font-bold">{student.grade}%</span>
+                          <span className="text-muted-foreground font-mono font-bold">{student.grade}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
                         {editingId === student.id ? (
                           <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => setEditingId(null)} className="text-slate-400 hover:text-white hover:bg-white/10 h-8 w-8 p-0">
+                            <Button variant="ghost" size="sm" onClick={() => setEditingId(null)} className="text-muted-foreground hover:text-foreground hover:bg-secondary h-8 w-8 p-0">
                               <X className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="sm" onClick={() => setEditingId(null)} className="text-primary hover:text-primary hover:bg-primary/10 h-8 w-8 p-0">
@@ -163,7 +163,7 @@ export default function TeacherGradesPage() {
                             </Button>
                           </div>
                         ) : (
-                          <Button variant="ghost" size="sm" onClick={() => setEditingId(student.id)} className="text-slate-400 hover:text-white hover:bg-white/10 h-8 w-8 p-0">
+                          <Button variant="ghost" size="sm" onClick={() => setEditingId(student.id)} className="text-muted-foreground hover:text-foreground hover:bg-secondary h-8 w-8 p-0">
                             <Edit3 className="h-4 w-4" />
                           </Button>
                         )}

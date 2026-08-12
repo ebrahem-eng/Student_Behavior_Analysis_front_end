@@ -17,11 +17,11 @@ export default function StudentSettingsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Settings className="h-8 w-8 text-slate-400" />
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <Settings className="h-8 w-8 text-muted-foreground" />
             Settings & Well-being
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Manage your privacy preferences and complete your weekly check-in.
           </p>
         </div>
@@ -29,16 +29,16 @@ export default function StudentSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <Card className="bg-slate-900/50 border-white/10 relative overflow-hidden">
+          <Card className="bg-card/50 border-border relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4">
               <HeartPulse className="w-24 h-24 text-rose-500/5 -rotate-12" />
             </div>
             <CardHeader className="relative z-10">
-              <CardTitle className="text-xl text-white flex items-center gap-2">
+              <CardTitle className="text-xl text-foreground flex items-center gap-2">
                 <HeartPulse className="h-5 w-5 text-rose-400" />
                 Weekly Well-being Check-in
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Help us understand how you're feeling so we can better support your academic journey.
               </CardDescription>
             </CardHeader>
@@ -48,24 +48,24 @@ export default function StudentSettingsPage() {
                   <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4">
                     <Check className="w-8 h-8 text-emerald-400" />
                   </div>
-                  <h3 className="text-xl font-medium text-white mb-2">Thank you!</h3>
-                  <p className="text-slate-400 max-w-sm">Your feedback helps us tailor the support you receive. Have a great week!</p>
+                  <h3 className="text-xl font-medium text-foreground mb-2">Thank you!</h3>
+                  <p className="text-muted-foreground max-w-sm">Your feedback helps us tailor the support you receive. Have a great week!</p>
                 </div>
               ) : (
                 <>
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-base text-slate-200 mb-3 block">How would you rate your stress levels this week?</Label>
+                      <Label className="text-base text-card-foreground mb-3 block">How would you rate your stress levels this week?</Label>
                       <RadioGroup defaultValue="moderate" className="flex gap-4">
-                        <div className="flex items-center space-x-2 bg-slate-950 p-3 rounded-lg border border-white/5 flex-1">
+                        <div className="flex items-center space-x-2 bg-background p-3 rounded-lg border border-white/5 flex-1">
                           <RadioGroupItem value="low" id="r1" className="border-emerald-500 text-emerald-500" />
                           <Label htmlFor="r1" className="cursor-pointer">Low</Label>
                         </div>
-                        <div className="flex items-center space-x-2 bg-slate-950 p-3 rounded-lg border border-white/5 flex-1">
+                        <div className="flex items-center space-x-2 bg-background p-3 rounded-lg border border-white/5 flex-1">
                           <RadioGroupItem value="moderate" id="r2" className="border-amber-500 text-amber-500" />
                           <Label htmlFor="r2" className="cursor-pointer">Moderate</Label>
                         </div>
-                        <div className="flex items-center space-x-2 bg-slate-950 p-3 rounded-lg border border-white/5 flex-1">
+                        <div className="flex items-center space-x-2 bg-background p-3 rounded-lg border border-white/5 flex-1">
                           <RadioGroupItem value="high" id="r3" className="border-rose-500 text-rose-500" />
                           <Label htmlFor="r3" className="cursor-pointer">High</Label>
                         </div>
@@ -73,14 +73,14 @@ export default function StudentSettingsPage() {
                     </div>
 
                     <div className="space-y-3">
-                      <Label className="text-base text-slate-200">Are there any personal or academic challenges you'd like to share?</Label>
+                      <Label className="text-base text-card-foreground">Are there any personal or academic challenges you'd like to share?</Label>
                       <Textarea 
                         placeholder="Optional: I've been struggling to balance part-time work with my Physics assignments..." 
-                        className="bg-slate-950 border-white/10 resize-none h-32 focus-visible:ring-rose-500"
+                        className="bg-background border-border resize-none h-32 focus-visible:ring-rose-500"
                       />
                     </div>
                   </div>
-                  <Button onClick={() => setSurveySubmitted(true)} className="w-full bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-900/20">
+                  <Button onClick={() => setSurveySubmitted(true)} className="w-full bg-rose-600 hover:bg-rose-700 text-foreground shadow-lg shadow-rose-900/20">
                     Submit Check-in
                   </Button>
                 </>
@@ -90,13 +90,13 @@ export default function StudentSettingsPage() {
         </div>
 
         <div className="space-y-6">
-          <Card className="bg-slate-900/50 border-white/10">
+          <Card className="bg-card/50 border-border">
             <CardHeader>
-              <CardTitle className="text-xl text-white flex items-center gap-2">
+              <CardTitle className="text-xl text-foreground flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5 text-emerald-400" />
                 Data & Privacy Consent
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Control how your data is used across the learning platform.
               </CardDescription>
             </CardHeader>
@@ -104,8 +104,8 @@ export default function StudentSettingsPage() {
               
               <div className="flex items-center justify-between space-x-4">
                 <div className="flex flex-col space-y-1">
-                  <Label htmlFor="data-consent" className="text-white text-base">Academic Data Processing</Label>
-                  <span className="text-sm text-slate-400">Allow the system to analyze grades and attendance to calculate risk scores. (Required for core functionality)</span>
+                  <Label htmlFor="data-consent" className="text-foreground text-base">Academic Data Processing</Label>
+                  <span className="text-sm text-muted-foreground">Allow the system to analyze grades and attendance to calculate risk scores. (Required for core functionality)</span>
                 </div>
                 <Switch 
                   id="data-consent" 
@@ -117,8 +117,8 @@ export default function StudentSettingsPage() {
 
               <div className="flex items-center justify-between space-x-4">
                 <div className="flex flex-col space-y-1">
-                  <Label htmlFor="ai-consent" className="text-white text-base">AI Predictive Analytics</Label>
-                  <span className="text-sm text-slate-400">Allow AI models to generate future performance projections and personalized study recommendations.</span>
+                  <Label htmlFor="ai-consent" className="text-foreground text-base">AI Predictive Analytics</Label>
+                  <span className="text-sm text-muted-foreground">Allow AI models to generate future performance projections and personalized study recommendations.</span>
                 </div>
                 <Switch 
                   id="ai-consent" 
@@ -130,8 +130,8 @@ export default function StudentSettingsPage() {
 
               <div className="flex items-center justify-between space-x-4">
                 <div className="flex flex-col space-y-1">
-                  <Label htmlFor="parent-consent" className="text-white text-base">Parent/Guardian Visibility</Label>
-                  <span className="text-sm text-slate-400">Allow linked parent accounts to view detailed risk alerts and AI recommendations.</span>
+                  <Label htmlFor="parent-consent" className="text-foreground text-base">Parent/Guardian Visibility</Label>
+                  <span className="text-sm text-muted-foreground">Allow linked parent accounts to view detailed risk alerts and AI recommendations.</span>
                 </div>
                 <Switch 
                   id="parent-consent" 
@@ -152,7 +152,7 @@ export default function StudentSettingsPage() {
 
             </CardContent>
             <CardFooter className="border-t border-white/5 pt-4 bg-white/[0.02]">
-              <Button variant="outline" className="w-full border-white/10 text-slate-300 hover:text-white">
+              <Button variant="outline" className="w-full border-border text-muted-foreground hover:text-foreground">
                 Save Preferences
               </Button>
             </CardFooter>

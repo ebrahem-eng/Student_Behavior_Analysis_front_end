@@ -1,11 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "../components/LoginForm";
-
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LoginPage() {
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-slate-900 to-black p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-slate-50 to-white dark:from-indigo-950 dark:via-background dark:to-black p-4 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
       {/* Decorative background blobs */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-indigo-600/20 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -17,10 +20,10 @@ export default function LoginPage() {
                {/* Placeholder Logo */}
               <div className="w-8 h-8 bg-primary rounded-lg rotate-45" />
             </div>
-            <CardTitle className="text-3xl font-bold tracking-tight text-white">
+            <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
               Welcome Back
             </CardTitle>
-            <CardDescription className="text-gray-300">
+            <CardDescription className="text-muted-foreground">
               Sign in to your portal to continue
             </CardDescription>
           </CardHeader>

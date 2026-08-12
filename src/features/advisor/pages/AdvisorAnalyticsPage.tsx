@@ -24,24 +24,24 @@ export default function AdvisorAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Network className="h-8 w-8 text-fuchsia-400" />
             Predictive Analytics
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Review discovered behavioral patterns and track the AI's predictive accuracy over time.
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-fuchsia-400" />
-              <CardTitle className="text-xl text-white">Discovered Patterns</CardTitle>
+              <CardTitle className="text-xl text-foreground">Discovered Patterns</CardTitle>
             </div>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               Recurring correlations found by the AI engine across all cohorts.
             </CardDescription>
           </CardHeader>
@@ -63,20 +63,20 @@ export default function AdvisorAnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-emerald-400" />
-              <CardTitle className="text-xl text-white">Retrospective Accuracy Dashboard</CardTitle>
+              <CardTitle className="text-xl text-foreground">Retrospective Accuracy Dashboard</CardTitle>
             </div>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               Comparing past AI predictions vs. actual student outcomes.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex justify-between items-center mb-6">
-              <div className="bg-slate-950/50 p-4 rounded-lg border border-white/5 w-full mr-4">
-                <p className="text-sm text-slate-400">Average Model Accuracy</p>
+              <div className="bg-background/50 p-4 rounded-lg border border-white/5 w-full mr-4">
+                <p className="text-sm text-muted-foreground">Average Model Accuracy</p>
                 <div className="flex items-end gap-2 mt-1">
                   <span className="text-3xl font-bold text-emerald-400">90.0%</span>
                   <Badge className="bg-emerald-500/20 text-emerald-400 mb-1">+2% vs last semester</Badge>

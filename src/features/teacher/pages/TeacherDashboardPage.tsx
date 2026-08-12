@@ -48,12 +48,12 @@ const studentDistribution = [
 ];
 
 const StatCard = ({ title, value, change, isPositive, icon: Icon, description }: any) => (
-  <Card className="bg-slate-900/50 border-white/10">
+  <Card className="bg-card/50 border-border">
     <CardContent className="p-6">
       <div className="flex justify-between items-start">
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-400">{title}</p>
-          <p className="text-3xl font-bold text-white">{value}</p>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-3xl font-bold text-foreground">{value}</p>
         </div>
         <div className="p-3 bg-primary/10 rounded-xl">
           <Icon className="w-5 h-5 text-primary" />
@@ -75,20 +75,20 @@ export default function TeacherDashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Classroom Dashboard
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Aggregate class performance and attendance vs. school average.
           </p>
         </div>
         
         <div className="flex flex-wrap gap-3">
           <Select defaultValue="all">
-            <SelectTrigger className="w-[180px] bg-slate-900 border-white/10 text-white">
+            <SelectTrigger className="w-[180px] bg-card border-border text-foreground">
               <SelectValue placeholder="Select Course" />
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-white/10 text-white">
+            <SelectContent className="bg-muted border-border text-foreground">
               <SelectItem value="all">All Courses (Aggregate)</SelectItem>
               <SelectItem value="math101">Mathematics 101</SelectItem>
               <SelectItem value="phys201">Physics 201</SelectItem>
@@ -98,15 +98,15 @@ export default function TeacherDashboardPage() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-foreground shadow-lg shadow-indigo-500/20">
                 <Download className="mr-2 h-4 w-4" /> Export Report
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 bg-slate-900 border-white/10 text-slate-200" align="end">
-              <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
+            <DropdownMenuContent className="w-48 bg-card border-border text-card-foreground" align="end">
+              <DropdownMenuItem className="focus:bg-secondary focus:text-foreground cursor-pointer">
                 <FileText className="mr-2 h-4 w-4 text-rose-400" /> Export as PDF
               </DropdownMenuItem>
-              <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
+              <DropdownMenuItem className="focus:bg-secondary focus:text-foreground cursor-pointer">
                 <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-400" /> Export as Excel
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -150,9 +150,9 @@ export default function TeacherDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
-            <CardTitle className="text-lg text-slate-200">Class Performance Trend</CardTitle>
+            <CardTitle className="text-lg text-card-foreground">Class Performance Trend</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
@@ -173,9 +173,9 @@ export default function TeacherDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
-            <CardTitle className="text-lg text-slate-200">Grade Distribution</CardTitle>
+            <CardTitle className="text-lg text-card-foreground">Grade Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">

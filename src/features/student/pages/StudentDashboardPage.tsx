@@ -27,11 +27,11 @@ export default function StudentDashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <LayoutDashboard className="h-8 w-8 text-cyan-400" />
             My Dashboard
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-muted-foreground mt-1">
             Welcome back! Here is a summary of your academic performance and activity.
           </p>
         </div>
@@ -42,62 +42,62 @@ export default function StudentDashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Current GPA</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Current GPA</CardTitle>
             <GraduationCap className="h-4 w-4 text-cyan-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">2.90</div>
+            <div className="text-3xl font-bold text-foreground">2.90</div>
             <p className="text-xs text-rose-400 flex items-center mt-1">
               <TrendingDown className="w-3 h-3 mr-1" /> -0.2 from last term
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Attendance</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Attendance</CardTitle>
             <Clock className="h-4 w-4 text-emerald-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">82%</div>
-            <Progress value={82} className="h-1.5 mt-2 bg-slate-800" indicatorColor="bg-emerald-500" />
-            <p className="text-xs text-slate-400 mt-2">Target: 90%</p>
+            <div className="text-3xl font-bold text-foreground">82%</div>
+            <Progress value={82} className="h-1.5 mt-2 bg-muted" indicatorColor="bg-emerald-500" />
+            <p className="text-xs text-muted-foreground mt-2">Target: 90%</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Activity Level</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Activity Level</CardTitle>
             <Activity className="h-4 w-4 text-indigo-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">Low</div>
+            <div className="text-3xl font-bold text-foreground">Low</div>
             <p className="text-xs text-rose-400 flex items-center mt-1">
               <TrendingDown className="w-3 h-3 mr-1" /> System logins down 40%
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10 border-l-4 border-l-rose-500">
+        <Card className="bg-card/50 border-border border-l-4 border-l-rose-500">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Weak Subjects</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Weak Subjects</CardTitle>
             <AlertTriangle className="h-4 w-4 text-rose-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-white">Physics I</div>
-            <div className="text-sm text-slate-300 mt-1">Data Structures</div>
+            <div className="text-xl font-bold text-foreground">Physics I</div>
+            <div className="text-sm text-muted-foreground mt-1">Data Structures</div>
             <p className="text-xs text-rose-400 mt-2">Action required</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
-            <CardTitle className="text-xl text-white">GPA Trend</CardTitle>
-            <CardDescription className="text-slate-400">Your historical performance</CardDescription>
+            <CardTitle className="text-xl text-foreground">GPA Trend</CardTitle>
+            <CardDescription className="text-muted-foreground">Your historical performance</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[250px] w-full">
@@ -120,10 +120,10 @@ export default function StudentDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-900/50 border-white/10">
+        <Card className="bg-card/50 border-border">
           <CardHeader>
-            <CardTitle className="text-xl text-white">Recent Engagement</CardTitle>
-            <CardDescription className="text-slate-400">Portal logins vs assignments submitted</CardDescription>
+            <CardTitle className="text-xl text-foreground">Recent Engagement</CardTitle>
+            <CardDescription className="text-muted-foreground">Portal logins vs assignments submitted</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[250px] w-full">
@@ -142,33 +142,33 @@ export default function StudentDashboardPage() {
         </Card>
       </div>
       
-      <Card className="bg-slate-900/50 border-white/10">
+      <Card className="bg-card/50 border-border">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg text-white">Upcoming Tasks & Requirements</CardTitle>
+          <CardTitle className="text-lg text-foreground">Upcoming Tasks & Requirements</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+            <div className="flex items-center justify-between p-3 bg-secondary/50 border border-border rounded-lg hover:bg-secondary transition-colors">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-rose-500" />
                 <div>
-                  <p className="text-sm font-medium text-white">Physics I Midterm</p>
-                  <p className="text-xs text-slate-400">Due in 2 days</p>
+                  <p className="text-sm font-medium text-foreground">Physics I Midterm</p>
+                  <p className="text-xs text-muted-foreground">Due in 2 days</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="h-8 border-white/10 text-slate-300 hover:text-white">
+              <Button variant="outline" size="sm" className="h-8 border-border text-muted-foreground hover:text-foreground">
                 View <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
-            <div className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors">
+            <div className="flex items-center justify-between p-3 bg-secondary/50 border border-border rounded-lg hover:bg-secondary transition-colors">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-amber-500" />
                 <div>
-                  <p className="text-sm font-medium text-white">Advisor Meeting Scheduling</p>
-                  <p className="text-xs text-slate-400">Required before registration</p>
+                  <p className="text-sm font-medium text-foreground">Advisor Meeting Scheduling</p>
+                  <p className="text-xs text-muted-foreground">Required before registration</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="h-8 border-white/10 text-slate-300 hover:text-white">
+              <Button variant="outline" size="sm" className="h-8 border-border text-muted-foreground hover:text-foreground">
                 Schedule <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>

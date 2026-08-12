@@ -28,11 +28,11 @@ export function ExportButton({
           Export
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40 bg-slate-900 border-white/10 text-white">
+      <DropdownMenuContent align="end" className="w-40 bg-card border-border text-foreground">
         <DropdownMenuItem 
           onClick={onExportPdf} 
           disabled={!onExportPdf}
-          className="focus:bg-white/10 cursor-pointer"
+          className="focus:bg-secondary cursor-pointer"
         >
           <FileText className="w-4 h-4 mr-2 text-rose-400" />
           PDF Document
@@ -40,7 +40,7 @@ export function ExportButton({
         <DropdownMenuItem 
           onClick={onExportExcel} 
           disabled={!onExportExcel}
-          className="focus:bg-white/10 cursor-pointer"
+          className="focus:bg-secondary cursor-pointer"
         >
           <FileSpreadsheet className="w-4 h-4 mr-2 text-emerald-400" />
           Excel Spreadsheet
