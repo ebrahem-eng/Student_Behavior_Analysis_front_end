@@ -59,8 +59,8 @@
 - [x] Build Future-performance projection view: projected end-of-term grade.
 - [x] Implement Well-being survey forms: feed sentiment-analysis pipeline.
 - [x] Build Consent management screen: explicit consent before data analysis.
-- [ ] Implement Course registration flow.
-- [ ] Build Graduation progress tracker.
+- [x] Implement Course registration flow.
+- [x] Build Graduation progress tracker.
 - [ ] Ensure multi-device, multi-language access: fully responsive, RTL/LTR, installable PWA.
 
 ## Phase 6 — Parent/Guardian Portal

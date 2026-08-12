@@ -19,6 +19,7 @@ import StudentDashboardPage from "@/features/student/pages/StudentDashboardPage"
 import StudentAlertsPage from "@/features/student/pages/StudentAlertsPage";
 import StudentAcademicsPage from "@/features/student/pages/StudentAcademicsPage";
 import StudentSettingsPage from "@/features/student/pages/StudentSettingsPage";
+import StudentRegistrationPage from "@/features/student/pages/StudentRegistrationPage";
 
 export const router = createBrowserRouter([
   {
@@ -92,6 +93,10 @@ export const router = createBrowserRouter([
           {
             path: "/student/settings",
             element: <StudentSettingsPage />,
+          },
+          {
+            path: "/student/registration",
+            element: <StudentRegistrationPage />,
           },
         ],
       },
