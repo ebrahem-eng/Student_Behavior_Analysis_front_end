@@ -11,6 +11,7 @@ import TeacherAttendancePage from "@/features/teacher/pages/TeacherAttendancePag
 import TeacherDashboardPage from "@/features/teacher/pages/TeacherDashboardPage";
 import TeacherIncidentsPage from "@/features/teacher/pages/TeacherIncidentsPage";
 import AdvisorDashboardPage from "@/features/advisor/pages/AdvisorDashboardPage";
+import AdvisorInboxPage from "@/features/advisor/pages/AdvisorInboxPage";
 
 export const router = createBrowserRouter([
   {
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
           {
             path: "/advisor",
             element: <AdvisorDashboardPage />,
+          },
+          {
+            path: "/advisor/inbox",
+            element: <AdvisorInboxPage />,
           },
         ],
       },

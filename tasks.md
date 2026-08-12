@@ -42,8 +42,8 @@
 
 ## Phase 4 — Academic Advisor / Program Coordinator Portal
 - [x] Build At-risk students list, sortable/filterable by risk score.
-- [ ] Implement Early-alert inbox scoped to the advisor's assigned students.
-- [ ] Create Recommendation review/edit UI: approve, adjust, or reject AI-generated recommendations.
+- [x] Implement Early-alert inbox scoped to the advisor's assigned students.
+- [x] Create Recommendation review/edit UI: approve, adjust, or reject AI-generated recommendations.
 - [ ] Build Parent communication portal: threaded, documented messages.
 - [ ] Integrate Academic chatbot UI: ask analytical questions and display grounded answers.
 - [ ] Create Discovered-patterns view: surface recurring correlations.
