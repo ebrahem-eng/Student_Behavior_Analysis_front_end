@@ -15,6 +15,7 @@ import AdvisorInboxPage from "@/features/advisor/pages/AdvisorInboxPage";
 import AdvisorCommunicationsPage from "@/features/advisor/pages/AdvisorCommunicationsPage";
 import AdvisorAnalyticsPage from "@/features/advisor/pages/AdvisorAnalyticsPage";
 import AdvisorStudentViewPage from "@/features/advisor/pages/AdvisorStudentViewPage";
+import StudentDashboardPage from "@/features/student/pages/StudentDashboardPage";
 
 export const router = createBrowserRouter([
   {
@@ -75,7 +76,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "/student",
-            element: <div className="text-white bg-card p-6 rounded-xl border border-white/10 shadow-lg">Student Portal Dashboard Placeholder</div>,
+            element: <StudentDashboardPage />,
           },
         ],
       },

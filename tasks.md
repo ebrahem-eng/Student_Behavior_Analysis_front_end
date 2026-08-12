@@ -52,7 +52,7 @@
 - [x] Build Retrospective accuracy dashboard: compare past predictions to actual outcomes.
 
 ## Phase 5 — Student Portal
-- [ ] Build Personal dashboard: current GPA, attendance %, activity level, weak subjects.
+- [x] Build Personal dashboard: current GPA, attendance %, activity level, weak subjects.
 - [ ] Implement Early-alert notifications: in-app + push when entering a risk range.
 - [ ] Create Personalized recommendations feed: actionable, specific suggestions.
 - [ ] Integrate Academic chatbot: ask why performance dropped, get immediate explanation.

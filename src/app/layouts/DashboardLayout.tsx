@@ -138,6 +138,16 @@ export function DashboardLayout() {
             </Button>
           </>
         )}
+        {userRole === "student" && (
+          <>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/student' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/student">
+                <LayoutDashboard className="mr-3 h-5 w-5" />
+                My Dashboard
+              </Link>
+            </Button>
+          </>
+        )}
       </nav>
 
       <div className="mt-auto pt-4 border-t border-white/10">
