@@ -158,6 +158,12 @@ export function DashboardLayout() {
                 Academics & AI Guide
               </Link>
             </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/student/settings') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/student/settings">
+                <Settings className="mr-3 h-5 w-5" />
+                Settings & Well-being
+              </Link>
+            </Button>
           </>
         )}
       </nav>
