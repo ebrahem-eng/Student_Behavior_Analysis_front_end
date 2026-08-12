@@ -44,8 +44,8 @@
 - [x] Build At-risk students list, sortable/filterable by risk score.
 - [x] Implement Early-alert inbox scoped to the advisor's assigned students.
 - [x] Create Recommendation review/edit UI: approve, adjust, or reject AI-generated recommendations.
-- [ ] Build Parent communication portal: threaded, documented messages.
-- [ ] Integrate Academic chatbot UI: ask analytical questions and display grounded answers.
+- [x] Build Parent communication portal: threaded, documented messages.
+- [x] Integrate Academic chatbot UI: ask analytical questions and display grounded answers.
 - [ ] Create Discovered-patterns view: surface recurring correlations.
 - [ ] Build Graduation progress tracker for university students.
 - [ ] Implement Registration review screen: view/adjust student course & section registrations.
