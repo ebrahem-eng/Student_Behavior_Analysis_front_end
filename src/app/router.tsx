@@ -8,6 +8,7 @@ import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import SystemSettingsPage from "@/features/admin/pages/SystemSettingsPage";
 import TeacherGradesPage from "@/features/teacher/pages/TeacherGradesPage";
 import TeacherAttendancePage from "@/features/teacher/pages/TeacherAttendancePage";
+import TeacherDashboardPage from "@/features/teacher/pages/TeacherDashboardPage";
 
 export const router = createBrowserRouter([
   {
@@ -47,7 +48,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "/teacher",
-            element: <div className="text-white bg-card p-6 rounded-xl border border-white/10 shadow-lg">Teacher Portal Dashboard Placeholder</div>,
+            element: <TeacherDashboardPage />,
           },
           {
             path: "/teacher/grades",
