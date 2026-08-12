@@ -5,8 +5,19 @@ import {
   TrendingUp,
   TrendingDown,
   BookOpen,
+  Download,
+  FileSpreadsheet,
+  FileText
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   LineChart,
   Line,
@@ -70,6 +81,36 @@ export default function TeacherDashboardPage() {
           <p className="text-slate-400 mt-1">
             Aggregate class performance and attendance vs. school average.
           </p>
+        </div>
+        
+        <div className="flex flex-wrap gap-3">
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px] bg-slate-900 border-white/10 text-white">
+              <SelectValue placeholder="Select Course" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-white/10 text-white">
+              <SelectItem value="all">All Courses (Aggregate)</SelectItem>
+              <SelectItem value="math101">Mathematics 101</SelectItem>
+              <SelectItem value="phys201">Physics 201</SelectItem>
+              <SelectItem value="cs301">Computer Science 301</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20">
+                <Download className="mr-2 h-4 w-4" /> Export Report
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 bg-slate-900 border-white/10 text-slate-200" align="end">
+              <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
+                <FileText className="mr-2 h-4 w-4 text-rose-400" /> Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
+                <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-400" /> Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

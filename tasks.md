@@ -36,9 +36,9 @@
 - [x] Implement Early-alert inbox: real-time (WebSocket) list of students entering risk range.
 - [x] Create Recommendation panel: view AI-suggested interventions and mark them as implemented.
 - [x] Implement Intervention outcome logging: record whether the student improved.
-- [ ] Add Report generation: export class/section/course report as PDF/Excel.
-- [ ] Build Per-course view: switch between courses for university faculty.
-- [ ] Perform usability testing with non-technical users: favor simple, guided forms.
+- [x] Add Report generation: export class/section/course report as PDF/Excel.
+- [x] Build Per-course view: switch between courses for university faculty.
+- [x] Perform usability testing with non-technical users: favor simple, guided forms.
 
 ## Phase 4 — Academic Advisor / Program Coordinator Portal
 - [ ] Build At-risk students list, sortable/filterable by risk score.
