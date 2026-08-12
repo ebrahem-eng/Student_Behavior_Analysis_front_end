@@ -85,11 +85,11 @@
 - [x] Perform full responsive QA pass across major browsers and device sizes.
 
 ## Phase 9 — Performance, Accessibility & Testing
-- [ ] Ensure dashboards/reports render in under 2 seconds (code-split, virtualize, cache).
-- [ ] Conduct accessibility audit (axe, keyboard navigation, screen-reader pass).
-- [ ] Write Unit tests (Vitest + RTL) for shared components and hooks.
-- [ ] Write Playwright E2E flows for each role's critical path.
-- [ ] Perform cross-browser compatibility testing (Chrome, Safari, Firefox, Edge).
+- [x] Ensure dashboards/reports render in under 2 seconds (code-split, virtualize, cache).
+- [x] Conduct accessibility audit (axe, keyboard navigation, screen-reader pass).
+- [x] Write Unit tests (Vitest + RTL) for shared components and hooks.
+- [x] Write Playwright E2E flows for each role's critical path.
+- [x] Perform cross-browser compatibility testing (Chrome, Safari, Firefox, Edge).
 
 ## Phase 10 — Deployment & CI/CD
 - [ ] Set up production build pipeline (Vite build, asset optimization, CDN-ready static output).
