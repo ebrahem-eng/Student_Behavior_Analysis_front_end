@@ -80,9 +80,9 @@
 - [x] Perform centralized RTL/LTR + i18n verification pass across every screen.
 
 ## Phase 8 — PWA & Mobile Experience
-- [ ] Configure installable PWA manifest, service worker, and offline caching for key screens.
-- [ ] Integrate Web push notification (with user opt-in) for parents and students.
-- [ ] Perform full responsive QA pass across major browsers and device sizes.
+- [x] Configure installable PWA manifest, service worker, and offline caching for key screens.
+- [x] Integrate Web push notification (with user opt-in) for parents and students.
+- [x] Perform full responsive QA pass across major browsers and device sizes.
 
 ## Phase 9 — Performance, Accessibility & Testing
 - [ ] Ensure dashboards/reports render in under 2 seconds (code-split, virtualize, cache).
