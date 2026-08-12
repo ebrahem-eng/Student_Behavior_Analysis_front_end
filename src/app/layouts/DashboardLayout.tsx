@@ -213,55 +213,57 @@ export function DashboardLayout() {
 
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
         {/* Header */}
-        <header className="h-16 flex items-center justify-between px-4 sm:px-6 glass z-10 sticky top-0">
-          <div className="flex items-center gap-4">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-slate-300 hover:text-white">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="p-0 bg-[#0B0F19] border-r-white/10 text-white w-64">
-                <SidebarContent />
-              </SheetContent>
-            </Sheet>
-          </div>
+        <div className="p-4 sm:p-6 pb-0 z-10 sticky top-0">
+          <header className="h-16 flex items-center justify-between px-4 sm:px-6 glass rounded-full border border-white/10 shadow-lg bg-slate-900/40 backdrop-blur-md">
+            <div className="flex items-center gap-4">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden text-slate-300 hover:text-white rounded-full">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 bg-[#0B0F19] border-r-white/10 text-white w-64">
+                  <SidebarContent />
+                </SheetContent>
+              </Sheet>
+            </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            <UnifiedNotificationCenter />
-            <Button variant="ghost" size="icon" onClick={toggleLanguage} className="text-slate-300 hover:text-white hover:bg-white/10">
-              <Globe className="h-5 w-5" />
-            </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full bg-primary/20 hover:bg-primary/30">
-                  <User className="h-4 w-4 text-primary" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-slate-900 border-white/10 text-slate-200" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-white">John Doe</p>
-                    <p className="text-xs leading-none text-slate-400">john.doe@example.com</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem className="focus:bg-red-500/20 focus:text-red-400 cursor-pointer text-red-400" onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <UnifiedNotificationCenter />
+              <Button variant="ghost" size="icon" onClick={toggleLanguage} className="text-slate-300 hover:text-white hover:bg-white/10 rounded-full">
+                <Globe className="h-5 w-5" />
+              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full bg-primary/20 hover:bg-primary/30">
+                    <User className="h-4 w-4 text-primary" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-slate-900 border-white/10 text-slate-200 rounded-xl" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none text-white">John Doe</p>
+                      <p className="text-xs leading-none text-slate-400">john.doe@example.com</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer rounded-md">
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer rounded-md">
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/10" />
+                  <DropdownMenuItem className="focus:bg-red-500/20 focus:text-red-400 cursor-pointer text-red-400 rounded-md" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </header>
+        </div>
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8 relative">
