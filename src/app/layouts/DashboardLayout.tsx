@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Bell, Globe, LogOut, Menu, User, Users, Building, LayoutDashboard, Settings, BookOpen, UserCheck, AlertOctagon, Sparkles } from "lucide-react";
+import { Bell, Globe, LogOut, Menu, User, Users, Building, LayoutDashboard, Settings, BookOpen, UserCheck, AlertOctagon, Sparkles, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -99,6 +99,17 @@ export function DashboardLayout() {
               <Link to="/teacher/feedback">
                 <Sparkles className="mr-3 h-5 w-5" />
                 AI Feedback Hub
+              </Link>
+            </Button>
+          </>
+        )}
+
+        {userRole === "advisor" && (
+          <>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/advisor' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/advisor">
+                <ShieldAlert className="mr-3 h-5 w-5" />
+                At-Risk Roster
               </Link>
             </Button>
           </>

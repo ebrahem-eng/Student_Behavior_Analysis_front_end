@@ -10,6 +10,7 @@ import TeacherGradesPage from "@/features/teacher/pages/TeacherGradesPage";
 import TeacherAttendancePage from "@/features/teacher/pages/TeacherAttendancePage";
 import TeacherDashboardPage from "@/features/teacher/pages/TeacherDashboardPage";
 import TeacherIncidentsPage from "@/features/teacher/pages/TeacherIncidentsPage";
+import AdvisorDashboardPage from "@/features/advisor/pages/AdvisorDashboardPage";
 
 export const router = createBrowserRouter([
   {
@@ -79,7 +80,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "/advisor",
-            element: <div className="text-white bg-card p-6 rounded-xl border border-white/10 shadow-lg">Advisor Portal Dashboard Placeholder</div>,
+            element: <AdvisorDashboardPage />,
           },
         ],
       },

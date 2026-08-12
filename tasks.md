@@ -41,7 +41,7 @@
 - [x] Perform usability testing with non-technical users: favor simple, guided forms.
 
 ## Phase 4 — Academic Advisor / Program Coordinator Portal
-- [ ] Build At-risk students list, sortable/filterable by risk score.
+- [x] Build At-risk students list, sortable/filterable by risk score.
 - [ ] Implement Early-alert inbox scoped to the advisor's assigned students.
 - [ ] Create Recommendation review/edit UI: approve, adjust, or reject AI-generated recommendations.
 - [ ] Build Parent communication portal: threaded, documented messages.
