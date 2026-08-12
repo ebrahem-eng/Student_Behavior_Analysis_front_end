@@ -31,7 +31,7 @@
 
 ## Phase 3 — Teacher / Faculty Portal
 - [x] Create Data entry forms: grades, exam results, assignment submission status.
-- [ ] Create Attendance & behavior entry forms: attendance %, lateness, class participation.
+- [x] Create Attendance & behavior entry forms: attendance %, lateness, class participation.
 - [ ] Build Student performance dashboard: per-student GPA, attendance rate, activity level.
 - [ ] Implement Early-alert inbox: real-time (WebSocket) list of students entering risk range.
 - [ ] Create Recommendation panel: view AI-suggested interventions and mark them as implemented.

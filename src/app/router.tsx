@@ -7,6 +7,7 @@ import InstitutionsPage from "@/features/admin/pages/InstitutionsPage";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import SystemSettingsPage from "@/features/admin/pages/SystemSettingsPage";
 import TeacherGradesPage from "@/features/teacher/pages/TeacherGradesPage";
+import TeacherAttendancePage from "@/features/teacher/pages/TeacherAttendancePage";
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
           {
             path: "/teacher/grades",
             element: <TeacherGradesPage />,
+          },
+          {
+            path: "/teacher/attendance",
+            element: <TeacherAttendancePage />,
           },
         ],
       },
