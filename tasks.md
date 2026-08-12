@@ -61,7 +61,7 @@
 - [x] Build Consent management screen: explicit consent before data analysis.
 - [x] Implement Course registration flow.
 - [x] Build Graduation progress tracker.
-- [ ] Ensure multi-device, multi-language access: fully responsive, RTL/LTR, installable PWA.
+- [x] Ensure multi-device, multi-language access: fully responsive, RTL/LTR, installable PWA.
 
 ## Phase 6 — Parent/Guardian Portal
 - [ ] Implement Early-alert notifications for their child.
