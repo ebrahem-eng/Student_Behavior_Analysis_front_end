@@ -55,8 +55,8 @@
 - [x] Build Personal dashboard: current GPA, attendance %, activity level, weak subjects.
 - [x] Implement Early-alert notifications: in-app + push when entering a risk range.
 - [x] Create Personalized recommendations feed: actionable, specific suggestions.
-- [ ] Integrate Academic chatbot: ask why performance dropped, get immediate explanation.
-- [ ] Build Future-performance projection view: projected end-of-term grade.
+- [x] Integrate Academic chatbot: ask why performance dropped, get immediate explanation.
+- [x] Build Future-performance projection view: projected end-of-term grade.
 - [ ] Implement Well-being survey forms: feed sentiment-analysis pipeline.
 - [ ] Build Consent management screen: explicit consent before data analysis.
 - [ ] Implement Course registration flow.
