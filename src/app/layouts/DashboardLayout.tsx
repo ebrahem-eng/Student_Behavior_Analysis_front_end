@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Bell, Globe, LogOut, Menu, User, Users, Building, LayoutDashboard, Settings } from "lucide-react";
+import { Bell, Globe, LogOut, Menu, User, Users, Building, LayoutDashboard, Settings, BookOpen, UserCheck, AlertOctagon, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -64,6 +64,41 @@ export function DashboardLayout() {
               <Link to="/admin/settings">
                 <Settings className="mr-3 h-5 w-5" />
                 System Settings
+              </Link>
+            </Button>
+          </>
+        )}
+
+        {userRole === "teacher" && (
+          <>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname === '/teacher' ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/teacher">
+                <LayoutDashboard className="mr-3 h-5 w-5" />
+                Classroom Dashboard
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/grades') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/teacher/grades">
+                <BookOpen className="mr-3 h-5 w-5" />
+                Data Entry & Grades
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/attendance') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/teacher/attendance">
+                <UserCheck className="mr-3 h-5 w-5" />
+                Attendance Logging
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/incidents') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/teacher/incidents">
+                <AlertOctagon className="mr-3 h-5 w-5" />
+                Incident Reports
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild className={`w-full justify-start ${location.pathname.startsWith('/teacher/feedback') ? 'bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary' : 'text-slate-300 hover:text-white hover:bg-white/10'}`}>
+              <Link to="/teacher/feedback">
+                <Sparkles className="mr-3 h-5 w-5" />
+                AI Feedback Hub
               </Link>
             </Button>
           </>

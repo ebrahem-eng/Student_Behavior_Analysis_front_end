@@ -30,7 +30,7 @@
 - [x] Add Load-test / scalability monitoring view.
 
 ## Phase 3 — Teacher / Faculty Portal
-- [ ] Create Data entry forms: grades, exam results, assignment submission status.
+- [x] Create Data entry forms: grades, exam results, assignment submission status.
 - [ ] Create Attendance & behavior entry forms: attendance %, lateness, class participation.
 - [ ] Build Student performance dashboard: per-student GPA, attendance rate, activity level.
 - [ ] Implement Early-alert inbox: real-time (WebSocket) list of students entering risk range.
