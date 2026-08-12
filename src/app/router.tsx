@@ -20,6 +20,7 @@ import StudentAlertsPage from "@/features/student/pages/StudentAlertsPage";
 import StudentAcademicsPage from "@/features/student/pages/StudentAcademicsPage";
 import StudentSettingsPage from "@/features/student/pages/StudentSettingsPage";
 import StudentRegistrationPage from "@/features/student/pages/StudentRegistrationPage";
+import ParentDashboardPage from "@/features/parent/pages/ParentDashboardPage";
 
 export const router = createBrowserRouter([
   {
@@ -130,7 +131,7 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "/parent",
-            element: <div className="text-white bg-card p-6 rounded-xl border border-white/10 shadow-lg">Parent Portal Dashboard Placeholder</div>,
+            element: <ParentDashboardPage />,
           },
         ],
       },

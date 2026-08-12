@@ -64,8 +64,8 @@
 - [x] Ensure multi-device, multi-language access: fully responsive, RTL/LTR, installable PWA.
 
 ## Phase 6 — Parent/Guardian Portal
-- [ ] Implement Early-alert notifications for their child.
-- [ ] Create Periodic/monthly report viewer.
+- [x] Implement Early-alert notifications for their child.
+- [x] Create Periodic/monthly report viewer.
 - [ ] Build Advisor communication portal (documented messaging tied to the student).
 - [ ] Implement Consent management on behalf of a minor.
 - [ ] Add Notification preferences: channel (email/SMS/app) and frequency.
