@@ -19,31 +19,53 @@ export function HeroSection() {
     <section className="relative pt-12 sm:pt-16 pb-12 px-4 sm:px-6 max-w-[1280px] mx-auto overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10">
         {/* Left Column: Headline & Call To Actions */}
-        <div className="flex flex-col gap-6">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15] tracking-tight">
+        <div className="flex flex-col gap-7">
+          {/* Eyebrow Badge */}
+          <div className="inline-flex self-start items-center gap-2 bg-primary/5 border border-primary/15 rounded-full px-4 py-1.5 animate-fade-in">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+            </span>
+            <span className="text-xs font-semibold text-primary tracking-wide">
+              {isAr ? "منصة إنذار مبكر ذكية" : "AI-Powered Early Warning"}
+            </span>
+          </div>
+
+          {/* Main Headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-foreground leading-[1.1] tracking-tight">
             {isAr ? (
               <>
-                تحويل بيانات الفصول الدراسية إلى{" "}
-                <span className="text-primary">رؤى تنبؤية ذكية.</span>
+                حوّل بيانات الفصول
+                <br />
+                إلى{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  رؤى تنبؤية ذكية.
+                </span>
               </>
             ) : (
               <>
-                Transform Classroom Data into{" "}
-                <span className="text-primary">Predictive Insights.</span>
+                Transform Classroom
+                <br />
+                Data into{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Predictive Insights.
+                </span>
               </>
             )}
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed">
+          {/* Subheading */}
+          <p className="text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed">
             {isAr
-              ? "نضمن عدم تخلف أي طالب عن الركب عبر منصة الإنذار المبكر الذكية من SBA. تعاون مباشر بين المعلمين، المرشدين، والأسرة."
+              ? "نضمن نجاح كل طالب عبر منصة الإنذار المبكر الذكية من SBA — تعاون فوري بين المعلمين، المرشدين، والأسر."
               : "Ensure no student is left behind with SBA's intelligent early-warning platform. Real-time collaboration for educators and families."}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-2">
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3.5 pt-1">
             <Button
               asChild
-              className="bg-primary text-primary-foreground px-8 py-3.5 h-auto text-sm font-semibold hover:opacity-90 transition-all shadow-sm rounded-full active:scale-95"
+              className="bg-primary text-primary-foreground px-8 py-3.5 h-auto text-sm font-semibold hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:shadow-primary/15 rounded-full active:scale-[0.97]"
             >
               <Link to="/login">
                 {isAr ? "طلب عرض تجريبي" : "Request a Demo"}
@@ -53,20 +75,74 @@ export function HeroSection() {
             <Button
               asChild
               variant="outline"
-              className="border-primary text-primary hover:bg-secondary px-8 py-3.5 h-auto text-sm font-semibold transition-colors flex items-center justify-center gap-2 rounded-full"
+              className="border-border hover:border-primary/40 text-foreground hover:text-primary hover:bg-primary/5 px-8 py-3.5 h-auto text-sm font-semibold transition-all flex items-center justify-center gap-2 rounded-full"
             >
               <a href="#features">
-                <Play className="w-4 h-4 fill-current" />
-                <span>{isAr ? "كيف يعمل النظام" : "Watch How It Works"}</span>
+                <Play className="w-4 h-4" />
+                <span>{isAr ? "شاهد كيف يعمل" : "Watch How It Works"}</span>
               </a>
             </Button>
           </div>
 
-          <div className="pt-4 flex items-center gap-2 text-muted-foreground">
-            <CheckCircle className="w-5 h-5 text-primary" />
-            <span className="text-xs sm:text-sm font-medium tracking-wide uppercase">
-              {isAr ? "معتمد وموثوق من المدارس والجامعات" : "Trusted by K-12 Districts nationwide"}
-            </span>
+          {/* Floating Stats Pills */}
+          <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2 shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <div className="text-sm font-bold text-foreground leading-none">89%</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  {isAr ? "معدل النجاح" : "Success Rate"}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2 shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <div className="text-sm font-bold text-foreground leading-none">2.4k+</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  {isAr ? "طالب يُراقب" : "Students Tracked"}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2 shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-destructive" />
+              </div>
+              <div>
+                <div className="text-sm font-bold text-foreground leading-none">-34%</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">
+                  {isAr ? "انخفاض المخاطر" : "Risk Reduction"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Bar */}
+          <div className="flex items-center gap-3 pt-1">
+            {/* Stacked Avatars */}
+            <div className="flex -space-x-2">
+              {["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6"].map((color, i) => (
+                <div
+                  key={i}
+                  className="w-7 h-7 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-white shadow-sm"
+                  style={{ backgroundColor: color }}
+                >
+                  {["SA", "KR", "DJ", "MN"][i]}
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold text-foreground">
+                {isAr ? "موثوق من +50 مؤسسة" : "Trusted by 50+ institutions"}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {isAr ? "مدارس K-12 وجامعات" : "K-12 & Higher-Ed nationwide"}
+              </span>
+            </div>
           </div>
         </div>
 
