@@ -88,42 +88,88 @@ export function HeroSection() {
             {/* Dashboard Inner Canvas */}
             <div className="p-6 flex-grow flex flex-col gap-6 overflow-hidden items-center justify-center bg-background/50">
               {/* Centered Student Progress Chart */}
-              <div className="bg-card border border-border p-5 h-64 w-full max-w-xl flex flex-col rounded-2xl shadow-sm">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="text-base font-semibold text-foreground">
-                    {isAr ? "تقدم واستجابة الطلاب" : "Student Progress"}
+              <div className="bg-card border border-border p-5 h-72 w-full max-w-xl flex flex-col rounded-2xl shadow-sm">
+                {/* Chart Header */}
+                <div className="flex justify-between items-center mb-1">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">
+                      {isAr ? "تقدم واستجابة الطلاب" : "Student Progress"}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      {isAr ? "مقارنة الأداء الفعلي مقابل المستهدف" : "Weekly Active vs Target Performance"}
+                    </div>
                   </div>
                   <div className="flex gap-4">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                      <span className="text-[11px] text-muted-foreground font-medium">
-                        {isAr ? "نشط" : "Active"}
+                      <div className="w-2 h-2 rounded-sm bg-primary" />
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        {isAr ? "الفعلي" : "Active"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary/30" />
-                      <span className="text-[11px] text-muted-foreground font-medium">
+                      <div className="w-2 h-2 rounded-sm bg-primary/25" />
+                      <span className="text-[10px] text-muted-foreground font-medium">
                         {isAr ? "المستهدف" : "Target"}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Bars */}
-                <div className="flex-grow flex items-end gap-4 px-2 pb-1">
-                  {chartData.map((item, idx) => (
-                    <div key={idx} className="flex-grow flex flex-col justify-end gap-2 h-full group cursor-pointer">
-                      <div className="w-full bg-primary/10 rounded-full h-full relative overflow-hidden flex items-end">
-                        <div
-                          className="w-full bg-primary rounded-full transition-all duration-500 group-hover:brightness-110"
-                          style={{ height: item.activeHeight }}
-                        />
+                {/* Chart Area */}
+                <div className="flex-grow relative mt-2">
+                  {/* Horizontal Gridlines */}
+                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-6">
+                    {["100%", "75%", "50%", "25%", ""].map((label, i) => (
+                      <div key={i} className="flex items-center gap-2 w-full">
+                        <span className="text-[8px] text-muted-foreground/50 w-7 text-right shrink-0 tabular-nums">
+                          {label}
+                        </span>
+                        <div className="flex-grow h-px bg-border/60" />
                       </div>
-                      <div className="text-[10px] text-center text-muted-foreground font-medium">
-                        {item.day}
+                    ))}
+                  </div>
+
+                  {/* Grouped Bars */}
+                  <div className="absolute inset-0 pl-9 flex items-end gap-3 pb-6">
+                    {chartData.map((item, idx) => (
+                      <div key={idx} className="flex-grow flex flex-col items-center gap-1.5 h-full group cursor-pointer">
+                        {/* Bar Pair Container */}
+                        <div className="w-full flex-grow flex items-end justify-center gap-1 relative">
+                          {/* Target Bar (Behind) */}
+                          <div className="w-[45%] relative h-full flex items-end">
+                            <div
+                              className="w-full bg-primary/15 rounded-t-lg transition-all duration-700 ease-out relative overflow-hidden"
+                              style={{ height: item.targetHeight }}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent" />
+                            </div>
+                          </div>
+
+                          {/* Active Bar (Front) */}
+                          <div className="w-[45%] relative h-full flex items-end">
+                            <div
+                              className="w-full bg-primary rounded-t-lg transition-all duration-700 ease-out shadow-sm group-hover:shadow-md group-hover:shadow-primary/20 relative overflow-hidden"
+                              style={{ height: item.activeHeight }}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
+                            </div>
+                          </div>
+
+                          {/* Hover Tooltip */}
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                            <div className="bg-foreground text-background text-[9px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+                              {item.activeHeight}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Day Label */}
+                        <div className="text-[10px] text-muted-foreground font-medium group-hover:text-primary transition-colors">
+                          {item.day}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
 
