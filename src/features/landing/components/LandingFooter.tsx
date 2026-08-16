@@ -6,7 +6,18 @@ export function LandingFooter() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
 
-  const footerLinks = {
+  interface FooterLink {
+    label: string;
+    href: string;
+    isRoute?: boolean;
+  }
+
+  interface FooterSection {
+    title: string;
+    links: FooterLink[];
+  }
+
+  const footerLinks: Record<string, FooterSection> = {
     product: {
       title: isAr ? "المنتج" : "Product",
       links: [
