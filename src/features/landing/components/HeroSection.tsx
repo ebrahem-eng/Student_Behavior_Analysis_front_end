@@ -1,169 +1,167 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { 
-  ArrowRight, 
-  Sparkles, 
-  ShieldCheck, 
-  TrendingUp, 
-  AlertTriangle, 
-  CheckCircle2, 
-  BrainCircuit, 
-  Users, 
-  GraduationCap 
-} from "lucide-react";
+import { Play, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 export function HeroSection() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
 
+  const chartData = [
+    { day: isAr ? "الإثنين" : "Mon", activeHeight: "75%", targetHeight: "60%" },
+    { day: isAr ? "الثلاثاء" : "Tue", activeHeight: "45%", targetHeight: "80%" },
+    { day: isAr ? "الأربعاء" : "Wed", activeHeight: "90%", targetHeight: "100%" },
+    { day: isAr ? "الخميس" : "Thu", activeHeight: "65%", targetHeight: "70%" },
+    { day: isAr ? "الجمعة" : "Fri", activeHeight: "80%", targetHeight: "85%" },
+  ];
+
   return (
-    <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-      {/* Background Decorative Ambient Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[500px] bg-gradient-to-tr from-blue-600/15 via-indigo-600/15 to-purple-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute top-1/3 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Centered Hero Content */}
-        <div className="text-center max-w-4xl mx-auto space-y-6">
-          {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs sm:text-sm font-semibold tracking-wide shadow-sm animate-in fade-in duration-700">
-            <Sparkles className="w-4 h-4 text-primary animate-spin-slow" />
-            <span>
-              {isAr
-                ? "الجيل القادم من أنظمة تحليل السلوك والأداء الأكاديمي المدعومة بالذكاء الاصطناعي"
-                : "Next-Gen AI-Powered Student Behavior & Academic Intelligence"}
-            </span>
-          </div>
-
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.15] sm:leading-[1.12]">
+    <section className="relative pt-12 sm:pt-16 pb-12 px-4 sm:px-6 max-w-[1280px] mx-auto overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10">
+        {/* Left Column: Headline & Call To Actions */}
+        <div className="flex flex-col gap-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15] tracking-tight">
             {isAr ? (
               <>
-                تحويل المسارات التعليمية عبر{" "}
-                <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
-                  الذكاء الاصطناعي التنبؤي
-                </span>
+                تحويل بيانات الفصول الدراسية إلى{" "}
+                <span className="text-primary">رؤى تنبؤية ذكية.</span>
               </>
             ) : (
               <>
-                Empowering Student Trajectories with{" "}
-                <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
-                  Predictive Intelligence
-                </span>
+                Transform Classroom Data into{" "}
+                <span className="text-primary">Predictive Insights.</span>
               </>
             )}
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-lg leading-relaxed">
             {isAr
-              ? "منظومة متكاملة تربط بين الإدارة المدرسية، المعلمين، المرشدين الطلابيين، الطلاب وأولياء الأمور لتحديد مخاطر التعثر مبكراً وتقديم التدخلات العلاجية الفعالة في الوقت المناسب."
-              : "A unified analytical ecosystem connecting administrators, faculty, academic advisors, students, and parents. Detect early behavioral anomalies, automate risk alerts, and drive timely academic interventions."}
+              ? "نضمن عدم تخلف أي طالب عن الركب عبر منصة الإنذار المبكر الذكية من SBA. تعاون مباشر بين المعلمين، المرشدين، والأسرة."
+              : "Ensure no student is left behind with SBA's intelligent early-warning platform. Real-time collaboration for educators and families."}
           </p>
 
-          {/* Dual Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
             <Button
               asChild
-              size="lg"
-              className="w-full sm:w-auto h-13 px-8 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white font-semibold text-base shadow-xl shadow-blue-500/25 hover:shadow-indigo-500/35 transition-all group"
+              className="bg-primary text-primary-foreground px-8 py-3.5 h-auto text-sm font-semibold hover:opacity-90 transition-all shadow-sm rounded-full active:scale-95"
             >
               <Link to="/login">
-                <span>{isAr ? "دخول البوابة والمتابعة" : "Launch SBA Portal"}</span>
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                {isAr ? "طلب عرض تجريبي" : "Request a Demo"}
               </Link>
             </Button>
 
             <Button
               asChild
               variant="outline"
-              size="lg"
-              className="w-full sm:w-auto h-13 px-8 rounded-full border-border bg-card/60 backdrop-blur-md hover:bg-secondary text-foreground font-semibold text-base shadow-sm"
+              className="border-primary text-primary hover:bg-secondary px-8 py-3.5 h-auto text-sm font-semibold transition-colors flex items-center justify-center gap-2 rounded-full"
             >
-              <a href="#services">
-                <BrainCircuit className="w-4 h-4 mr-2 text-primary" />
-                <span>{isAr ? "استكشاف إمكانيات المنصة" : "Explore Capabilities"}</span>
+              <a href="#features">
+                <Play className="w-4 h-4 fill-current" />
+                <span>{isAr ? "كيف يعمل النظام" : "Watch How It Works"}</span>
               </a>
             </Button>
           </div>
 
-          {/* Supported Roles Tags */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-muted-foreground font-medium">
-            <span className="opacity-70">{isAr ? "أدوار النظام المترابطة:" : "Unified Ecosystem for:"}</span>
-            <Badge variant="secondary" className="rounded-full px-3 py-1 font-medium bg-secondary/80">
-              <ShieldCheck className="w-3.5 h-3.5 mr-1 text-blue-500" /> Admin
-            </Badge>
-            <Badge variant="secondary" className="rounded-full px-3 py-1 font-medium bg-secondary/80">
-              <GraduationCap className="w-3.5 h-3.5 mr-1 text-emerald-500" /> Teacher
-            </Badge>
-            <Badge variant="secondary" className="rounded-full px-3 py-1 font-medium bg-secondary/80">
-              <TrendingUp className="w-3.5 h-3.5 mr-1 text-purple-500" /> Advisor
-            </Badge>
-            <Badge variant="secondary" className="rounded-full px-3 py-1 font-medium bg-secondary/80">
-              <Users className="w-3.5 h-3.5 mr-1 text-amber-500" /> Student
-            </Badge>
-            <Badge variant="secondary" className="rounded-full px-3 py-1 font-medium bg-secondary/80">
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-rose-500" /> Parent
-            </Badge>
+          <div className="pt-4 flex items-center gap-2 text-muted-foreground">
+            <CheckCircle className="w-5 h-5 text-primary" />
+            <span className="text-xs sm:text-sm font-medium tracking-wide uppercase">
+              {isAr ? "معتمد وموثوق من المدارس والجامعات" : "Trusted by K-12 Districts nationwide"}
+            </span>
           </div>
         </div>
 
-        {/* Hero Visual Mockup Container with Glassmorphism Overlays */}
-        <div className="mt-12 sm:mt-16 relative mx-auto max-w-6xl">
-          <div className="relative rounded-2xl lg:rounded-3xl p-2 sm:p-4 bg-gradient-to-b from-white/15 via-white/5 to-transparent border border-white/20 shadow-2xl backdrop-blur-md overflow-hidden group">
-            {/* Ambient inner rim glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-indigo-500/10 to-transparent pointer-events-none rounded-2xl" />
-
-            {/* Generated Hero Analytics Graphic */}
-            <div className="relative rounded-xl lg:rounded-2xl overflow-hidden aspect-[16/10] sm:aspect-[16/9] bg-slate-950 flex items-center justify-center">
-              <img
-                src="/images/hero-analytics.png"
-                alt="Student Behavior Analysis AI Dashboard"
-                className="w-full h-full object-cover object-center group-hover:scale-[1.01] transition-transform duration-700"
-                loading="eager"
-              />
-
-              {/* Gradient Vignette Overlay for Premium Blend */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent pointer-events-none" />
-            </div>
-
-            {/* Floating Live Metric Card 1 (Top Left) */}
-            <div className="absolute -top-4 left-6 sm:left-10 hidden sm:flex items-center gap-3 p-3.5 rounded-2xl glass bg-card/85 backdrop-blur-xl border border-border shadow-xl animate-bounce-gentle">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5 animate-pulse" />
+        {/* Right Column: Interactive Dashboard Preview Mockup */}
+        <div className="relative w-full h-[500px] overflow-hidden shadow-xl border border-border bg-card rounded-2xl">
+          <div className="absolute inset-0 bg-card flex flex-col">
+            {/* Browser Header Bar */}
+            <div className="h-12 border-b border-border flex items-center px-4 gap-2 bg-secondary/50">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                <div className="w-3 h-3 rounded-full bg-muted-foreground/30" />
+                <div className="w-3 h-3 rounded-full bg-muted-foreground/30" />
               </div>
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {isAr ? "دقة رصد التعثر المبكر" : "Early Risk Detection"}
-                </p>
-                <p className="text-base font-bold text-foreground flex items-center gap-1.5">
-                  <span>98.4%</span>
-                  <span className="text-xs font-normal text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                    +14.2% YoY
-                  </span>
-                </p>
+              <div className="mx-auto bg-card border border-border px-6 py-1 rounded-full text-[11px] text-muted-foreground font-mono">
+                sba-platform.edu/dashboard
               </div>
             </div>
 
-            {/* Floating Live Metric Card 2 (Bottom Right) */}
-            <div className="absolute -bottom-4 right-6 sm:right-10 hidden sm:flex items-center gap-3.5 p-4 rounded-2xl glass bg-card/85 backdrop-blur-xl border border-border shadow-xl">
-              <div className="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center shrink-0">
-                <TrendingUp className="w-6 h-6" />
+            {/* Dashboard Inner Canvas */}
+            <div className="p-6 flex-grow flex flex-col gap-6 overflow-hidden items-center justify-center bg-background/50">
+              {/* Centered Student Progress Chart */}
+              <div className="bg-card border border-border p-5 h-64 w-full max-w-xl flex flex-col rounded-2xl shadow-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="text-base font-semibold text-foreground">
+                    {isAr ? "تقدم واستجابة الطلاب" : "Student Progress"}
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                      <span className="text-[11px] text-muted-foreground font-medium">
+                        {isAr ? "نشط" : "Active"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary/30" />
+                      <span className="text-[11px] text-muted-foreground font-medium">
+                        {isAr ? "المستهدف" : "Target"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bars */}
+                <div className="flex-grow flex items-end gap-4 px-2 pb-1">
+                  {chartData.map((item, idx) => (
+                    <div key={idx} className="flex-grow flex flex-col justify-end gap-2 h-full group cursor-pointer">
+                      <div className="w-full bg-primary/10 rounded-full h-full relative overflow-hidden flex items-end">
+                        <div
+                          className="w-full bg-primary rounded-full transition-all duration-500 group-hover:brightness-110"
+                          style={{ height: item.activeHeight }}
+                        />
+                      </div>
+                      <div className="text-[10px] text-center text-muted-foreground font-medium">
+                        {item.day}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {isAr ? "زمن استجابة التدخل الإرشادي" : "Intervention Speed"}
-                </p>
-                <p className="text-base font-bold text-foreground">
-                  &lt; 24 {isAr ? "ساعة لكل حالة حرجة" : "Hours per Critical Case"}
-                </p>
+
+              {/* High-Impact Metric Cards */}
+              <div className="grid grid-cols-2 gap-4 w-full max-w-xl">
+                <div className="bg-card border border-border p-4 flex items-center gap-3.5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-destructive/10 text-destructive flex items-center justify-center rounded-full shrink-0">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-foreground">03</div>
+                    <div className="text-xs text-muted-foreground font-medium">
+                      {isAr ? "حالات حرجة اليوم" : "At Risk Today"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-card border border-border p-4 flex items-center gap-3.5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-primary/10 text-primary flex items-center justify-center rounded-full shrink-0">
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-foreground">89%</div>
+                    <div className="text-xs text-muted-foreground font-medium">
+                      {isAr ? "نسبة نجاح التدخل" : "Success Rate"}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Abstract Background Blur Orbs */}
+      <div className="absolute top-0 right-0 -z-10 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+        <div className="absolute -top-[20%] -right-[10%] w-[60%] h-[80%] rounded-full bg-primary/15 blur-[100px]" />
+        <div className="absolute bottom-[10%] -left-[10%] w-[40%] h-[60%] rounded-full bg-secondary blur-[80px]" />
       </div>
     </section>
   );

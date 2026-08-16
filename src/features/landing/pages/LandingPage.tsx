@@ -1,29 +1,25 @@
 import { LandingNavbar } from "../components/LandingNavbar";
 import { HeroSection } from "../components/HeroSection";
 import { ServicesSection } from "../components/ServicesSection";
-import { HowItWorksSection } from "../components/HowItWorksSection";
 import { InstitutionsSection } from "../components/InstitutionsSection";
-import { ImpactStatsSection } from "../components/ImpactStatsSection";
-import { ContactSection } from "../components/ContactSection";
+import { CtaBannerSection } from "../components/CtaBannerSection";
 import { LandingFooter } from "../components/LandingFooter";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary transition-colors duration-300 relative overflow-x-hidden">
-      {/* Floating Modern Navbar */}
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20 selection:text-primary transition-colors duration-200">
+      {/* Top Floating Pill Navigation */}
       <LandingNavbar />
 
-      {/* Main Sections Content */}
-      <main>
+      {/* Main Content Sections */}
+      <main className="flex-grow">
         <HeroSection />
         <ServicesSection />
-        <HowItWorksSection />
         <InstitutionsSection />
-        <ImpactStatsSection />
-        <ContactSection />
+        <CtaBannerSection />
       </main>
 
-      {/* Modern Detailed Footer */}
+      {/* Structured Modern Footer */}
       <LandingFooter />
     </div>
   );

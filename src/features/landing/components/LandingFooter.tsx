@@ -1,165 +1,109 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { 
-  Activity, 
-  ShieldCheck, 
-  ArrowUp, 
-  Sparkles
-} from "lucide-react";
 
 export function LandingFooter() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
-    <footer className="bg-card border-t border-border pt-16 pb-12 relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-primary/5 rounded-full blur-[140px] pointer-events-none -z-10" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8 pb-12 border-b border-border">
-          {/* Brand Info & Mission */}
-          <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
-                <Activity className="w-5 h-5" />
-              </div>
-              <span className="font-extrabold text-xl tracking-tight text-foreground">
-                SBA Platform
-              </span>
+    <footer className="bg-secondary/30 border-t border-border w-full py-12 transition-colors duration-200 mt-auto">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6">
+        {/* Top 4-Column Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          {/* Brand & Mission */}
+          <div className="col-span-1 md:col-span-1 space-y-4">
+            <Link to="/" className="text-2xl font-bold text-primary tracking-wider inline-block">
+              SBA
             </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {isAr
-                ? "المنصة الرائدة في التحليل التنبؤي لسلوك وأداء الطلاب، مصممة لربط الحرم المدرسي والجامعي بنظام بيئي ذكي يحقق التميز الأكاديمي والتدخل المبكر."
-                : "The leading AI predictive platform for student behavioral and academic intelligence. Empowering institutions with early intervention pipelines and unified portal synergy."}
+                ? "تمكين المعلمين والمرشدين برؤى تنبؤية لضمان تفوق ونجاح كل طالب."
+                : "Empowering educators with predictive insights to ensure every student succeeds."}
             </p>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground pt-2">
-              <span className="flex items-center gap-1">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" /> FERPA & ISO 27001
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <Sparkles className="w-4 h-4 text-primary" /> AI Powered
-              </span>
+            <div className="flex gap-3 pt-2">
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                aria-label="Twitter / X"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                aria-label="LinkedIn"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
             </div>
           </div>
 
-          {/* Column 1: Five Roles Portals */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-              {isAr ? "بوابات النظام الخمس" : "5 Role Portals"}
+          {/* Product Links */}
+          <div className="flex flex-col gap-3">
+            <h4 className="text-base font-semibold text-foreground">
+              {isAr ? "المنتج" : "Product"}
             </h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link to="/login" className="hover:text-primary transition-colors">
-                  {isAr ? "بوابة الإدارة المدرسية" : "Administrator Portal"}
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="hover:text-primary transition-colors">
-                  {isAr ? "بوابة المعلم والرصد الصفي" : "Teacher Classroom Hub"}
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="hover:text-primary transition-colors">
-                  {isAr ? "بوابة المرشد الأكاديمي" : "Academic Advisor Roster"}
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="hover:text-primary transition-colors">
-                  {isAr ? "بوابة الطالب والتسجيل" : "Student Dashboard"}
-                </Link>
-              </li>
-              <li>
-                <Link to="/login" className="hover:text-primary transition-colors">
-                  {isAr ? "بوابة الأسرة وولي الأمر" : "Family & Parent Portal"}
-                </Link>
-              </li>
-            </ul>
+            <nav className="flex flex-col gap-2">
+              <a href="#features" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "المميزات والأنظمة" : "Features"}
+              </a>
+              <a href="#impact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "تحليل الأثر" : "Impact Analysis"}
+              </a>
+              <a href="#partners" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "المؤسسات الشريكة" : "Case Studies & Partners"}
+              </a>
+            </nav>
           </div>
 
-          {/* Column 2: Platform Capabilities */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-              {isAr ? "قدرات المنصة" : "Capabilities"}
+          {/* Resources Links */}
+          <div className="flex flex-col gap-3">
+            <h4 className="text-base font-semibold text-foreground">
+              {isAr ? "المصادر" : "Resources"}
             </h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#services" className="hover:text-primary transition-colors">
-                  {isAr ? "التنبؤ الذكي بالمخاطر" : "Predictive Risk Engine"}
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-primary transition-colors">
-                  {isAr ? "رصد الحضور والسلوك" : "Attendance & Telemetry"}
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-primary transition-colors">
-                  {isAr ? "المساعد الإرشادي الذكي" : "AI Copilot & Chatbot"}
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-primary transition-colors">
-                  {isAr ? "التقارير التحليلية والتصدير" : "Deep Analytical Exports"}
-                </a>
-              </li>
-              <li>
-                <a href="#how-it-works" className="hover:text-primary transition-colors">
-                  {isAr ? "مسار عمل التدخل" : "Intervention Pipeline"}
-                </a>
-              </li>
-            </ul>
+            <nav className="flex flex-col gap-2">
+              <Link to="/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "دخول البوابة" : "Portal Access"}
+              </Link>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "التوثيق الفني" : "Documentation"}
+              </a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "مركز المساعدة" : "Help Center"}
+              </a>
+            </nav>
           </div>
 
-          {/* Column 3: Institutional & Trust */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-              {isAr ? "المؤسسات والاعتماد" : "Institutional"}
+          {/* Legal Links */}
+          <div className="flex flex-col gap-3">
+            <h4 className="text-base font-semibold text-foreground">
+              {isAr ? "الخصوصية والقانون" : "Legal"}
             </h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#institutions" className="hover:text-primary transition-colors">
-                  {isAr ? "الجامعات والمدارس الشريكة" : "Partner Campuses"}
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="hover:text-primary transition-colors">
-                  {isAr ? "طلب عرض تجريبي" : "Schedule a Live Demo"}
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="hover:text-primary transition-colors">
-                  {isAr ? "دعم الشركاء الفني" : "Enterprise Support"}
-                </a>
-              </li>
-              <li>
-                <Link to="/login" className="hover:text-primary transition-colors">
-                  {isAr ? "توثيق حسابات التجربة" : "Mock Test Accounts"}
-                </Link>
-              </li>
-            </ul>
+            <nav className="flex flex-col gap-2">
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "سياسة الخصوصية" : "Privacy Policy"}
+              </a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "شروط الخدمة" : "Terms of Service"}
+              </a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                {isAr ? "ملفات تعريف الارتباط" : "Cookie Policy"}
+              </a>
+            </nav>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+        <div className="pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
           <div>
-            © {new Date().getFullYear()} Student Behavior Analysis (SBA) Platform. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
+            © {new Date().getFullYear()} SBA Early-Warning Platform. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
           </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={scrollToTop}
-              className="flex items-center gap-1 hover:text-foreground transition-colors"
-            >
-              <span>{isAr ? "العودة للأعلى" : "Back to top"}</span>
-              <ArrowUp className="w-3.5 h-3.5" />
-            </button>
+          <div className="flex gap-4">
+            <span>{isAr ? "مصمم للتميز الأكاديمي والتعليمي" : "Built for K-12 & Higher-Ed Excellence"}</span>
           </div>
         </div>
       </div>
