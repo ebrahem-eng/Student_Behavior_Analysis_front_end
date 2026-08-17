@@ -4,6 +4,7 @@ import { ServicesSection } from "../components/ServicesSection";
 import { InstitutionsSection } from "../components/InstitutionsSection";
 import { CtaBannerSection } from "../components/CtaBannerSection";
 import { LandingFooter } from "../components/LandingFooter";
+import { ScrollReveal } from "../components/ScrollReveal";
 
 export default function LandingPage() {
   return (
@@ -13,14 +14,31 @@ export default function LandingPage() {
 
       {/* Main Content Sections */}
       <main className="flex-grow">
-        <HeroSection />
-        <ServicesSection />
-        <InstitutionsSection />
-        <CtaBannerSection />
+        {/* Hero: fades in from below immediately */}
+        <ScrollReveal direction="up" duration={0.8} distance={50}>
+          <HeroSection />
+        </ScrollReveal>
+
+        {/* Services: slides up on scroll */}
+        <ScrollReveal direction="up" delay={0.1}>
+          <ServicesSection />
+        </ScrollReveal>
+
+        {/* Institutions: slides up on scroll */}
+        <ScrollReveal direction="up" delay={0.1}>
+          <InstitutionsSection />
+        </ScrollReveal>
+
+        {/* CTA Banner: fades in from below */}
+        <ScrollReveal direction="up" delay={0.15} distance={30}>
+          <CtaBannerSection />
+        </ScrollReveal>
       </main>
 
-      {/* Structured Modern Footer */}
-      <LandingFooter />
+      {/* Footer: subtle fade in */}
+      <ScrollReveal direction="none" duration={0.5}>
+        <LandingFooter />
+      </ScrollReveal>
     </div>
   );
 }

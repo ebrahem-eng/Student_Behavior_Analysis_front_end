@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Play, CheckCircle, AlertTriangle, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 export function HeroSection() {
   const { i18n } = useTranslation();
@@ -19,9 +20,20 @@ export function HeroSection() {
     <section className="relative pt-12 sm:pt-16 pb-12 px-4 sm:px-6 max-w-[1280px] mx-auto overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center relative z-10">
         {/* Left Column: Headline & Call To Actions */}
-        <div className="flex flex-col gap-7">
+        <motion.div
+          className="flex flex-col gap-7"
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
+        >
           {/* Eyebrow Badge */}
-          <div className="inline-flex self-start items-center gap-2 bg-primary/5 border border-primary/15 rounded-full px-4 py-1.5 animate-fade-in">
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            className="inline-flex self-start items-center gap-2 bg-primary/5 border border-primary/15 rounded-full px-4 py-1.5">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
@@ -29,10 +41,16 @@ export function HeroSection() {
             <span className="text-xs font-semibold text-primary tracking-wide">
               {isAr ? "منصة إنذار مبكر ذكية" : "AI-Powered Early Warning"}
             </span>
-          </div>
+          </motion.div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-foreground leading-[1.1] tracking-tight">
+          <motion.h1
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+            className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-foreground leading-[1.1] tracking-tight">
             {isAr ? (
               <>
                 حوّل بيانات الفصول
@@ -52,17 +70,29 @@ export function HeroSection() {
                 </span>
               </>
             )}
-          </h1>
+          </motion.h1>
 
           {/* Subheading */}
-          <p className="text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed">
+          <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            className="text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed">
             {isAr
               ? "نضمن نجاح كل طالب عبر منصة الإنذار المبكر الذكية من SBA — تعاون فوري بين المعلمين، المرشدين، والأسر."
               : "Ensure no student is left behind with SBA's intelligent early-warning platform. Real-time collaboration for educators and families."}
-          </p>
+          </motion.p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3.5 pt-1">
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex flex-col sm:flex-row gap-3.5 pt-1">
             <Button
               asChild
               className="bg-primary text-primary-foreground px-8 py-3.5 h-auto text-sm font-semibold hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:shadow-primary/15 rounded-full active:scale-[0.97]"
@@ -82,10 +112,16 @@ export function HeroSection() {
                 <span>{isAr ? "شاهد كيف يعمل" : "Watch How It Works"}</span>
               </a>
             </Button>
-          </div>
+          </motion.div>
 
           {/* Floating Stats Pills */}
-          <div className="flex flex-wrap gap-3 pt-2">
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex flex-wrap gap-3 pt-2">
             <div className="flex items-center gap-2 bg-card border border-border rounded-full px-4 py-2 shadow-sm">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-primary" />
@@ -119,10 +155,16 @@ export function HeroSection() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Trust Bar */}
-          <div className="flex items-center gap-3 pt-1">
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 15 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            className="flex items-center gap-3 pt-1">
             {/* Stacked Avatars */}
             <div className="flex -space-x-2">
               {["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6"].map((color, i) => (
@@ -143,11 +185,15 @@ export function HeroSection() {
                 {isAr ? "مدارس K-12 وجامعات" : "K-12 & Higher-Ed nationwide"}
               </span>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Right Column: Interactive Dashboard Preview Mockup */}
-        <div className="relative w-full h-[500px] overflow-hidden shadow-xl border border-border bg-card rounded-2xl">
+        <motion.div
+          initial={{ opacity: 0, x: 60, filter: "blur(8px)" }}
+          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+          className="relative w-full h-[500px] overflow-hidden shadow-xl border border-border bg-card rounded-2xl">
           <div className="absolute inset-0 bg-card flex flex-col">
             {/* Browser Header Bar */}
             <div className="h-12 border-b border-border flex items-center px-4 gap-2 bg-secondary/50">
@@ -277,7 +323,7 @@ export function HeroSection() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Abstract Background Blur Orbs */}

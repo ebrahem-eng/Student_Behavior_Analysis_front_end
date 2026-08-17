@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Siren, HeartHandshake, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function ServicesSection() {
   const { i18n } = useTranslation();
@@ -92,12 +93,23 @@ export function ServicesSection() {
       </div>
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 gap-5"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
+      >
         {features.map((feature, idx) => {
           const Icon = feature.icon;
           return (
-            <div
+            <motion.div
               key={idx}
+              variants={{
+                hidden: { opacity: 0, y: 30, filter: "blur(4px)" },
+                visible: { opacity: 1, y: 0, filter: "blur(0px)" },
+              }}
+              transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
               className="group relative bg-card border border-border rounded-3xl p-7 sm:p-8 hover:shadow-xl hover:shadow-primary/5 hover:border-primary/20 transition-all duration-500 overflow-hidden"
             >
               {/* Subtle Background Number */}
@@ -140,10 +152,10 @@ export function ServicesSection() {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </section>
   );
 }

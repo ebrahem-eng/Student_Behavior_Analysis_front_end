@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { GraduationCap, Building2, School, Landmark, Quote, Users, TrendingDown, Award } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function InstitutionsSection() {
   const { i18n } = useTranslation();
@@ -73,12 +74,23 @@ export function InstitutionsSection() {
           </div>
 
           {/* Impact Stats Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
+          >
             {stats.map((stat, idx) => {
               const Icon = stat.icon;
               return (
-                <div
+                <motion.div
                   key={idx}
+                  variants={{
+                    hidden: { opacity: 0, y: 25, scale: 0.95 },
+                    visible: { opacity: 1, y: 0, scale: 1 },
+                  }}
+                  transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                   className="group bg-card border border-border rounded-2xl p-6 text-center hover:shadow-lg hover:border-primary/20 transition-all duration-500"
                 >
                   <div className="w-10 h-10 mx-auto mb-3 rounded-xl bg-primary/8 border border-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-transparent transition-all duration-500">
@@ -90,10 +102,10 @@ export function InstitutionsSection() {
                   <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     {stat.label}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Testimonial */}
           <div className="max-w-2xl mx-auto text-center space-y-5">
