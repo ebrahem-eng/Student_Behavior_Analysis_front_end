@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Globe, Menu, ArrowRight, Sparkles, LogIn, Shield, Users } from "lucide-react";
+import { Globe, Menu, ArrowRight, Sparkles, LogIn, Shield, Users, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -21,6 +21,7 @@ export function LandingNavbar() {
     { label: isAr ? "المميزات والأنظمة" : "Features", href: "#features", icon: Sparkles },
     { label: isAr ? "المؤسسات الشريكة" : "Partners", href: "#partners", icon: Shield },
     { label: isAr ? "تحليل الأثر" : "Impact", href: "#impact", icon: Users },
+    { label: isAr ? "تواصل معنا" : "Contact", href: "#contact", icon: Mail },
   ];
 
   return (

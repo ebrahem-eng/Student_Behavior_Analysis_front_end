@@ -3,6 +3,7 @@ import { HeroSection } from "../components/HeroSection";
 import { ServicesSection } from "../components/ServicesSection";
 import { InstitutionsSection } from "../components/InstitutionsSection";
 import { CtaBannerSection } from "../components/CtaBannerSection";
+import { ContactSection } from "../components/ContactSection";
 import { LandingFooter } from "../components/LandingFooter";
 import { ScrollReveal } from "../components/ScrollReveal";
 
@@ -32,6 +33,11 @@ export default function LandingPage() {
         {/* CTA Banner: fades in from below */}
         <ScrollReveal direction="up" delay={0.15} distance={30}>
           <CtaBannerSection />
+        </ScrollReveal>
+
+        {/* Contact Us: slides up on scroll */}
+        <ScrollReveal direction="up" delay={0.1}>
+          <ContactSection />
         </ScrollReveal>
       </main>
 
