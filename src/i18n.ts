@@ -15,15 +15,48 @@ const resources = {
   }
 };
 
+const STORAGE_KEY = 'sba-lang';
+
+// Retrieve stored language or fallback to 'en'
+const getInitialLanguage = (): string => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('i18nextLng');
+    if (saved === 'ar' || saved === 'en') {
+      return saved;
+    }
+  }
+  return 'en';
+};
+
+const initialLang = getInitialLanguage();
+
+// Apply direction & lang attribute immediately
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = initialLang;
+  document.documentElement.dir = initialLang === 'ar' ? 'rtl' : 'ltr';
+}
+
 i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: "en", // default language
-    fallbackLng: "en",
+    lng: initialLang,
+    fallbackLng: 'en',
     interpolation: {
       escapeValue: false 
     }
   });
+
+// Keep localStorage and document attributes in sync whenever language changes
+i18n.on('languageChanged', (lng: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, lng);
+    localStorage.setItem('i18nextLng', lng);
+  }
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lng;
+    document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
+  }
+});
 
 export default i18n;
