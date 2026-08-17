@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "../components/LoginForm";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export default function LoginPage() {
 
@@ -16,9 +17,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-500">
         <Card className="glass border-0">
           <CardHeader className="space-y-3 text-center pb-8">
-            <div className="w-16 h-16 bg-primary/20 rounded-full mx-auto flex items-center justify-center mb-4">
-               {/* Placeholder Logo */}
-              <div className="w-8 h-8 bg-primary rounded-lg rotate-45" />
+            <div className="flex justify-center mb-2">
+              <BrandLogo size="lg" showSubtitle={true} to="/" />
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
               Welcome Back

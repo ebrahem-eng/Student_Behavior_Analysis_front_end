@@ -15,6 +15,7 @@ import { useAppStore } from "@/lib/store";
 import { UnifiedNotificationCenter } from "@/components/shared/UnifiedNotificationCenter";
 import { ChatbotWidget } from "@/components/shared/ChatbotWidget";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export function DashboardLayout() {
   const { i18n } = useTranslation();
@@ -37,9 +38,8 @@ export function DashboardLayout() {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-card/50 backdrop-blur-xl border-r border-border p-4">
-      <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-8 h-8 bg-primary rounded-lg rotate-45 shrink-0" />
-        <span className="font-bold text-lg text-foreground">SBA Platform</span>
+      <div className="mb-6 px-2">
+        <BrandLogo size="md" showSubtitle={true} to={`/${userRole || 'admin'}`} />
       </div>
       
       <nav className="flex-1 space-y-2 mt-4">
@@ -216,7 +216,7 @@ export function DashboardLayout() {
         {/* Header */}
         <div className="p-4 sm:p-6 pb-0 z-10 sticky top-0">
           <header className="h-16 flex items-center justify-between px-4 sm:px-6 glass rounded-full border border-border shadow-lg bg-card/40 backdrop-blur-md">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-foreground rounded-full">
@@ -227,6 +227,10 @@ export function DashboardLayout() {
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
+
+              <div className="md:hidden">
+                <BrandLogo size="sm" showSubtitle={false} to={`/${userRole || 'admin'}`} />
+              </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4">

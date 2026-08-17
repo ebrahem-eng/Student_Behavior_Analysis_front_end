@@ -5,6 +5,7 @@ import { Globe, Menu, ArrowRight, Sparkles, LogIn, Shield, Users, Mail } from "l
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export function LandingNavbar() {
   const { i18n } = useTranslation();
@@ -29,19 +30,7 @@ export function LandingNavbar() {
       <div className="flex justify-between items-center h-16 sm:h-20 px-4 sm:px-7 max-w-[1280px] mx-auto bg-card/85 dark:bg-card/80 backdrop-blur-xl border border-border/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.25)] transition-all duration-300">
         
         {/* Brand Logo & Tag */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary text-primary-foreground rounded-xl flex items-center justify-center font-extrabold text-base tracking-wider shadow-md shadow-primary/20 group-hover:scale-105 transition-transform duration-300">
-            S
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors duration-300">
-              SBA
-            </span>
-            <span className="hidden sm:inline-block text-[9px] font-semibold text-muted-foreground uppercase tracking-widest -mt-1">
-              {isAr ? "نظام الإنذار المبكر" : "Early Warning AI"}
-            </span>
-          </div>
-        </Link>
+        <BrandLogo size="md" showSubtitle={true} to="/" />
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-1.5 bg-secondary/50 border border-border/60 rounded-full p-1.5">
@@ -109,19 +98,11 @@ export function LandingNavbar() {
             <SheetContent side="right" className="bg-card border-border text-foreground flex flex-col justify-between p-6 w-[300px] sm:w-[360px]">
               <div className="space-y-6 mt-4">
                 <SheetHeader className="text-left rtl:text-right">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 bg-primary text-primary-foreground rounded-xl flex items-center justify-center font-bold text-sm shadow-md">
-                      S
-                    </div>
+                  <SheetTitle asChild>
                     <div>
-                      <SheetTitle className="text-xl font-bold text-foreground">
-                        SBA Platform
-                      </SheetTitle>
-                      <p className="text-xs text-muted-foreground">
-                        {isAr ? "المنظومة التعليمية الذكية" : "Smart Behavioral Analytics"}
-                      </p>
+                      <BrandLogo size="md" showSubtitle={true} to="/" />
                     </div>
-                  </div>
+                  </SheetTitle>
                 </SheetHeader>
 
                 {/* Mobile Nav Links */}

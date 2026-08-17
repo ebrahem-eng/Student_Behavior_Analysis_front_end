@@ -72,7 +72,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', 'Cairo', system-ui, -apple-system, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Arabic / RTL specific font configuration */
+  [dir="rtl"],
+  [lang="ar"],
+  :lang(ar) {
+    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+    letter-spacing: normal;
   }
 }
 
@@ -80,3 +89,4 @@
 .glass {
   @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
 }
+

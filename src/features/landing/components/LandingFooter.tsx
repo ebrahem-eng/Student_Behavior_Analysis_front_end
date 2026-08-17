@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Mail, MapPin } from "lucide-react";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export function LandingFooter() {
   const { i18n } = useTranslation();
@@ -62,12 +63,7 @@ export function LandingFooter() {
         <div className="py-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Brand Column - Wider */}
           <div className="lg:col-span-4 space-y-5">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground text-sm font-extrabold tracking-wider">S</span>
-              </div>
-              <span className="text-xl font-extrabold text-foreground tracking-wide">SBA</span>
-            </Link>
+            <BrandLogo size="md" showSubtitle={true} to="/" />
 
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               {isAr

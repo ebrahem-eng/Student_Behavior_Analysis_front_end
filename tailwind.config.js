@@ -17,6 +17,10 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        cairo: ["Cairo", "sans-serif"],
+        sans: ["'Plus Jakarta Sans'", "Cairo", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
