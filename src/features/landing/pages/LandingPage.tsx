@@ -1,15 +1,20 @@
 import { LandingNavbar } from "../components/LandingNavbar";
 import { HeroSection } from "../components/HeroSection";
 import { ServicesSection } from "../components/ServicesSection";
+import { AiSimulatorSection } from "../components/AiSimulatorSection";
 import { InstitutionsSection } from "../components/InstitutionsSection";
 import { CtaBannerSection } from "../components/CtaBannerSection";
 import { ContactSection } from "../components/ContactSection";
 import { LandingFooter } from "../components/LandingFooter";
 import { ScrollReveal } from "../components/ScrollReveal";
+import { ScrollProgressBar } from "../components/ScrollProgressBar";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20 selection:text-primary transition-colors duration-200">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary/20 selection:text-primary transition-colors duration-200 relative">
+      {/* Top Reading Scroll Progress Bar */}
+      <ScrollProgressBar />
+
       {/* Top Floating Pill Navigation */}
       <LandingNavbar />
 
@@ -20,12 +25,17 @@ export default function LandingPage() {
           <HeroSection />
         </ScrollReveal>
 
-        {/* Services: slides up on scroll */}
+        {/* Services / Core Capabilities: slides up on scroll */}
         <ScrollReveal direction="up" delay={0.1}>
           <ServicesSection />
         </ScrollReveal>
 
-        {/* Institutions: slides up on scroll */}
+        {/* Interactive AI Early-Warning Intelligence Simulator */}
+        <ScrollReveal direction="up" delay={0.1}>
+          <AiSimulatorSection />
+        </ScrollReveal>
+
+        {/* Institutions & Partners: slides up on scroll */}
         <ScrollReveal direction="up" delay={0.1}>
           <InstitutionsSection />
         </ScrollReveal>
