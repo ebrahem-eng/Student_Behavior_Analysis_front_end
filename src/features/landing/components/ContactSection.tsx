@@ -249,7 +249,7 @@ export function ContactSection() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 text-white font-semibold py-6 shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+                    className="w-full rounded-full bg-primary text-primary-foreground hover:opacity-90 font-semibold py-6 shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
                   >
                     <span>{isAr ? "إرسال طلب العرض التجريبي" : "Submit Demo Request"}</span>
                     <Send className="w-4 h-4 rtl:-scale-x-100" />
