@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Bell, CheckCircle2, AlertTriangle, Info, X } from "lucide-react";
+import { Bell, CheckCircle2, AlertTriangle, Info, X, Loader2, RefreshCw } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -11,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAppStore } from "@/lib/store";
 import { echo } from "@/lib/echo";
+import { api } from "@/lib/api";
 
-interface NotificationItem {
+export interface NotificationItem {
   id: number | string;
   type: "danger" | "warning" | "info" | "success";
   title: string;
@@ -29,68 +30,85 @@ export function UnifiedNotificationCenter() {
   const user = useAppStore((state) => state.user);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      id: 1,
-      type: "danger",
-      title: "Risk Tier Alert",
-      title_ar: "إنذار دخول مرحلة الخطر",
-      message: "Student Eva Green flagged with critical attendance drop (-35%).",
-      message_ar: "تم رصد انخفاض حاد في حضور الطالبة إيفا جرين (-35%).",
-      time: "5m ago",
-      read: false,
-    },
-    {
-      id: 2,
-      type: "warning",
-      title: "Midterm Grade Dip",
-      title_ar: "انخفاض درجات منتصف الفصل",
-      message: "Calculus II class average is 8% below previous term baseline.",
-      message_ar: "متوسط درجات شعبة التفاضل 2 أقل بـ 8% عن الفصل السابق.",
-      time: "45m ago",
-      read: false,
-    },
-    {
-      id: 3,
-      type: "success",
-      title: "Intervention Completed",
-      title_ar: "اكتمال خطة التدخل",
-      message: "Advisor Marcus scheduled a study support session for David Miller.",
-      message_ar: "تمت جدولة جلسة دعم أكاديمي بنجاح للطالب ديفيد ميلر.",
-      time: "2h ago",
-      read: true,
-    },
-  ]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
-  // Subscribe to real-time Laravel Echo channels
+  // Fetch real notifications and alerts from backend
+  const fetchLiveNotifications = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+
+    try {
+      // 1. Fetch user notifications
+      const notifRes = await api.get('/notifications').catch(() => ({ data: { data: [] } }));
+      const rawNotifs = Array.isArray(notifRes.data) 
+        ? notifRes.data 
+        : (notifRes.data?.data || []);
+
+      // 2. Fetch user alerts
+      const alertRes = await api.get('/alerts').catch(() => ({ data: [] }));
+      const rawAlerts = Array.isArray(alertRes.data)
+        ? alertRes.data
+        : (alertRes.data?.data || []);
+
+      const formattedNotifs: NotificationItem[] = [
+        ...rawNotifs.map((n: any) => ({
+          id: `notif-${n.id}`,
+          type: (n.data?.severity || n.type || "info") as any,
+          title: n.data?.title || n.title || "Notification",
+          message: n.data?.message || n.message || "",
+          time: n.created_at ? formatTimeAgo(n.created_at, isAr) : "Recently",
+          read: Boolean(n.read_at),
+        })),
+        ...rawAlerts.map((a: any) => ({
+          id: `alert-${a.id}`,
+          type: (a.level === "high" || a.level === "critical" || a.severity === "danger" ? "danger" : "warning") as any,
+          title: a.title || "System Alert",
+          message: a.message || a.description || "",
+          time: a.created_at ? formatTimeAgo(a.created_at, isAr) : "Recently",
+          read: Boolean(a.is_read),
+        })),
+      ];
+
+      setNotifications(formattedNotifs);
+    } catch (err) {
+      console.warn("[Notifications] Could not fetch real notifications:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, isAr]);
+
+  useEffect(() => {
+    fetchLiveNotifications();
+  }, [fetchLiveNotifications]);
+
+  // Real-time WebSocket Listeners
   useEffect(() => {
     if (!echo) return;
 
     try {
-      // Public / Broadcast alerts channel
       const alertChannel = echo.channel("alerts");
       alertChannel.listen(".new_alert", (event: any) => {
         const newNotif: NotificationItem = {
-          id: event.id || Date.now(),
+          id: `live-${event.id || Date.now()}`,
           type: event.severity || "warning",
           title: event.title || "New System Alert",
           message: event.message || "An early warning alert was generated.",
-          time: "Just now",
+          time: isAr ? "الآن" : "Just now",
           read: false,
         };
         setNotifications((prev) => [newNotif, ...prev]);
       });
 
-      // Private user channel if user is authenticated
       if (user?.id) {
         const userChannel = echo.private(`user.${user.id}`);
         userChannel.listen(".user_notification", (event: any) => {
           const userNotif: NotificationItem = {
-            id: event.id || Date.now(),
+            id: `live-user-${event.id || Date.now()}`,
             type: event.type || "info",
             title: event.title || "Personal Notification",
             message: event.message,
-            time: "Just now",
+            time: isAr ? "الآن" : "Just now",
             read: false,
           };
           setNotifications((prev) => [userNotif, ...prev]);
@@ -106,12 +124,34 @@ export function UnifiedNotificationCenter() {
         if (user?.id) echo.leaveChannel(`user.${user.id}`);
       } catch (e) {}
     };
-  }, [user?.id]);
+  }, [user?.id, isAr]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markAllRead = () => {
+  const markAllRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    try {
+      await api.post('/notifications/read-all');
+    } catch (e) {
+      console.warn("Error marking all read:", e);
+    }
+  };
+
+  const markSingleAsRead = async (id: number | string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+
+    try {
+      const strId = String(id);
+      if (strId.startsWith('notif-')) {
+        await api.patch(`/notifications/${strId.replace('notif-', '')}/read`);
+      } else if (strId.startsWith('alert-')) {
+        await api.patch(`/alerts/${strId.replace('alert-', '')}/read`);
+      }
+    } catch (e) {
+      // ignore
+    }
   };
 
   const removeNotification = (id: number | string, e: React.MouseEvent) => {
@@ -145,7 +185,7 @@ export function UnifiedNotificationCenter() {
         <div className="flex items-center justify-between p-4 border-b border-border/70 bg-secondary/40">
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-xs text-foreground uppercase tracking-wide">
-              {isAr ? "مركز الإشعارات الحية" : "Live Alert Feed"}
+              {isAr ? "مركز الإشعارات والتنبيهات" : "Live Alert Feed"}
             </h3>
             {unreadCount > 0 ? (
               <Badge variant="secondary" className="bg-rose-500/10 text-rose-500 border-rose-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -158,27 +198,45 @@ export function UnifiedNotificationCenter() {
               </span>
             )}
           </div>
-          {unreadCount > 0 && (
+          <div className="flex items-center gap-1.5">
             <Button
               variant="ghost"
-              size="sm"
-              onClick={markAllRead}
-              className="h-7 px-2.5 text-[11px] font-semibold text-primary hover:text-primary rounded-full hover:bg-primary/10"
+              size="icon"
+              onClick={fetchLiveNotifications}
+              disabled={isLoading}
+              className="h-6 w-6 rounded-full text-muted-foreground hover:text-foreground"
+              title={isAr ? "تحديث الإشعارات" : "Refresh"}
             >
-              {isAr ? "تحديد الكل كمقروء" : "Mark all read"}
+              <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
-          )}
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllRead}
+                className="h-6 px-2 text-[10px] font-semibold text-primary hover:text-primary rounded-full hover:bg-primary/10"
+              >
+                {isAr ? "تحديد الكل كمقروء" : "Mark all read"}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* List */}
         <ScrollArea className="max-h-[340px]">
-          {notifications.length > 0 ? (
+          {isLoading && notifications.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground space-y-2">
+              <Loader2 className="w-5 h-5 animate-spin mx-auto text-primary" />
+              <p className="text-xs">{isAr ? "جارٍ جلب التنبيهات من الخادم..." : "Fetching live alerts..."}</p>
+            </div>
+          ) : notifications.length > 0 ? (
             <div className="divide-y divide-border/60">
               {notifications.map((notif) => (
                 <div
                   key={notif.id}
+                  onClick={() => markSingleAsRead(notif.id)}
                   className={`p-4 hover:bg-secondary/50 transition-colors cursor-pointer group flex items-start gap-3 ${
-                    !notif.read ? "bg-primary/[0.03]" : ""
+                    !notif.read ? "bg-primary/[0.03]" : "opacity-75"
                   }`}
                 >
                   <div className="shrink-0 mt-0.5">
@@ -229,11 +287,30 @@ export function UnifiedNotificationCenter() {
           ) : (
             <div className="p-8 text-center text-muted-foreground space-y-2">
               <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500/40" />
-              <p className="text-xs font-semibold">{isAr ? "لا توجد إشعارات جديدة حالياً." : "No new notifications."}</p>
+              <p className="text-xs font-semibold">{isAr ? "لا توجد إشعارات حالياً في قاعدة البيانات." : "No notifications in database."}</p>
             </div>
           )}
         </ScrollArea>
       </PopoverContent>
     </Popover>
   );
+}
+
+function formatTimeAgo(dateString: string, isAr: boolean): string {
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMinutes < 1) return isAr ? "الآن" : "Just now";
+    if (diffMinutes < 60) return isAr ? `منذ ${diffMinutes} دقيقة` : `${diffMinutes}m ago`;
+    if (diffHours < 24) return isAr ? `منذ ${diffHours} ساعة` : `${diffHours}h ago`;
+    if (diffDays === 1) return isAr ? "أمس" : "Yesterday";
+    return isAr ? `منذ ${diffDays} يوم` : `${diffDays}d ago`;
+  } catch (e) {
+    return dateString;
+  }
 }
