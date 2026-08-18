@@ -75,6 +75,10 @@ export const router = createBrowserRouter([
             element: <TeacherDashboardPage />,
           },
           {
+            path: "/teacher/profile",
+            element: <AccountSettingsPage />,
+          },
+          {
             path: "/teacher/grades",
             element: <TeacherGradesPage />,
           },
@@ -94,6 +98,10 @@ export const router = createBrowserRouter([
           {
             path: "/student",
             element: <StudentDashboardPage />,
+          },
+          {
+            path: "/student/profile",
+            element: <AccountSettingsPage />,
           },
           {
             path: "/student/alerts",
@@ -121,6 +129,10 @@ export const router = createBrowserRouter([
             element: <AdvisorDashboardPage />,
           },
           {
+            path: "/advisor/profile",
+            element: <AccountSettingsPage />,
+          },
+          {
             path: "/advisor/inbox",
             element: <AdvisorInboxPage />,
           },
@@ -144,6 +156,10 @@ export const router = createBrowserRouter([
           {
             path: "/parent",
             element: <ParentDashboardPage />,
+          },
+          {
+            path: "/parent/profile",
+            element: <AccountSettingsPage />,
           },
           {
             path: "/parent/communications",
