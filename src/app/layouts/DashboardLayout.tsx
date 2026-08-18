@@ -255,14 +255,7 @@ export function DashboardLayout() {
                     onClick={() => navigate(`/${userRole || 'admin'}/profile`)}
                   >
                     <User className="w-3.5 h-3.5 text-primary" />
-                    <span>{isAr ? "الملف الشخصي" : "My Profile"}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="focus:bg-secondary focus:text-foreground cursor-pointer rounded-xl px-3 py-2 text-xs font-semibold flex items-center gap-2"
-                    onClick={() => navigate(`/${userRole || 'admin'}/profile`)}
-                  >
-                    <Settings className="w-3.5 h-3.5 text-primary" />
-                    <span>{isAr ? "إعدادات الحساب" : "Account Settings"}</span>
+                    <span>{isAr ? "الملف الشخصي والإعدادات" : "My Profile & Settings"}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border" />
                   <DropdownMenuItem
