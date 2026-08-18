@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { AlertOctagon, BellRing, Sparkles, CheckCircle2, Search, MessageSquarePlus, Clock, TrendingUp, TrendingDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { AlertOctagon, MessageSquarePlus, Trash2, Search, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -15,21 +15,102 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-
-// Mock Data
-const MOCK_ALERTS = [
-  { id: 1, student: "Eva Green", risk: "High", reason: "Missed 3 consecutive classes", time: "10 mins ago", status: "Unread" },
-  { id: 2, student: "David Miller", risk: "Medium", reason: "Grade dropped below 60%", time: "2 hours ago", status: "Read" },
-];
-
-const MOCK_INTERVENTIONS = [
-  { id: 1, student: "Eva Green", suggestion: "Schedule a 1-on-1 meeting to discuss attendance.", aiConfidence: 92, implemented: false },
-  { id: 2, student: "David Miller", suggestion: "Assign peer tutor for upcoming physics exam.", aiConfidence: 85, implemented: true, outcome: "Improved" },
-];
+import { api, getApiErrorMessage } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 
 export default function TeacherIncidentsPage() {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
+  const currentUser = useAppStore((state) => state.user);
+
+  const [behaviorLogs, setBehaviorLogs] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Dialog Form State
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const [studentId, setStudentId] = useState("");
+  const [logType, setLogType] = useState<"positive" | "negative" | "warning">("negative");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [logsRes, usersRes] = await Promise.allSettled([
+        api.get('/academic/behavior-logs'),
+        api.get('/admin/users'),
+      ]);
+
+      if (logsRes.status === 'fulfilled') {
+        const data = Array.isArray(logsRes.value.data) ? logsRes.value.data : (logsRes.value.data?.data || []);
+        setBehaviorLogs(data);
+      }
+
+      if (usersRes.status === 'fulfilled') {
+        const data = Array.isArray(usersRes.value.data) ? usersRes.value.data : (usersRes.value.data?.data || []);
+        setUsers(data);
+        if (data.length > 0 && !studentId) {
+          setStudentId(String(data[0].id));
+        }
+      }
+    } catch (e) {
+      console.warn("Behavior logs error:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleCreateIncident = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      await api.post('/academic/behavior-logs', {
+        user_id: studentId || 1,
+        reporter_id: currentUser?.id || 1,
+        type: logType,
+        description: description,
+        date: date,
+      });
+
+      setIsDialogOpen(false);
+      setDescription("");
+      loadData();
+    } catch (err: any) {
+      setFormError(getApiErrorMessage(err, isAr));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: number | string) => {
+    if (!confirm(isAr ? "هل أنت متأكد من حذف هذا السجل؟" : "Are you sure you want to delete this incident log?")) return;
+    try {
+      await api.delete(`/academic/behavior-logs/${id}`);
+      loadData();
+    } catch (e) {
+      alert(getApiErrorMessage(e, isAr));
+    }
+  };
+
+  const filteredLogs = behaviorLogs.filter((log) => {
+    const studentName = log.user?.name || log.student_name || `Student #${log.user_id || log.id}`;
+    const desc = log.description || "";
+    return (
+      studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      desc.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -37,181 +118,194 @@ export default function TeacherIncidentsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <AlertOctagon className="h-8 w-8 text-rose-500" />
-            Early Alerts & Interventions
+            {isAr ? "رصد السلوك والملاحظات الأكاديمية" : "Behavioral Incidents & Early Alerts"}
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Real-time risk inbox and AI-driven intervention recommendations.
+          <p className="text-muted-foreground mt-1 text-sm">
+            {isAr
+              ? "تسجيل ومتابعة الملاحظات السلوكية والتنبيهات المباشرة في قاعدة بيانات MySQL."
+              : "Log behavioral incidents and positive milestones live to your MySQL database."}
           </p>
         </div>
-        
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-rose-600 hover:bg-rose-700 text-foreground shadow-lg shadow-rose-500/20 transition-all hover:scale-105">
-              <MessageSquarePlus className="mr-2 h-4 w-4" /> Report Incident
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px] bg-card border-border text-foreground">
-            <DialogHeader>
-              <DialogTitle>Report Behavioral Incident</DialogTitle>
-              <DialogDescription className="text-muted-foreground">
-                Log a new behavioral issue. This will affect the student's risk score.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="student" className="text-right">Student</Label>
-                <Select>
-                  <SelectTrigger className="col-span-3 bg-secondary/50 border-border text-foreground">
-                    <SelectValue placeholder="Select student" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-muted border-border text-foreground">
-                    <SelectItem value="eva">Eva Green</SelectItem>
-                    <SelectItem value="david">David Miller</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="severity" className="text-right">Severity</Label>
-                <Select>
-                  <SelectTrigger className="col-span-3 bg-secondary/50 border-border text-foreground">
-                    <SelectValue placeholder="Select severity" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-muted border-border text-foreground">
-                    <SelectItem value="low">Low - Warning</SelectItem>
-                    <SelectItem value="medium">Medium - Detention</SelectItem>
-                    <SelectItem value="high">High - Parent Contact</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label htmlFor="notes" className="text-right mt-2">Notes</Label>
-                <textarea 
-                  id="notes" 
-                  className="col-span-3 h-24 rounded-md bg-secondary/50 border border-border text-foreground p-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                  placeholder="Describe the incident..."
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-4">
-              <Button variant="outline" className="border-border text-muted-foreground hover:bg-secondary hover:text-foreground">Cancel</Button>
-              <Button className="bg-rose-600 text-foreground hover:bg-rose-700">Submit Report</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadData}
+            disabled={isLoading}
+            className="rounded-full text-xs font-semibold px-4 h-9 border-border bg-secondary/60 hover:bg-secondary flex items-center gap-2"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>{isAr ? "تحديث" : "Refresh"}</span>
+          </Button>
+
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-full bg-rose-600 hover:bg-rose-700 text-foreground text-xs font-bold px-4 h-9 shadow-lg shadow-rose-500/20 transition-all hover:scale-105">
+                <MessageSquarePlus className="mr-2 h-4 w-4" /> {isAr ? "تسجيل ملاحظة / حادثة" : "Report Incident"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px] bg-card border-border text-foreground rounded-3xl">
+              <DialogHeader>
+                <DialogTitle>{isAr ? "تسجيل ملاحظة سلوكية" : "Report Behavioral Incident"}</DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  {isAr ? "سيتم إدخال السجل في جدول behavior_logs في MySQL لتحديث مؤشرات الذكاء الاصطناعي." : "Logs incident directly to MySQL behavior_logs table."}
+                </DialogDescription>
+              </DialogHeader>
+
+              {formError && (
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs">
+                  {formError}
+                </div>
+              )}
+
+              <form onSubmit={handleCreateIncident} className="space-y-4 py-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{isAr ? "اختيار الطالب" : "Student"}</Label>
+                  <Select value={studentId} onValueChange={setStudentId}>
+                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
+                      <SelectValue placeholder="Select student" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {users.map((u) => (
+                        <SelectItem key={u.id} value={String(u.id)}>
+                          {u.name} ({u.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">{isAr ? "نوع السلوك" : "Incident Type"}</Label>
+                    <Select value={logType} onValueChange={(val: any) => setLogType(val)}>
+                      <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border">
+                        <SelectItem value="negative">{isAr ? "سلبي / مخالفة" : "Negative / Disruption"}</SelectItem>
+                        <SelectItem value="warning">{isAr ? "إنذار / تراجع" : "Warning / Grade Drop"}</SelectItem>
+                        <SelectItem value="positive">{isAr ? "إيجابي / تميز" : "Positive / Milestone"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">{isAr ? "التاريخ" : "Date"}</Label>
+                    <Input
+                      type="date"
+                      required
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{isAr ? "وصف الواقعة أو الملاحظة" : "Description"}</Label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder={isAr ? "تفاصيل الملاحظة الأكاديمية أو السلوكية..." : "Describe the incident or behavior..."}
+                    className="w-full rounded-xl bg-secondary/60 border border-border text-foreground p-3 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="rounded-full text-xs"
+                  >
+                    {isAr ? "إلغاء" : "Cancel"}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="rounded-full bg-rose-600 hover:bg-rose-700 text-foreground text-xs font-bold"
+                  >
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAr ? "حفظ الملاحظة" : "Submit Report")}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      <Tabs defaultValue="inbox" className="w-full">
-        <TabsList className="bg-card/50 border border-white/5 mb-6">
-          <TabsTrigger value="inbox" className="data-[state=active]:bg-primary data-[state=active]:text-foreground relative">
-            <BellRing className="w-4 h-4 mr-2" /> 
-            Early-Alert Inbox
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse" />
-          </TabsTrigger>
-          <TabsTrigger value="interventions" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
-            <Sparkles className="w-4 h-4 mr-2 text-indigo-400" /> AI Recommendations
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="inbox" className="space-y-4">
-          <div className="relative w-full sm:w-96 mb-6">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="bg-card/85 backdrop-blur-xl rounded-3xl p-4 sm:p-6 border border-border space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search alerts..."
-              className="pl-9 bg-card/50 border-border text-foreground placeholder:text-slate-500 focus-visible:ring-primary/50"
+              placeholder={isAr ? "بحث بالاسم أو التفاصيل..." : "Search behavior logs..."}
+              className="pl-9 h-9 rounded-full bg-secondary/60 border-border text-xs"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            {MOCK_ALERTS.map(alert => (
-              <Card key={alert.id} className={`bg-card/50 border-l-4 transition-all hover:bg-card/80 ${alert.risk === 'High' ? 'border-l-rose-500 border-border' : 'border-l-amber-500 border-border'}`}>
-                <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-foreground text-lg">{alert.student}</h3>
-                      {alert.status === "Unread" && <Badge className="bg-primary/20 text-primary border-primary/20">New</Badge>}
-                    </div>
-                    <p className="text-muted-foreground">{alert.reason}</p>
-                    <p className="text-sm text-slate-500 flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {alert.time}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    <Button variant="outline" className="w-full sm:w-auto border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50">
-                      Dismiss
-                    </Button>
-                    <Button className="w-full sm:w-auto bg-primary text-foreground hover:bg-primary/90">
-                      Take Action
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {isAr ? `إجمالي السجلات: ${behaviorLogs.length}` : `Total Logged: ${behaviorLogs.length}`}
+          </span>
+        </div>
 
-        <TabsContent value="interventions" className="space-y-4">
-          <div className="grid grid-cols-1 gap-6">
-            {MOCK_INTERVENTIONS.map(intervention => (
-              <Card key={intervention.id} className="bg-card/50 border-border overflow-hidden">
-                <div className="bg-indigo-500/10 p-4 border-b border-border flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-indigo-400" />
-                    <span className="font-semibold text-indigo-400">AI Suggestion for {intervention.student}</span>
-                  </div>
-                  <Badge variant="outline" className="border-indigo-500/30 text-indigo-300">
-                    {intervention.aiConfidence}% Confidence
-                  </Badge>
-                </div>
-                <CardContent className="p-6">
-                  <p className="text-foreground text-lg mb-6">{intervention.suggestion}</p>
-                  
-                  <Separator className="bg-secondary mb-6" />
-                  
-                  {!intervention.implemented ? (
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <span className="text-amber-400 text-sm font-medium flex items-center gap-2">
-                        <AlertOctagon className="w-4 h-4" /> Action Pending
-                      </span>
-                      <Button className="bg-emerald-600 hover:bg-emerald-700 text-foreground shadow-lg shadow-emerald-500/20">
-                        <CheckCircle2 className="w-4 h-4 mr-2" /> Mark as Implemented
+        {isLoading ? (
+          <div className="py-16 text-center text-muted-foreground text-xs">
+            <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
+            {isAr ? "جارٍ جلب السجلات من MySQL..." : "Loading behavior logs from MySQL..."}
+          </div>
+        ) : filteredLogs.length === 0 ? (
+          <div className="py-16 text-center text-muted-foreground text-xs">
+            {isAr ? "لا توجد سجلات سلوكية مسجلة حالياً في قاعدة البيانات." : "No behavior logs found in database."}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            {filteredLogs.map((log) => {
+              const studentName = log.user?.name || `Student #${log.user_id || log.id}`;
+              const typeColor = log.type === 'positive'
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : log.type === 'warning'
+                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                : 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+
+              return (
+                <Card key={log.id} className="bg-card/40 border-border hover:border-primary/30 transition-all rounded-2xl overflow-hidden p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-foreground">{studentName}</h4>
+                      <p className="text-[11px] text-muted-foreground font-mono">{log.date}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={`rounded-full capitalize text-[10px] font-bold ${typeColor}`}>
+                        {log.type}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(log.id)}
+                        className="w-7 h-7 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-full"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium">
-                        <CheckCircle2 className="w-4 h-4" /> Implemented
-                      </div>
-                      
-                      {!intervention.outcome ? (
-                        <div className="bg-secondary/50 p-4 rounded-lg border border-border space-y-4">
-                          <Label className="text-card-foreground">Log Outcome</Label>
-                          <div className="flex gap-3">
-                            <Button variant="outline" className="flex-1 bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-300">
-                              <TrendingUp className="w-4 h-4 mr-2" /> Improved
-                            </Button>
-                            <Button variant="outline" className="flex-1 bg-muted border-border text-muted-foreground hover:bg-secondary hover:text-foreground">
-                              No Change
-                            </Button>
-                            <Button variant="outline" className="flex-1 bg-rose-500/10 border-rose-500/20 text-rose-400 hover:bg-rose-500/20 hover:text-rose-300">
-                              <TrendingDown className="w-4 h-4 mr-2" /> Declined
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20 w-fit">
-                          <TrendingUp className="w-4 h-4" /> Outcome Logged: {intervention.outcome}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                  </div>
+                  <CardContent className="p-0">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {log.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   );
 }

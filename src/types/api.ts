@@ -56,10 +56,12 @@ export interface Student {
 
 export interface Course {
   id: number | string;
-  code: string;
-  title: string;
-  credits: number;
-  term: string;
+  code?: string;
+  name?: string;
+  title?: string;
+  credits?: number;
+  term?: string;
+  institution_id?: number | string;
   instructor_id?: number | string;
   instructor_name?: string;
   enrolled_count?: number;
