@@ -6,7 +6,8 @@ export interface User {
   id: number | string;
   name: string;
   email: string;
-  role: UserRole;
+  role?: UserRole;
+  roles?: string[];
   institution_id?: number | string;
   institution_name?: string;
   avatar_url?: string;
@@ -15,8 +16,10 @@ export interface User {
 }
 
 export interface AuthResponse {
-  token: string;
-  token_type: string;
+  message?: string;
+  access_token?: string;
+  token?: string;
+  token_type?: string;
   user: User;
   expires_in?: number;
 }

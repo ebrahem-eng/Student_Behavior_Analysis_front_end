@@ -1,4 +1,4 @@
-import { api, fetchWithFallback } from '@/lib/api';
+import { api } from '@/lib/api';
 import type { AcademicReport, SystemAlert } from '@/types/api';
 
 export interface ChildSummary {
@@ -12,50 +12,36 @@ export interface ChildSummary {
 
 export const parentService = {
   /**
-   * Fetch linked children profiles
+   * Fetch linked children profiles from Laravel API
    */
   async getChildren(): Promise<ChildSummary[]> {
-    const mockChildren: ChildSummary[] = [
-      { id: "STU-001", name: "Alice Johnson", grade: "10th Grade", gpa: 3.40, attendance: 92, status: "Good Standing" },
-      { id: "STU-002", name: "Bob Johnson", grade: "8th Grade", gpa: 3.65, attendance: 96, status: "Honor Roll" },
-    ];
-
-    return fetchWithFallback(
-      () => api.get<ChildSummary[]>('/parent/children'),
-      mockChildren,
-      'Parent Children'
-    );
+    const res = await api.get<ChildSummary[]>('/academic/students');
+    return res.data;
   },
 
   /**
-   * Fetch alert feed for a specific dependent
+   * Fetch live alert feed from /alerts
    */
   async getAlerts(childId: string): Promise<SystemAlert[]> {
-    return fetchWithFallback(
-      () => api.get<SystemAlert[]>(`/parent/children/${childId}/alerts`),
-      [],
-      `Parent Child Alerts (${childId})`
-    );
+    const res = await api.get<SystemAlert[]>(`/alerts`, { params: { student_id: childId } });
+    return res.data;
   },
 
   /**
    * Fetch official periodic reports
    */
   async getReports(childId: string): Promise<AcademicReport[]> {
-    return fetchWithFallback(
-      () => api.get<AcademicReport[]>(`/parent/children/${childId}/reports`),
-      [],
-      `Parent Child Reports (${childId})`
-    );
+    const res = await api.get<AcademicReport[]>(`/reports/students/${childId}/risk-profile`);
+    return res.data;
   },
 
   /**
-   * Send a direct message to the assigned academic advisor
+   * Send a direct message / note to the assigned academic advisor
    */
   async sendMessage(childId: string, message: string) {
-    const res = await api.post('/parent/communications/messages', {
+    const res = await api.post('/academic/recommendations', {
       student_id: childId,
-      message,
+      notes: message,
     });
     return res.data;
   },

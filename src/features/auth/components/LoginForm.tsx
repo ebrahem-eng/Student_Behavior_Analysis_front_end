@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Loader2, ArrowRight, Sparkles } from "lucide-react";
+import { Loader2, ArrowRight, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,10 +17,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/lib/store";
 import { authService } from "@/services/auth.service";
+import { getApiErrorMessage } from "@/lib/api";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(4, "Password must be at least 4 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -37,8 +38,8 @@ export function LoginForm() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@sba-platform.edu",
-      password: "password123",
+      email: "",
+      password: "",
     },
   });
 
@@ -48,30 +49,27 @@ export function LoginForm() {
 
     try {
       const response = await authService.login(data.email, data.password);
-      setAuth(response.user, response.token);
+      setAuth(response.user, response.token || response.access_token || '');
       navigate(`/${response.user.role || 'admin'}`);
     } catch (error: any) {
-      console.error("Login error:", error);
-      setErrorMessage(
-        error.response?.data?.message ||
-        (isAr ? "فشل تسجيل الدخول. يرجى التحقق من البريد وكلمة المرور." : "Login failed. Please verify your credentials.")
-      );
+      console.error("[Login API Error]", error);
+      const friendlyMessage = getApiErrorMessage(error, isAr);
+      setErrorMessage(friendlyMessage);
     } finally {
       setIsLoading(false);
     }
   }
 
-  // Quick switch role buttons for instant testing
-  const setDemoRole = (role: string) => {
-    form.setValue("email", `${role}@sba-platform.edu`);
-    form.setValue("password", "password123");
-  };
-
   return (
     <div className="space-y-6">
+      {/* Real API Error Callout Banner */}
       {errorMessage && (
-        <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-semibold">
-          {errorMessage}
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold">{isAr ? "فشل تسجيل الدخول" : "Authentication Failed"}</p>
+            <p className="text-[11px] leading-relaxed text-rose-500/90">{errorMessage}</p>
+          </div>
         </div>
       )}
 
@@ -83,13 +81,14 @@ export function LoginForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-xs font-bold text-foreground">
-                  {isAr ? "البريد الإلكتروني المؤسسي" : "Institutional Email"}
+                  {isAr ? "البريد الإلكتروني" : "Email Address"}
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="user@sba-platform.edu"
                     {...field}
                     className="h-11 rounded-2xl bg-secondary/60 border-border text-xs focus-visible:ring-primary/30"
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage className="text-xs text-rose-500" />
@@ -116,6 +115,7 @@ export function LoginForm() {
                     placeholder="••••••••"
                     {...field}
                     className="h-11 rounded-2xl bg-secondary/60 border-border text-xs focus-visible:ring-primary/30"
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage className="text-xs text-rose-500" />
@@ -131,7 +131,7 @@ export function LoginForm() {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{isAr ? "جارٍ التحقق..." : "Authenticating..."}</span>
+                <span>{isAr ? "جارٍ التحقق مع الخادم..." : "Verifying with server..."}</span>
               </>
             ) : (
               <>
@@ -142,32 +142,6 @@ export function LoginForm() {
           </Button>
         </form>
       </Form>
-
-      {/* Quick Demo Role Switcher Chips */}
-      <div className="pt-2 border-t border-border/70 space-y-2.5">
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-          <Sparkles className="w-3.5 h-3.5 text-primary" />
-          <span>{isAr ? "اختيار حساب تجريبي سريع:" : "Quick Demo Role Accounts:"}</span>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {[
-            { role: "admin", label: isAr ? "مدير" : "Admin" },
-            { role: "teacher", label: isAr ? "معلم" : "Teacher" },
-            { role: "advisor", label: isAr ? "مرشد" : "Advisor" },
-            { role: "student", label: isAr ? "طالب" : "Student" },
-            { role: "parent", label: isAr ? "ولي أمر" : "Parent" },
-          ].map((item) => (
-            <button
-              key={item.role}
-              type="button"
-              onClick={() => setDemoRole(item.role)}
-              className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-secondary/80 hover:bg-primary/15 hover:text-primary border border-border/80 transition-all"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

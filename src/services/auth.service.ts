@@ -1,4 +1,4 @@
-import { api, fetchWithFallback } from '@/lib/api';
+import { api } from '@/lib/api';
 import type { AuthResponse, User, UserRole } from '@/types/api';
 
 export const authService = {
@@ -9,74 +9,66 @@ export const authService = {
     try {
       await api.get('/sanctum/csrf-cookie', { baseURL: 'http://localhost:8000' });
     } catch (e) {
-      // Ignore if running token-only
+      // Sanctum cookie optional if using Bearer token authentication
     }
   },
 
   /**
-   * Login user with email & password
+   * Login user with real email & password via Laravel Sanctum API
    */
   async login(email: string, password: string): Promise<AuthResponse> {
-    let role: UserRole = "student";
-    let name = "Alex Johnson";
-    if (email.includes("admin")) {
-      role = "admin";
-      name = "Ebrahem Admin";
-    } else if (email.includes("teacher") || email.includes("faculty")) {
-      role = "teacher";
-      name = "Dr. Sarah Adams";
-    } else if (email.includes("advisor") || email.includes("counselor")) {
-      role = "advisor";
-      name = "Marcus Vance (Advisor)";
-    } else if (email.includes("parent") || email.includes("guardian")) {
-      role = "parent";
-      name = "Robert & Elena Johnson";
+    const res = await api.post<AuthResponse>('/auth/login', {
+      email,
+      password,
+      device_name: 'sba-web-client',
+    });
+
+    const data = res.data;
+    const token = data.access_token || data.token || '';
+    
+    // Normalize role from Spatie roles array or direct role field
+    let determinedRole: UserRole = "student";
+    if (data.user?.roles && data.user.roles.length > 0) {
+      determinedRole = data.user.roles[0].toLowerCase() as UserRole;
+    } else if (data.user?.role) {
+      determinedRole = data.user.role.toLowerCase() as UserRole;
     }
 
-    const mockResponse: AuthResponse = {
-      token: `mock-jwt-token-${Date.now()}`,
-      token_type: "Bearer",
-      user: {
-        id: 1,
-        name,
-        email,
-        role,
-        institution_name: "King Fahd University / Global Academy",
-        created_at: new Date().toISOString(),
-      },
+    const normalizedUser: User = {
+      ...data.user,
+      role: determinedRole,
     };
 
-    return fetchWithFallback(
-      () => api.post<AuthResponse>('/auth/login', { email, password }),
-      mockResponse,
-      'Auth Login'
-    );
+    return {
+      ...data,
+      token,
+      access_token: token,
+      user: normalizedUser,
+    };
   },
 
   /**
    * Get current authenticated user profile
    */
   async getMe(): Promise<User> {
-    return fetchWithFallback(
-      () => api.get<User>('/auth/me'),
-      {
-        id: 1,
-        name: "Authenticated User",
-        email: "user@sba-platform.edu",
-        role: "admin",
-      },
-      'Auth Me'
-    );
+    const res = await api.get<User>('/auth/me');
+    let determinedRole: UserRole = "student";
+    if (res.data?.roles && res.data.roles.length > 0) {
+      determinedRole = res.data.roles[0].toLowerCase() as UserRole;
+    } else if (res.data?.role) {
+      determinedRole = res.data.role.toLowerCase() as UserRole;
+    }
+
+    return {
+      ...res.data,
+      role: determinedRole,
+    };
   },
 
   /**
-   * Logout user and invalidate token
+   * Logout user and invalidate token on Laravel server
    */
   async logout(): Promise<void> {
-    try {
-      await api.post('/auth/logout');
-    } catch (e) {
-      console.warn('Backend logout offline:', e);
-    }
+    await api.post('/auth/logout');
   },
 };

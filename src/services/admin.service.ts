@@ -1,59 +1,25 @@
-import { api, fetchWithFallback } from '@/lib/api';
+import { api } from '@/lib/api';
 import type { Institution, SystemOverviewStats, User } from '@/types/api';
 
 export const adminService = {
   /**
-   * Fetch global system overview metrics and chart series
+   * Fetch real system stats from Laravel /admin/dashboard/stats
    */
   async getOverview(): Promise<SystemOverviewStats> {
-    const mockOverview: SystemOverviewStats = {
-      total_students: 45231,
-      avg_attendance: 92.4,
-      at_risk_students: 1204,
-      active_courses: 842,
-      attendance_trends: [
-        { name: "Jan", present: 95, absent: 5 },
-        { name: "Feb", present: 92, absent: 8 },
-        { name: "Mar", present: 88, absent: 12 },
-        { name: "Apr", present: 90, absent: 10 },
-        { name: "May", present: 94, absent: 6 },
-        { name: "Jun", present: 96, absent: 4 },
-      ],
-      risk_by_subject: [
-        { subject: "Math", atRisk: 120 },
-        { subject: "Physics", atRisk: 85 },
-        { subject: "Chemistry", atRisk: 65 },
-        { subject: "English", atRisk: 30 },
-        { subject: "History", atRisk: 15 },
-      ],
-      performance_trajectory: [
-        { term: "Term 1", score: 75 },
-        { term: "Term 2", score: 78 },
-        { term: "Term 3", score: 82 },
-        { term: "Term 4", score: 85 },
-      ],
-    };
-
-    return fetchWithFallback(
-      () => api.get<SystemOverviewStats>('/admin/overview'),
-      mockOverview,
-      'Admin Overview'
-    );
+    const res = await api.get<SystemOverviewStats>('/admin/dashboard/stats');
+    return res.data;
   },
 
   /**
-   * Get paginated users list with role filter
+   * Get paginated users from /admin/users
    */
   async getUsers(role?: string, search?: string): Promise<User[]> {
-    return fetchWithFallback(
-      () => api.get<User[]>('/admin/users', { params: { role, search } }),
-      [],
-      'Admin Users'
-    );
+    const res = await api.get<User[]>('/admin/users', { params: { role, search } });
+    return res.data;
   },
 
   /**
-   * Create or provision a new user
+   * Create new user in MySQL
    */
   async createUser(userData: Partial<User>): Promise<User> {
     const res = await api.post<User>('/admin/users', userData);
@@ -61,31 +27,25 @@ export const adminService = {
   },
 
   /**
-   * Get all registered institutions
+   * Get registered institutions from /admin/institutions
    */
   async getInstitutions(): Promise<Institution[]> {
-    return fetchWithFallback(
-      () => api.get<Institution[]>('/admin/institutions'),
-      [],
-      'Admin Institutions'
-    );
+    const res = await api.get<Institution[]>('/admin/institutions');
+    return res.data;
   },
 
   /**
-   * Update institution threshold configurations
+   * Update institution threshold
    */
   async updateThreshold(institutionId: number | string, riskThreshold: number): Promise<void> {
-    await api.put(`/admin/institutions/${institutionId}/threshold`, { risk_threshold: riskThreshold });
+    await api.put(`/admin/institutions/${institutionId}`, { risk_threshold: riskThreshold });
   },
 
   /**
-   * Fetch audit logs
+   * Fetch audit logs from /admin/audit-logs
    */
   async getAuditLogs(page = 1) {
-    return fetchWithFallback(
-      () => api.get('/admin/audit-logs', { params: { page } }),
-      [],
-      'Admin Audit Logs'
-    );
+    const res = await api.get('/admin/audit-logs', { params: { page } });
+    return res.data;
   },
 };
