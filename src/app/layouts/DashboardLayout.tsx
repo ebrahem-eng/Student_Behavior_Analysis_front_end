@@ -40,6 +40,7 @@ import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export function DashboardLayout() {
   const { i18n } = useTranslation();
+  const user = useAppStore((state) => state.user);
   const userRole = useAppStore((state) => state.userRole);
   const setUserRole = useAppStore((state) => state.setUserRole);
   const navigate = useNavigate();
@@ -234,26 +235,34 @@ export function DashboardLayout() {
                     className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 h-auto rounded-full bg-secondary/70 hover:bg-secondary border border-border/70 transition-all"
                   >
                     <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-xs">
-                      {userRole ? userRole.charAt(0).toUpperCase() : "U"}
+                      {user?.name ? user.name.charAt(0).toUpperCase() : (userRole ? userRole.charAt(0).toUpperCase() : "U")}
                     </div>
                     <span className="hidden sm:inline-block text-xs font-bold text-foreground capitalize">
-                      {userRole || "User"}
+                      {user?.name?.split(" ")[0] || userRole || "User"}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 bg-card/95 backdrop-blur-xl border-border text-foreground rounded-2xl p-2 shadow-xl" align="end" forceMount>
+                <DropdownMenuContent className="w-60 bg-card/95 backdrop-blur-xl border-border text-foreground rounded-2xl p-2 shadow-xl" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal px-3 py-2">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-bold leading-none text-foreground capitalize">{userRole || "User"} Portal</p>
-                      <p className="text-xs leading-none text-muted-foreground">{userRole}@sba-platform.edu</p>
+                      <p className="text-xs font-bold leading-none text-foreground">{user?.name || `${userRole || 'User'} Portal`}</p>
+                      <p className="text-[11px] leading-none text-muted-foreground truncate">{user?.email || `${userRole || 'user'}@sba-platform.edu`}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-border" />
-                  <DropdownMenuItem className="focus:bg-secondary focus:text-foreground cursor-pointer rounded-xl px-3 py-2 text-xs font-semibold">
-                    {isAr ? "الملف الشخصي" : "My Profile"}
+                  <DropdownMenuItem
+                    className="focus:bg-secondary focus:text-foreground cursor-pointer rounded-xl px-3 py-2 text-xs font-semibold flex items-center gap-2"
+                    onClick={() => navigate("/profile")}
+                  >
+                    <User className="w-3.5 h-3.5 text-primary" />
+                    <span>{isAr ? "الملف الشخصي" : "My Profile"}</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="focus:bg-secondary focus:text-foreground cursor-pointer rounded-xl px-3 py-2 text-xs font-semibold">
-                    {isAr ? "الإعدادات والتفضيلات" : "Account Settings"}
+                  <DropdownMenuItem
+                    className="focus:bg-secondary focus:text-foreground cursor-pointer rounded-xl px-3 py-2 text-xs font-semibold flex items-center gap-2"
+                    onClick={() => navigate("/profile")}
+                  >
+                    <Settings className="w-3.5 h-3.5 text-primary" />
+                    <span>{isAr ? "إعدادات الحساب" : "Account Settings"}</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border" />
                   <DropdownMenuItem

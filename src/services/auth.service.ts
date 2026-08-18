@@ -66,6 +66,37 @@ export const authService = {
   },
 
   /**
+   * Update user profile information
+   */
+  async updateProfile(data: { name: string; email: string; phone?: string; avatar_url?: string }): Promise<User> {
+    const res = await api.put<{ message: string; user: User }>('/auth/profile', data);
+    const updatedUser = res.data.user;
+    
+    let determinedRole: UserRole = "student";
+    if (updatedUser?.roles && updatedUser.roles.length > 0) {
+      determinedRole = updatedUser.roles[0].toLowerCase() as UserRole;
+    } else if (updatedUser?.role) {
+      determinedRole = updatedUser.role.toLowerCase() as UserRole;
+    }
+
+    const normalized: User = {
+      ...updatedUser,
+      role: determinedRole,
+    };
+
+    localStorage.setItem('auth_user', JSON.stringify(normalized));
+    return normalized;
+  },
+
+  /**
+   * Update user password
+   */
+  async updatePassword(data: { current_password: string; password: string; password_confirmation: string }): Promise<{ message: string }> {
+    const res = await api.put<{ message: string }>('/auth/password', data);
+    return res.data;
+  },
+
+  /**
    * Logout user and invalidate token on Laravel server
    */
   async logout(): Promise<void> {

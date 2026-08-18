@@ -24,6 +24,7 @@ import StudentRegistrationPage from "@/features/student/pages/StudentRegistratio
 import ParentDashboardPage from "@/features/parent/pages/ParentDashboardPage";
 import ParentCommunicationsPage from "@/features/parent/pages/ParentCommunicationsPage";
 import ParentSettingsPage from "@/features/parent/pages/ParentSettingsPage";
+import AccountSettingsPage from "@/features/profile/pages/AccountSettingsPage";
 
 export const router = createBrowserRouter([
   {
@@ -38,11 +39,19 @@ export const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
+        path: "/profile",
+        element: <AccountSettingsPage />,
+      },
+      {
         element: <ProtectedRoute allowedRoles={["admin"]} />,
         children: [
           {
             path: "/admin",
             element: <AdminDashboard />,
+          },
+          {
+            path: "/admin/profile",
+            element: <AccountSettingsPage />,
           },
           {
             path: "/admin/accounts",
