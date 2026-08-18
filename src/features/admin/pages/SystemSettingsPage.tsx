@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { 
-  Settings, AlertTriangle, Shield, Activity, Database, Key, 
-  DownloadCloud, Lock, FileText, MonitorPlay, Save, Plus
+  Settings, AlertTriangle, Shield, Lock, FileText, Save, Loader2, RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
@@ -20,18 +19,64 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { api, getApiErrorMessage } from "@/lib/api";
 
 export default function SystemSettingsPage() {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
+
   const [riskThreshold, setRiskThreshold] = useState([75]);
   const [criticalThreshold, setCriticalThreshold] = useState([90]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Mock Audit Logs
-  const MOCK_AUDIT_LOGS = [
-    { id: 1, action: "User Role Updated", user: "Admin (alice@)", timestamp: "2024-05-20 14:32:01", ip: "192.168.1.42", status: "Success" },
-    { id: 2, action: "API Key Generated", user: "System", timestamp: "2024-05-20 12:15:00", ip: "10.0.0.1", status: "Success" },
-    { id: 3, action: "Failed Login Attempt", user: "Unknown (bob@)", timestamp: "2024-05-19 23:45:12", ip: "45.22.19.8", status: "Warning" },
-    { id: 4, action: "Data Export", user: "Admin (alice@)", timestamp: "2024-05-18 09:00:21", ip: "192.168.1.42", status: "Success" },
-  ];
+  const loadAuditLogs = async () => {
+    setIsLoadingLogs(true);
+    try {
+      const res = await api.get('/admin/audit-logs');
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setAuditLogs(data);
+    } catch (e) {
+      console.warn('[Audit Logs] Fetch error:', e);
+    } finally {
+      setIsLoadingLogs(false);
+    }
+  };
+
+  const loadRiskThresholds = async () => {
+    try {
+      const res = await api.get('/admin/risk-thresholds');
+      if (res.data && res.data.length > 0) {
+        setRiskThreshold([res.data[0].threshold || 75]);
+      }
+    } catch (e) {
+      // fallback to current slider default
+    }
+  };
+
+  useEffect(() => {
+    loadAuditLogs();
+    loadRiskThresholds();
+  }, []);
+
+  const handleSaveThresholds = async () => {
+    setIsSaving(true);
+    setSaveSuccess(false);
+    try {
+      await api.post('/admin/risk-thresholds', {
+        threshold: riskThreshold[0],
+        critical_threshold: criticalThreshold[0],
+      });
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      alert(getApiErrorMessage(e, isAr));
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -39,49 +84,57 @@ export default function SystemSettingsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Settings className="h-8 w-8 text-primary" />
-            System Settings
+            {isAr ? "إعدادات المنظومة والامتثال" : "System Settings & Compliance"}
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Global configuration, security policies, and system monitoring.
+          <p className="text-muted-foreground mt-1 text-sm">
+            {isAr
+              ? "التحكم في معايير الإنذار الذكي وسياسات حماية البيانات وسجلات التدقيق المباشرة."
+              : "Global configuration, security policies, and live audit logs."}
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-foreground shadow-lg shadow-primary/20">
-          <Save className="mr-2 h-4 w-4" /> Save Changes
+
+        <Button
+          onClick={handleSaveThresholds}
+          disabled={isSaving}
+          className="rounded-full bg-primary hover:bg-primary/90 text-foreground text-xs font-bold px-5 h-9 shadow-lg shadow-primary/20"
+        >
+          {isSaving ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+          ) : (
+            <Save className="mr-2 h-4 w-4" />
+          )}
+          {saveSuccess ? (isAr ? "تم الحفظ بنجاح ✓" : "Saved ✓") : (isAr ? "حفظ التغييرات" : "Save Changes")}
         </Button>
       </div>
 
       <Tabs defaultValue="risk" className="w-full">
-        <TabsList className="bg-card/50 border border-white/5 flex flex-wrap h-auto">
-          <TabsTrigger value="risk" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
-            <AlertTriangle className="w-4 h-4 mr-2" /> Risk & Alerts
+        <TabsList className="bg-card/85 backdrop-blur-xl border border-border rounded-full p-1 flex flex-wrap h-auto">
+          <TabsTrigger value="risk" className="rounded-full text-xs font-semibold">
+            <AlertTriangle className="w-3.5 h-3.5 mr-1.5" /> {isAr ? "الإنذار وعتبات الخطر" : "Risk & Alerts"}
           </TabsTrigger>
-          <TabsTrigger value="security" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
-            <Shield className="w-4 h-4 mr-2" /> Security & Policy
+          <TabsTrigger value="security" className="rounded-full text-xs font-semibold">
+            <Shield className="w-3.5 h-3.5 mr-1.5" /> {isAr ? "الخصوصية والامتثال" : "Security & Privacy"}
           </TabsTrigger>
-          <TabsTrigger value="integration" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
-            <Key className="w-4 h-4 mr-2" /> API & Integrations
-          </TabsTrigger>
-          <TabsTrigger value="monitoring" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
-            <Activity className="w-4 h-4 mr-2" /> System Health
-          </TabsTrigger>
-          <TabsTrigger value="audit" className="data-[state=active]:bg-primary data-[state=active]:text-foreground">
-            <FileText className="w-4 h-4 mr-2" /> Audit Logs
+          <TabsTrigger value="audit" className="rounded-full text-xs font-semibold">
+            <FileText className="w-3.5 h-3.5 mr-1.5" /> {isAr ? "سجلات التدقيق (FERPA)" : "Audit Logs"}
           </TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
           {/* RISK & ALERTS TAB */}
           <TabsContent value="risk" className="space-y-6">
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Risk Thresholds</CardTitle>
-                <CardDescription className="text-muted-foreground">Configure global parameters that trigger at-risk notifications.</CardDescription>
+            <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6">
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-lg text-foreground">{isAr ? "عتبات الإنذار المبكر" : "Risk Thresholds"}</CardTitle>
+                <CardDescription className="text-muted-foreground text-xs">
+                  {isAr ? "تحديد النسب المئوية التي تطلق تنبيهات الخطر التلقائية للمرشد وأولياء الأمور." : "Configure parameters that trigger automatic student risk escalation."}
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-8">
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <Label className="text-base text-card-foreground">At-Risk Threshold ({riskThreshold}%)</Label>
-                    <span className="text-sm text-muted-foreground">Medium severity</span>
+              <CardContent className="p-0 space-y-6 pt-2">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-xs font-bold text-foreground">{isAr ? "عتبة الخطر المتوسط" : "At-Risk Threshold"} ({riskThreshold}%)</Label>
+                    <span className="text-xs font-semibold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full">Medium Severity</span>
                   </div>
                   <Slider 
                     value={riskThreshold} 
@@ -90,13 +143,15 @@ export default function SystemSettingsPage() {
                     step={1} 
                     className="[&_[role=slider]]:bg-amber-500"
                   />
-                  <p className="text-sm text-muted-foreground">Students dropping below this attendance or grade percentage will be flagged as at-risk.</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "يتم تصنيف الطالب تحت المتابعة عند وصول درجة الخطر لهذه النسبة." : "Students reaching this risk score will be highlighted for proactive advisor triage."}
+                  </p>
                 </div>
-                <Separator className="bg-secondary" />
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <Label className="text-base text-card-foreground">Critical Alert Tier ({criticalThreshold}%)</Label>
-                    <span className="text-sm text-muted-foreground">High severity</span>
+                <Separator className="bg-border" />
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-xs font-bold text-foreground">{isAr ? "عتبة الإنذار الحرج" : "Critical Alert Tier"} ({criticalThreshold}%)</Label>
+                    <span className="text-xs font-semibold text-rose-500 bg-rose-500/10 px-2.5 py-0.5 rounded-full">High Severity</span>
                   </div>
                   <Slider 
                     value={criticalThreshold} 
@@ -105,7 +160,9 @@ export default function SystemSettingsPage() {
                     step={1} 
                     className="[&_[role=slider]]:bg-rose-500"
                   />
-                  <p className="text-sm text-muted-foreground">Absence percentage triggering immediate escalation to Admins and Parents.</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "يتم إرسال إشعار فوري لمدير النظام وولي الأمر عند تجاوز هذه النسبة." : "Immediate notification dispatched to System Admins and Parents."}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -113,87 +170,30 @@ export default function SystemSettingsPage() {
 
           {/* SECURITY & POLICY TAB */}
           <TabsContent value="security" className="space-y-6">
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2"><Lock className="w-5 h-5"/> Data Policy</CardTitle>
-                <CardDescription className="text-muted-foreground">Manage data retention, encryption, and privacy rules.</CardDescription>
+            <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6">
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-lg text-foreground flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-primary"/> {isAr ? "سياسات حماية البيانات والخصوصية" : "Data Policy & Privacy"}
+                </CardTitle>
+                <CardDescription className="text-muted-foreground text-xs">
+                  {isAr ? "إدارة التشفير وامتثال FERPA." : "Manage data retention, encryption, and privacy rules."}
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="p-0 space-y-5 pt-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className="text-base text-card-foreground">Strict Anonymization Mode</Label>
-                    <p className="text-sm text-muted-foreground">Obscure PII for users without strict clearance.</p>
+                    <Label className="text-xs font-bold text-foreground">{isAr ? "نمط حجب البيانات الشخصية الصارم" : "Strict Anonymization Mode"}</Label>
+                    <p className="text-[11px] text-muted-foreground">{isAr ? "حجب هوية الطلاب في النماذج الإحصائية للباحثين." : "Obscure PII for research analytics."}</p>
                   </div>
                   <Switch checked={true} />
                 </div>
-                <Separator className="bg-secondary" />
+                <Separator className="bg-border" />
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className="text-base text-card-foreground">Enforce End-to-End Encryption</Label>
-                    <p className="text-sm text-muted-foreground">Requires client-side decryption keys.</p>
-                  </div>
-                  <Switch checked={false} />
-                </div>
-                <Separator className="bg-secondary" />
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base text-card-foreground">Automatic Data Purging</Label>
-                    <p className="text-sm text-muted-foreground">Delete inactive accounts after 5 years.</p>
+                    <Label className="text-xs font-bold text-foreground">{isAr ? "التشفير التام للاتصالات" : "Enforce HTTPS & Encrypted WebSockets"}</Label>
+                    <p className="text-[11px] text-muted-foreground">{isAr ? "تشفير جميع قنوات البث المباشر." : "Requires encrypted TLS channels."}</p>
                   </div>
                   <Switch checked={true} />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2"><Database className="w-5 h-5"/> Disaster Recovery</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4">
-                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-foreground">
-                    <DownloadCloud className="w-4 h-4 mr-2" /> Trigger Manual Backup
-                  </Button>
-                  <span className="text-sm text-muted-foreground">Last backup: 2 hours ago (Auto)</span>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* API & INTEGRATIONS TAB */}
-          <TabsContent value="integration" className="space-y-6">
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">API Keys</CardTitle>
-                <CardDescription className="text-muted-foreground">Manage keys for 3rd party integrations.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between bg-secondary/50 p-4 rounded-lg border border-border">
-                  <div>
-                    <p className="text-card-foreground font-medium">LMS Integration Token</p>
-                    <p className="text-muted-foreground font-mono text-sm mt-1">sk_live_**********************89ab</p>
-                  </div>
-                  <Button variant="destructive" size="sm" className="bg-rose-500/20 text-rose-400 hover:bg-rose-500/30">Revoke</Button>
-                </div>
-                <Button variant="outline" className="w-full border-dashed border-border text-muted-foreground hover:text-foreground hover:bg-secondary/50">
-                  <Plus className="w-4 h-4 mr-2" /> Generate New Key
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* SYSTEM HEALTH TAB */}
-          <TabsContent value="monitoring" className="space-y-6">
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2"><MonitorPlay className="w-5 h-5"/> Operational Monitoring</CardTitle>
-                <CardDescription className="text-muted-foreground">Live Grafana Dashboard Embed Placeholder</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="w-full h-96 bg-black/50 border border-border rounded-lg flex items-center justify-center flex-col gap-4">
-                  <Activity className="w-12 h-12 text-primary animate-pulse" />
-                  <p className="text-muted-foreground">Grafana Node Health & Scalability Metrics</p>
-                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">All Systems Operational</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -201,37 +201,70 @@ export default function SystemSettingsPage() {
 
           {/* AUDIT LOGS TAB */}
           <TabsContent value="audit" className="space-y-6">
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Security Audit Log</CardTitle>
-                <CardDescription className="text-muted-foreground">Immutable record of critical administrative actions.</CardDescription>
+            <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6">
+              <CardHeader className="p-0 pb-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-lg text-foreground">{isAr ? "سجلات تدقيق العمليات (FERPA Audit Trail)" : "Security Audit Log"}</CardTitle>
+                    <CardDescription className="text-muted-foreground text-xs">
+                      {isAr ? "سجل مباشر وغير قابل للتعديل لجميع العمليات الإدارية المسجلة في MySQL." : "Immutable record of administrative actions logged in MySQL."}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadAuditLogs}
+                    disabled={isLoadingLogs}
+                    className="rounded-full text-xs h-8 px-3"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${isLoadingLogs ? 'animate-spin' : ''} mr-1`} />
+                    {isAr ? "تحديث" : "Refresh"}
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="rounded-md border border-border overflow-hidden bg-card/30">
+              <CardContent className="p-0 pt-2">
+                <div className="rounded-2xl border border-border overflow-hidden bg-card/40">
                   <Table>
-                    <TableHeader className="bg-card/50">
+                    <TableHeader className="bg-secondary/40">
                       <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="text-muted-foreground">Timestamp</TableHead>
-                        <TableHead className="text-muted-foreground">Action</TableHead>
-                        <TableHead className="text-muted-foreground">User</TableHead>
-                        <TableHead className="text-muted-foreground">IP Address</TableHead>
-                        <TableHead className="text-muted-foreground">Status</TableHead>
+                        <TableHead className="text-muted-foreground text-xs">{isAr ? "الوقت والتاريخ" : "Timestamp"}</TableHead>
+                        <TableHead className="text-muted-foreground text-xs">{isAr ? "الإجراء" : "Action"}</TableHead>
+                        <TableHead className="text-muted-foreground text-xs">{isAr ? "المستخدم" : "User"}</TableHead>
+                        <TableHead className="text-muted-foreground text-xs">{isAr ? "عنوان IP" : "IP Address"}</TableHead>
+                        <TableHead className="text-muted-foreground text-xs">{isAr ? "الحالة" : "Status"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {MOCK_AUDIT_LOGS.map((log) => (
-                        <TableRow key={log.id} className="border-border hover:bg-secondary/50 transition-colors">
-                          <TableCell className="text-muted-foreground text-xs font-mono">{log.timestamp}</TableCell>
-                          <TableCell className="text-foreground font-medium">{log.action}</TableCell>
-                          <TableCell className="text-muted-foreground">{log.user}</TableCell>
-                          <TableCell className="text-muted-foreground font-mono text-xs">{log.ip}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={log.status === 'Success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}>
-                              {log.status}
-                            </Badge>
+                      {isLoadingLogs ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-10 text-muted-foreground text-xs">
+                            <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
+                            {isAr ? "جارٍ تحميل سجلات التدقيق من MySQL..." : "Loading audit logs..."}
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : auditLogs.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-10 text-muted-foreground text-xs">
+                            {isAr ? "لا توجد سجلات تدقيق حتى الآن." : "No audit entries recorded yet in database."}
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        auditLogs.map((log: any, idx) => (
+                          <TableRow key={log.id || idx} className="border-border hover:bg-secondary/40 transition-colors">
+                            <TableCell className="text-muted-foreground text-xs font-mono">
+                              {log.created_at ? new Date(log.created_at).toLocaleString() : "Just now"}
+                            </TableCell>
+                            <TableCell className="text-foreground font-semibold text-xs">{log.description || log.action || "System Event"}</TableCell>
+                            <TableCell className="text-muted-foreground text-xs">{log.causer?.name || log.user || "System Admin"}</TableCell>
+                            <TableCell className="text-muted-foreground font-mono text-xs">{log.properties?.ip || "127.0.0.1"}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+                                Success
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
