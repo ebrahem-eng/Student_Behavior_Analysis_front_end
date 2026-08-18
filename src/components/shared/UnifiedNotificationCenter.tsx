@@ -24,6 +24,27 @@ export interface NotificationItem {
   read: boolean;
 }
 
+const READ_STORAGE_KEY = 'sba_read_notification_ids';
+
+function getLocalReadIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(READ_STORAGE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function addLocalReadIds(ids: string[]) {
+  try {
+    const current = getLocalReadIds();
+    ids.forEach((id) => current.add(String(id)));
+    localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(Array.from(current)));
+  } catch (e) {
+    // ignore
+  }
+}
+
 export function UnifiedNotificationCenter() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
@@ -39,6 +60,8 @@ export function UnifiedNotificationCenter() {
     setIsLoading(true);
 
     try {
+      const readIds = getLocalReadIds();
+
       // 1. Fetch user notifications
       const notifRes = await api.get('/notifications').catch(() => ({ data: { data: [] } }));
       const rawNotifs = Array.isArray(notifRes.data) 
@@ -52,22 +75,30 @@ export function UnifiedNotificationCenter() {
         : (alertRes.data?.data || []);
 
       const formattedNotifs: NotificationItem[] = [
-        ...rawNotifs.map((n: any) => ({
-          id: `notif-${n.id}`,
-          type: (n.data?.severity || n.type || "info") as any,
-          title: n.data?.title || n.title || "Notification",
-          message: n.data?.message || n.message || "",
-          time: n.created_at ? formatTimeAgo(n.created_at, isAr) : "Recently",
-          read: Boolean(n.read_at),
-        })),
-        ...rawAlerts.map((a: any) => ({
-          id: `alert-${a.id}`,
-          type: (a.level === "high" || a.level === "critical" || a.severity === "danger" ? "danger" : "warning") as any,
-          title: a.title || "System Alert",
-          message: a.message || a.description || "",
-          time: a.created_at ? formatTimeAgo(a.created_at, isAr) : "Recently",
-          read: Boolean(a.is_read),
-        })),
+        ...rawNotifs.map((n: any) => {
+          const id = `notif-${n.id}`;
+          const isRead = Boolean(n.read_at) || readIds.has(id);
+          return {
+            id,
+            type: (n.data?.severity || n.type || "info") as any,
+            title: n.data?.title || n.title || "Notification",
+            message: n.data?.message || n.message || "",
+            time: n.created_at ? formatTimeAgo(n.created_at, isAr) : "Recently",
+            read: isRead,
+          };
+        }),
+        ...rawAlerts.map((a: any) => {
+          const id = `alert-${a.id}`;
+          const isRead = Boolean(a.is_read) || a.is_read === 1 || a.is_read === '1' || readIds.has(id);
+          return {
+            id,
+            type: (a.level === "high" || a.level === "critical" || a.severity === "danger" ? "danger" : "warning") as any,
+            title: a.title || "System Alert",
+            message: a.message || a.description || "",
+            time: a.created_at ? formatTimeAgo(a.created_at, isAr) : "Recently",
+            read: isRead,
+          };
+        }),
       ];
 
       setNotifications(formattedNotifs);
@@ -129,19 +160,30 @@ export function UnifiedNotificationCenter() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAllRead = async () => {
+    // 1. Update state immediately
+    const allIds = notifications.map((n) => String(n.id));
+    addLocalReadIds(allIds);
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+
+    // 2. Persist to backend
     try {
-      await api.post('/notifications/read-all');
+      await Promise.allSettled([
+        api.post('/notifications/read-all'),
+        api.post('/alerts/read-all'),
+      ]);
     } catch (e) {
-      console.warn("Error marking all read:", e);
+      console.warn("Error marking all read on server:", e);
     }
   };
 
   const markSingleAsRead = async (id: number | string) => {
+    // 1. Update state immediately
+    addLocalReadIds([String(id)]);
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
 
+    // 2. Persist to backend
     try {
       const strId = String(id);
       if (strId.startsWith('notif-')) {
@@ -150,12 +192,13 @@ export function UnifiedNotificationCenter() {
         await api.patch(`/alerts/${strId.replace('alert-', '')}/read`);
       }
     } catch (e) {
-      // ignore
+      console.warn("Error marking single notification read:", e);
     }
   };
 
   const removeNotification = (id: number | string, e: React.MouseEvent) => {
     e.stopPropagation();
+    addLocalReadIds([String(id)]);
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
@@ -236,7 +279,7 @@ export function UnifiedNotificationCenter() {
                   key={notif.id}
                   onClick={() => markSingleAsRead(notif.id)}
                   className={`p-4 hover:bg-secondary/50 transition-colors cursor-pointer group flex items-start gap-3 ${
-                    !notif.read ? "bg-primary/[0.03]" : "opacity-75"
+                    !notif.read ? "bg-primary/[0.03]" : "opacity-60"
                   }`}
                 >
                   <div className="shrink-0 mt-0.5">
