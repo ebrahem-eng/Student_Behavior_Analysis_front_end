@@ -8,7 +8,7 @@ export const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: false, // Set to false for Bearer Token authentication to prevent CORS credential conflicts
   timeout: 15000,
 });
 
