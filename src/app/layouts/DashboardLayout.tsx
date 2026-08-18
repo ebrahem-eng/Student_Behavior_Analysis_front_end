@@ -37,12 +37,13 @@ import { UnifiedNotificationCenter } from "@/components/shared/UnifiedNotificati
 import { ChatbotWidget } from "@/components/shared/ChatbotWidget";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLogo } from "@/components/shared/BrandLogo";
+import { authService } from "@/services/auth.service";
 
 export function DashboardLayout() {
   const { i18n } = useTranslation();
   const user = useAppStore((state) => state.user);
   const userRole = useAppStore((state) => state.userRole);
-  const setUserRole = useAppStore((state) => state.setUserRole);
+  const logout = useAppStore((state) => state.logout);
   const navigate = useNavigate();
   const location = useLocation();
   const isAr = i18n.language === "ar";
@@ -53,9 +54,15 @@ export function DashboardLayout() {
     document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
   };
 
-  const handleLogout = () => {
-    setUserRole(null);
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.warn("[Logout] Backend session termination completed with local clear:", error);
+    } finally {
+      logout();
+      navigate("/login");
+    }
   };
 
   const getRoleLabel = (role: string | null) => {
