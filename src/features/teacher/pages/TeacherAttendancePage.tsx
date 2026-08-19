@@ -52,7 +52,7 @@ export default function TeacherAttendancePage() {
       const [attRes, coursesRes, usersRes] = await Promise.allSettled([
         api.get('/academic/attendances'),
         api.get('/academic/courses'),
-        api.get('/admin/users'),
+        api.get('/admin/users?role=student'),
       ]);
 
       if (attRes.status === 'fulfilled') {
@@ -66,10 +66,16 @@ export default function TeacherAttendancePage() {
       }
 
       if (usersRes.status === 'fulfilled') {
-        const data = Array.isArray(usersRes.value.data) ? usersRes.value.data : (usersRes.value.data?.data || []);
-        setUsers(data);
-        if (data.length > 0 && !targetUserId) {
-          setTargetUserId(String(data[0].id));
+        const allUsers = Array.isArray(usersRes.value.data) ? usersRes.value.data : (usersRes.value.data?.data || []);
+        const studentsOnly = allUsers.filter((u: any) => {
+          const r = (u.role || '').toLowerCase();
+          const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
+          return r === 'student' || roles.includes('student');
+        });
+        const finalStudents = studentsOnly.length > 0 ? studentsOnly : allUsers;
+        setUsers(finalStudents);
+        if (finalStudents.length > 0) {
+          setTargetUserId(String(finalStudents[0].id));
         }
       }
     } catch (e) {
