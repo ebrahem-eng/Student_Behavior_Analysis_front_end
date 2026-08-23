@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Settings, ShieldCheck, HeartPulse, Check, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Settings, ShieldCheck, HeartPulse, Check, AlertCircle, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -8,152 +9,179 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function StudentSettingsPage() {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
+
   const [surveySubmitted, setSurveySubmitted] = useState(false);
   const [dataConsent, setDataConsent] = useState(true);
   const [aiConsent, setAiConsent] = useState(true);
-  const [parentConsent, setParentConsent] = useState(false);
+  const [parentConsent, setParentConsent] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSavePreferences = () => {
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Settings className="h-8 w-8 text-muted-foreground" />
-            Settings & Well-being
+            <Settings className="h-8 w-8 text-primary" />
+            {isAr ? "إعدادات الخصوصية والتقييم الدوري" : "Settings & Privacy Preferences"}
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your privacy preferences and complete your weekly check-in.
+          <p className="text-muted-foreground mt-1 text-sm">
+            {isAr
+              ? "التحكم في خصوصية معالجة البيانات الأكاديمية وإجراء الاستبيان الأسبوعي."
+              : "Manage your academic telemetry consent and submit your weekly check-in."}
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Weekly Well-being Check-in */}
         <div className="space-y-6">
-          <Card className="bg-card/50 border-border relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4">
-              <HeartPulse className="w-24 h-24 text-rose-500/5 -rotate-12" />
-            </div>
-            <CardHeader className="relative z-10">
-              <CardTitle className="text-xl text-foreground flex items-center gap-2">
-                <HeartPulse className="h-5 w-5 text-rose-400" />
-                Weekly Well-being Check-in
+          <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm relative overflow-hidden">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                <HeartPulse className="h-5 w-5 text-rose-500" />
+                <span>{isAr ? "التقييم الدوري للراحة الأكاديمية" : "Weekly Well-being Check-in"}</span>
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Help us understand how you're feeling so we can better support your academic journey.
+              <CardDescription className="text-xs text-muted-foreground mt-1">
+                {isAr
+                  ? "شاركنا انطباعك عن الضغط الدراسي لمساعدتنا في تقديم التوجيه الأنسب لك."
+                  : "Help us gauge academic stress levels to provide tailored support."}
               </CardDescription>
             </CardHeader>
-            <CardContent className="relative z-10 space-y-6">
+            <CardContent className="p-0 space-y-6">
               {surveySubmitted ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-500">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4">
-                    <Check className="w-8 h-8 text-emerald-400" />
+                <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in duration-300">
+                  <div className="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center mb-3">
+                    <Check className="w-7 h-7" />
                   </div>
-                  <h3 className="text-xl font-medium text-foreground mb-2">Thank you!</h3>
-                  <p className="text-muted-foreground max-w-sm">Your feedback helps us tailor the support you receive. Have a great week!</p>
+                  <h3 className="text-base font-bold text-foreground mb-1">{isAr ? "تم إرسال التقييم بنجاح!" : "Thank you!"}</h3>
+                  <p className="text-xs text-muted-foreground max-w-sm">
+                    {isAr ? "تم تسجيل ملاحظاتك لمساعدة مرشدك الأكاديمي في توفير الدعم الملائم." : "Your feedback helps advisors tailor your guidance roadmap."}
+                  </p>
                 </div>
               ) : (
-                <>
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-base text-card-foreground mb-3 block">How would you rate your stress levels this week?</Label>
-                      <RadioGroup defaultValue="moderate" className="flex gap-4">
-                        <div className="flex items-center space-x-2 bg-background p-3 rounded-lg border border-white/5 flex-1">
-                          <RadioGroupItem value="low" id="r1" className="border-emerald-500 text-emerald-500" />
-                          <Label htmlFor="r1" className="cursor-pointer">Low</Label>
-                        </div>
-                        <div className="flex items-center space-x-2 bg-background p-3 rounded-lg border border-white/5 flex-1">
-                          <RadioGroupItem value="moderate" id="r2" className="border-amber-500 text-amber-500" />
-                          <Label htmlFor="r2" className="cursor-pointer">Moderate</Label>
-                        </div>
-                        <div className="flex items-center space-x-2 bg-background p-3 rounded-lg border border-white/5 flex-1">
-                          <RadioGroupItem value="high" id="r3" className="border-rose-500 text-rose-500" />
-                          <Label htmlFor="r3" className="cursor-pointer">High</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div className="space-y-3">
-                      <Label className="text-base text-card-foreground">Are there any personal or academic challenges you'd like to share?</Label>
-                      <Textarea 
-                        placeholder="Optional: I've been struggling to balance part-time work with my Physics assignments..." 
-                        className="bg-background border-border resize-none h-32 focus-visible:ring-rose-500"
-                      />
-                    </div>
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <Label className="text-xs font-bold text-foreground mb-2 block">
+                      {isAr ? "كيف تقيم مستوى الضغط الدراسي هذا الأسبوع؟" : "How would you rate your stress levels this week?"}
+                    </Label>
+                    <RadioGroup defaultValue="moderate" className="grid grid-cols-3 gap-3">
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse bg-secondary/40 p-3 rounded-2xl border border-border">
+                        <RadioGroupItem value="low" id="r1" className="text-emerald-500" />
+                        <Label htmlFor="r1" className="cursor-pointer text-xs font-semibold">{isAr ? "منخفض" : "Low"}</Label>
+                      </div>
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse bg-secondary/40 p-3 rounded-2xl border border-border">
+                        <RadioGroupItem value="moderate" id="r2" className="text-amber-500" />
+                        <Label htmlFor="r2" className="cursor-pointer text-xs font-semibold">{isAr ? "متوسط" : "Moderate"}</Label>
+                      </div>
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse bg-secondary/40 p-3 rounded-2xl border border-border">
+                        <RadioGroupItem value="high" id="r3" className="text-rose-500" />
+                        <Label htmlFor="r3" className="cursor-pointer text-xs font-semibold">{isAr ? "مرتفع" : "High"}</Label>
+                      </div>
+                    </RadioGroup>
                   </div>
-                  <Button onClick={() => setSurveySubmitted(true)} className="w-full bg-rose-600 hover:bg-rose-700 text-foreground shadow-lg shadow-rose-900/20">
-                    Submit Check-in
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold text-foreground">
+                      {isAr ? "هل تواجه أي صعوبات أكاديمية ترغب في مشاركتها؟" : "Any academic challenges you'd like to note?"}
+                    </Label>
+                    <Textarea
+                      placeholder={isAr ? "ملاحظات إضافية للمرشد الأكاديمي..." : "Optional notes for your academic advisor..."}
+                      className="bg-secondary/40 border-border resize-none h-24 text-xs rounded-2xl"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={() => setSurveySubmitted(true)}
+                    className="w-full rounded-full bg-primary text-primary-foreground text-xs font-bold h-9 shadow-sm"
+                  >
+                    {isAr ? "إرسال التقييم الأسبوعي" : "Submit Check-in"}
                   </Button>
-                </>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
 
+        {/* Data & Privacy Consent */}
         <div className="space-y-6">
-          <Card className="bg-card/50 border-border">
-            <CardHeader>
-              <CardTitle className="text-xl text-foreground flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-emerald-400" />
-                Data & Privacy Consent
+          <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                <span>{isAr ? "خصوصية ومعالجة البيانات" : "Data & Privacy Consent"}</span>
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Control how your data is used across the learning platform.
+              <CardDescription className="text-xs text-muted-foreground mt-1">
+                {isAr ? "إدارة موافقتك على معالجة البيانات التحليلية والذكاء الاصطناعي." : "Control academic telemetry and AI analysis settings."}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              
-              <div className="flex items-center justify-between space-x-4">
-                <div className="flex flex-col space-y-1">
-                  <Label htmlFor="data-consent" className="text-foreground text-base">Academic Data Processing</Label>
-                  <span className="text-sm text-muted-foreground">Allow the system to analyze grades and attendance to calculate risk scores. (Required for core functionality)</span>
+            <CardContent className="p-0 space-y-5 pt-2">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="data-consent" className="text-xs font-bold text-foreground">
+                    {isAr ? "معالجة السجلات الأكاديمية" : "Academic Telemetry"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "تحليل الدرجات والغياب لحساب مؤشرات الإنذار المبكر." : "Analyze grades and absences for early-warning score calculation."}
+                  </p>
                 </div>
-                <Switch 
-                  id="data-consent" 
-                  checked={dataConsent} 
-                  onCheckedChange={setDataConsent}
-                  className="data-[state=checked]:bg-emerald-500"
-                />
+                <Switch id="data-consent" checked={dataConsent} onCheckedChange={setDataConsent} />
               </div>
 
-              <div className="flex items-center justify-between space-x-4">
-                <div className="flex flex-col space-y-1">
-                  <Label htmlFor="ai-consent" className="text-foreground text-base">AI Predictive Analytics</Label>
-                  <span className="text-sm text-muted-foreground">Allow AI models to generate future performance projections and personalized study recommendations.</span>
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="ai-consent" className="text-xs font-bold text-foreground">
+                    {isAr ? "التنبؤ بنماذج الذكاء الاصطناعي" : "AI Predictive Insights"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "توليد توقعات التحصيل الأكاديمي وتوصيات الاستذكار." : "Generate final performance projections and study suggestions."}
+                  </p>
                 </div>
-                <Switch 
-                  id="ai-consent" 
-                  checked={aiConsent} 
-                  onCheckedChange={setAiConsent}
-                  className="data-[state=checked]:bg-emerald-500"
-                />
+                <Switch id="ai-consent" checked={aiConsent} onCheckedChange={setAiConsent} />
               </div>
 
-              <div className="flex items-center justify-between space-x-4">
-                <div className="flex flex-col space-y-1">
-                  <Label htmlFor="parent-consent" className="text-foreground text-base">Parent/Guardian Visibility</Label>
-                  <span className="text-sm text-muted-foreground">Allow linked parent accounts to view detailed risk alerts and AI recommendations.</span>
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="parent-consent" className="text-xs font-bold text-foreground">
+                    {isAr ? "مشاركة التقارير مع ولي الأمر" : "Guardian Portal Access"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "السماح لولي الأمر بالاطلاع على الإشعارات وخطط التوجيه." : "Allow linked parent accounts to view risk alerts and progress."}
+                  </p>
                 </div>
-                <Switch 
-                  id="parent-consent" 
-                  checked={parentConsent} 
-                  onCheckedChange={setParentConsent}
-                  className="data-[state=checked]:bg-emerald-500"
-                />
+                <Switch id="parent-consent" checked={parentConsent} onCheckedChange={setParentConsent} />
               </div>
 
               {(!dataConsent || !aiConsent) && (
-                <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-lg flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0" />
-                  <p className="text-sm text-rose-200">
-                    Disabling core data processing or AI analytics will severely limit the platform's ability to provide you with early alerts and personalized guidance.
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex gap-2.5 items-start">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-rose-500 leading-relaxed">
+                    {isAr ? "تعطيل المعالجة يحد من قدرة المنظومة على إرسال التنبيهات المبكرة." : "Disabling AI analytics will disable proactive warning alerts."}
                   </p>
                 </div>
               )}
-
             </CardContent>
-            <CardFooter className="border-t border-white/5 pt-4 bg-white/[0.02]">
-              <Button variant="outline" className="w-full border-border text-muted-foreground hover:text-foreground">
-                Save Preferences
+            <CardFooter className="p-0 pt-6">
+              <Button
+                variant="outline"
+                onClick={handleSavePreferences}
+                className="w-full rounded-full border-border text-xs font-semibold h-9"
+              >
+                {isSaved ? (
+                  <span className="text-emerald-500 flex items-center gap-1.5">
+                    <Check className="w-4 h-4" /> {isAr ? "تم حفظ التفضيلات!" : "Preferences Saved!"}
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <Save className="w-4 h-4" /> {isAr ? "حفظ التفضيلات" : "Save Preferences"}
+                  </span>
+                )}
               </Button>
             </CardFooter>
           </Card>
