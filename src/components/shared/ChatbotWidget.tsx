@@ -134,7 +134,7 @@ export function ChatbotWidget() {
                     <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold shadow-xs mt-0.5 ${msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-primary border border-border'}`}>
                       {msg.type === 'user' ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
                     </div>
-                    <div className={`p-3.5 rounded-2xl max-w-[82%] text-xs font-medium leading-relaxed ${msg.type === 'user' ? 'bg-primary text-primary-foreground rounded-tr-xs' : 'bg-secondary/70 border border-border/70 text-foreground rounded-tl-xs'}`}>
+                    <div className={`p-3.5 rounded-2xl max-w-[82%] text-xs font-medium leading-relaxed whitespace-pre-line ${msg.type === 'user' ? 'bg-primary text-primary-foreground rounded-tr-xs' : 'bg-secondary/70 border border-border/70 text-foreground rounded-tl-xs'}`}>
                       {msg.text}
                       <div className="text-[9px] opacity-70 font-mono mt-1 text-right rtl:text-left">
                         {msg.timestamp}

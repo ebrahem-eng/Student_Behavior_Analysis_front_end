@@ -6,7 +6,7 @@ export const aiService = {
    * Send question or prompt to the AI Student Behavior Intelligence assistant
    */
   async sendMessage(prompt: string, studentId?: string | number): Promise<ChatMessage> {
-    const res = await api.post<ChatMessage>('/academic/students/1/project', {
+    const res = await api.post<ChatMessage>('/ai/chat', {
       prompt,
       student_id: studentId,
     });
