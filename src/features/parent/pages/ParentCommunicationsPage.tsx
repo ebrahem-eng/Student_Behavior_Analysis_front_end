@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Send, Loader2, RefreshCw } from "lucide-react";
+import { MessageCircle, Send, Loader2, RefreshCw, UserCheck } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,52 +15,98 @@ export default function ParentCommunicationsPage() {
   const isAr = i18n.language === "ar";
   const currentUser = useAppStore((state) => state.user);
 
+  // Restore saved selection from localStorage across refreshes
+  const [selectedChildId, setSelectedChildId] = useState<string>(() => {
+    return localStorage.getItem("sba_parent_selected_child_id") || "";
+  });
+  const [selectedAdvisorId, setSelectedAdvisorId] = useState<string>(() => {
+    return localStorage.getItem("sba_parent_selected_advisor_id") || "";
+  });
+
   const [children, setChildren] = useState<any[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string>("");
   const [advisors, setAdvisors] = useState<any[]>([]);
-  const [selectedAdvisorId, setSelectedAdvisorId] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load students & advisors
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // 1. Load students & advisors
   const loadParticipants = async () => {
     try {
-      const [studentsRes, usersRes] = await Promise.allSettled([
+      const [studentsRes, usersRes, allMessagesRes] = await Promise.allSettled([
         api.get('/admin/users?role=student'),
         api.get('/admin/users'),
+        api.get('/messages'),
       ]);
 
+      let studentList: any[] = [];
       if (studentsRes.status === 'fulfilled') {
         const raw = Array.isArray(studentsRes.value.data) ? studentsRes.value.data : (studentsRes.value.data?.data || []);
+        studentList = raw;
         setChildren(raw);
-        if (raw.length > 0 && !selectedChildId) {
-          setSelectedChildId(String(raw[0].id));
-        }
       }
 
+      let advisorList: any[] = [];
       if (usersRes.status === 'fulfilled') {
         const raw = Array.isArray(usersRes.value.data) ? usersRes.value.data : (usersRes.value.data?.data || []);
-        const advisorList = raw.filter((u: any) => {
+        const filtered = raw.filter((u: any) => {
           const r = (u.role || '').toLowerCase();
           const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
           return r === 'advisor' || roles.includes('advisor') || r === 'teacher' || roles.includes('teacher');
         });
-        const list = advisorList.length > 0 ? advisorList : raw;
-        setAdvisors(list);
-        if (list.length > 0 && !selectedAdvisorId) {
-          setSelectedAdvisorId(String(list[0].id));
-        }
+        advisorList = filtered.length > 0 ? filtered : raw;
+        setAdvisors(advisorList);
       }
+
+      // Check if there are existing messages to choose the default child with active messages
+      let existingMsgs: any[] = [];
+      if (allMessagesRes.status === 'fulfilled') {
+        existingMsgs = Array.isArray(allMessagesRes.value.data) ? allMessagesRes.value.data : (allMessagesRes.value.data?.data || []);
+      }
+
+      // If no valid child is selected yet, pick from localStorage or first student with messages or first student
+      const savedChildId = localStorage.getItem("sba_parent_selected_child_id");
+      if (savedChildId && studentList.some((s) => String(s.id) === String(savedChildId))) {
+        setSelectedChildId(savedChildId);
+      } else if (existingMsgs.length > 0 && existingMsgs[0].student_id) {
+        const matchingChild = studentList.find((s) => String(s.id) === String(existingMsgs[0].student_id));
+        if (matchingChild) {
+          const cId = String(matchingChild.id);
+          setSelectedChildId(cId);
+          localStorage.setItem("sba_parent_selected_child_id", cId);
+        } else if (studentList.length > 0) {
+          const cId = String(studentList[0].id);
+          setSelectedChildId(cId);
+          localStorage.setItem("sba_parent_selected_child_id", cId);
+        }
+      } else if (studentList.length > 0) {
+        const cId = String(studentList[0].id);
+        setSelectedChildId(cId);
+        localStorage.setItem("sba_parent_selected_child_id", cId);
+      }
+
+      // Advisor default
+      const savedAdvId = localStorage.getItem("sba_parent_selected_advisor_id");
+      if (savedAdvId && advisorList.some((a) => String(a.id) === String(savedAdvId))) {
+        setSelectedAdvisorId(savedAdvId);
+      } else if (advisorList.length > 0) {
+        const aId = String(advisorList[0].id);
+        setSelectedAdvisorId(aId);
+        localStorage.setItem("sba_parent_selected_advisor_id", aId);
+      }
+
     } catch (e) {
       console.warn("Error loading participants:", e);
     }
   };
 
-  // Load messages for the selected student & advisor
+  // 2. Load messages for the active conversation
   const loadMessages = async () => {
     setIsLoading(true);
     try {
@@ -70,6 +117,7 @@ export default function ParentCommunicationsPage() {
       const res = await api.get('/messages', { params });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setMessages(data);
+      setTimeout(scrollToBottom, 100);
     } catch (e) {
       console.warn("Error loading messages:", e);
     } finally {
@@ -86,6 +134,16 @@ export default function ParentCommunicationsPage() {
       loadMessages();
     }
   }, [selectedChildId, selectedAdvisorId]);
+
+  const handleSelectChild = (id: string) => {
+    setSelectedChildId(id);
+    localStorage.setItem("sba_parent_selected_child_id", id);
+  };
+
+  const handleSelectAdvisor = (id: string) => {
+    setSelectedAdvisorId(id);
+    localStorage.setItem("sba_parent_selected_advisor_id", id);
+  };
 
   const handleSendMessage = async () => {
     if (!chatInput.trim() || isSending) return;
@@ -104,6 +162,7 @@ export default function ParentCommunicationsPage() {
 
       setMessages((prev) => [...prev, newMsg]);
       setChatInput("");
+      setTimeout(scrollToBottom, 100);
     } catch (err) {
       alert(getApiErrorMessage(err, isAr));
     } finally {
@@ -125,7 +184,7 @@ export default function ParentCommunicationsPage() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "محادثة حية مشفرة ومحفوظة في قاعدة البيانات مع المرشد المخصص للطالب."
+              ? "محادثة حية مشفرة ومحفوظة في قاعدة بيانات MySQL مع المرشد المخصص للطالب."
               : "Live interactive messaging stored in MySQL with your student's academic advisor."}
           </p>
         </div>
@@ -137,7 +196,7 @@ export default function ParentCommunicationsPage() {
               <span className="text-xs text-muted-foreground font-semibold px-2">
                 {isAr ? "الطالب:" : "Child:"}
               </span>
-              <Select value={selectedChildId} onValueChange={setSelectedChildId}>
+              <Select value={selectedChildId} onValueChange={handleSelectChild}>
                 <SelectTrigger className="w-[160px] h-8 rounded-full bg-card border-border text-xs font-bold text-foreground">
                   <SelectValue placeholder="Select child" />
                 </SelectTrigger>
@@ -158,7 +217,7 @@ export default function ParentCommunicationsPage() {
               <span className="text-xs text-muted-foreground font-semibold px-2">
                 {isAr ? "المرشد:" : "Advisor:"}
               </span>
-              <Select value={selectedAdvisorId} onValueChange={setSelectedAdvisorId}>
+              <Select value={selectedAdvisorId} onValueChange={handleSelectAdvisor}>
                 <SelectTrigger className="w-[160px] h-8 rounded-full bg-card border-border text-xs font-bold text-foreground">
                   <SelectValue placeholder="Select advisor" />
                 </SelectTrigger>
@@ -204,9 +263,14 @@ export default function ParentCommunicationsPage() {
               </CardDescription>
             </div>
           </div>
+
+          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-bold rounded-full">
+            <UserCheck className="w-3 h-3 mr-1" />
+            <span>{isAr ? "متصل" : "Live Channel"}</span>
+          </Badge>
         </CardHeader>
 
-        <ScrollArea className="flex-1 p-5" ref={scrollRef}>
+        <ScrollArea className="flex-1 p-5">
           {isLoading ? (
             <div className="py-20 text-center text-muted-foreground text-xs">
               <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
@@ -249,6 +313,7 @@ export default function ParentCommunicationsPage() {
                   </div>
                 );
               })}
+              <div ref={messagesEndRef} />
             </div>
           )}
         </ScrollArea>

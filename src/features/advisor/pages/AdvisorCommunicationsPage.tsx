@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { MessageCircle, Bot, Send, Search, Users, User, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,12 @@ export default function AdvisorCommunicationsPage() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   // AI Chat Tab
   const [aiQuery, setAiQuery] = useState("");
   const [isAiThinking, setIsAiThinking] = useState(false);
@@ -37,17 +43,46 @@ export default function AdvisorCommunicationsPage() {
 
   const loadParents = async () => {
     try {
-      const res = await api.get('/admin/users');
-      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-      const parentUsers = data.filter((u: any) => {
-        const r = (u.role || '').toLowerCase();
-        const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
-        return r === 'parent' || roles.includes('parent') || r === 'student' || roles.includes('student');
-      });
-      const list = parentUsers.length > 0 ? parentUsers : data;
-      setParents(list);
-      if (list.length > 0 && !activeParent) {
+      const [usersRes, messagesRes] = await Promise.allSettled([
+        api.get('/admin/users'),
+        api.get('/messages'),
+      ]);
+
+      let list: any[] = [];
+      if (usersRes.status === 'fulfilled') {
+        const raw = Array.isArray(usersRes.value.data) ? usersRes.value.data : (usersRes.value.data?.data || []);
+        const parentUsers = raw.filter((u: any) => {
+          const r = (u.role || '').toLowerCase();
+          const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
+          return r === 'parent' || roles.includes('parent') || r === 'student' || roles.includes('student');
+        });
+        list = parentUsers.length > 0 ? parentUsers : raw;
+        setParents(list);
+      }
+
+      let allMsgs: any[] = [];
+      if (messagesRes.status === 'fulfilled') {
+        allMsgs = Array.isArray(messagesRes.value.data) ? messagesRes.value.data : (messagesRes.value.data?.data || []);
+      }
+
+      const savedParentId = localStorage.getItem("sba_advisor_selected_parent_id");
+      if (savedParentId && list.some((p) => String(p.id) === String(savedParentId))) {
+        const found = list.find((p) => String(p.id) === String(savedParentId));
+        setActiveParent(found);
+      } else if (allMsgs.length > 0) {
+        const lastMsg = allMsgs[allMsgs.length - 1];
+        const otherId = Number(lastMsg.sender_id) === Number(currentUser?.id) ? lastMsg.recipient_id : lastMsg.sender_id;
+        const matching = list.find((p) => Number(p.id) === Number(otherId));
+        if (matching) {
+          setActiveParent(matching);
+          localStorage.setItem("sba_advisor_selected_parent_id", String(matching.id));
+        } else if (list.length > 0) {
+          setActiveParent(list[0]);
+          localStorage.setItem("sba_advisor_selected_parent_id", String(list[0].id));
+        }
+      } else if (list.length > 0) {
         setActiveParent(list[0]);
+        localStorage.setItem("sba_advisor_selected_parent_id", String(list[0].id));
       }
     } catch (e) {
       console.warn("Parents load error:", e);
@@ -65,6 +100,7 @@ export default function AdvisorCommunicationsPage() {
       });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setMessages(data);
+      setTimeout(scrollToBottom, 100);
     } catch (e) {
       console.warn("Load messages error:", e);
     } finally {
@@ -82,6 +118,11 @@ export default function AdvisorCommunicationsPage() {
     }
   }, [activeParent]);
 
+  const handleSelectParent = (p: any) => {
+    setActiveParent(p);
+    localStorage.setItem("sba_advisor_selected_parent_id", String(p.id));
+  };
+
   const handleSendMessage = async () => {
     if (!inputMsg.trim() || !activeParent || isSending) return;
     const text = inputMsg.trim();
@@ -95,6 +136,7 @@ export default function AdvisorCommunicationsPage() {
       const newMsg = res.data?.data || res.data;
       setMessages((prev) => [...prev, newMsg]);
       setInputMsg("");
+      setTimeout(scrollToBottom, 100);
     } catch (err) {
       alert(getApiErrorMessage(err, isAr));
     } finally {
@@ -191,7 +233,7 @@ export default function AdvisorCommunicationsPage() {
                     return (
                       <button
                         key={p.id}
-                        onClick={() => setActiveParent(p)}
+                        onClick={() => handleSelectParent(p)}
                         className={`w-full text-left p-3 rounded-2xl transition-all ${
                           isSelected
                             ? 'bg-primary/10 border border-primary/20 text-foreground'
@@ -260,6 +302,7 @@ export default function AdvisorCommunicationsPage() {
                         </div>
                       );
                     })}
+                    <div ref={messagesEndRef} />
                   </div>
                 )}
               </ScrollArea>
