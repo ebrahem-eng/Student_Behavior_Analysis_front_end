@@ -95,10 +95,10 @@ export default function ParentDashboardPage() {
 
       {/* Main 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         {/* Left / Main Alerts & Reports Area (8 cols) */}
         <div className="lg:col-span-8 space-y-6">
-          
+
           {/* Alerts Feed Card */}
           <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl shadow-sm overflow-hidden p-6">
             <CardHeader className="p-0 pb-4 border-b border-border/70 flex flex-row items-center justify-between">
@@ -137,21 +137,19 @@ export default function ParentDashboardPage() {
                     return (
                       <div
                         key={alert.id}
-                        className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                          !alert.isRead
+                        className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${!alert.isRead
                             ? "bg-secondary/70 border-primary/20 shadow-xs"
                             : "bg-secondary/40 border-border/70 hover:bg-secondary/60"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start gap-3.5">
                           <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                              isDanger
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${isDanger
                                 ? "bg-rose-500/10 text-rose-500 border border-rose-500/20"
                                 : isWarning
-                                ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                                : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                            }`}
+                                  ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                  : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                              }`}
                           >
                             {isDanger ? (
                               <AlertTriangle className="w-5 h-5" />
@@ -257,7 +255,7 @@ export default function ParentDashboardPage() {
 
         {/* Right / Status Capsule Area (4 cols) */}
         <div className="lg:col-span-4 space-y-6">
-          
+
           {/* Active Child Summary Card */}
           <div className="relative bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-6 shadow-sm overflow-hidden space-y-6">
             <span className="absolute -bottom-3 -right-1 text-7xl font-black text-foreground/[0.03] pointer-events-none select-none font-mono">

@@ -1,194 +1,243 @@
-import { useState } from "react";
-import { Settings, ShieldCheck, BellRing, UserCheck, CreditCard, Save } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { Settings, ShieldCheck, BellRing, UserCheck, CreditCard, Save, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { api } from "@/lib/api";
 
 export default function ParentSettingsPage() {
-  const [selectedChild, setSelectedChild] = useState("STU-001");
-  
+  const { i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
+
+  const [children, setChildren] = useState<any[]>([]);
+  const [selectedChildId, setSelectedChildId] = useState<string>("");
+
   const [dataConsent, setDataConsent] = useState(true);
   const [aiConsent, setAiConsent] = useState(true);
-  
+
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(true);
   const [smsEnabled, setSmsEnabled] = useState(false);
-  const [alertFrequency, setAlertFrequency] = useState("immediate");
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    api.get('/admin/users?role=student')
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        const students = data.filter((u: any) => {
+          const r = (u.role || '').toLowerCase();
+          const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
+          return r === 'student' || roles.includes('student');
+        });
+        const list = students.length > 0 ? students : data;
+        setChildren(list);
+        if (list.length > 0) setSelectedChildId(String(list[0].id));
+      })
+      .catch((e) => console.warn("Parent settings students load error:", e));
+  }, []);
+
+  const handleSave = () => {
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
+  const activeChild = children.find((c) => String(c.id) === String(selectedChildId)) || children[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Settings className="h-8 w-8 text-fuchsia-400" />
-            Family Settings
+            <Settings className="h-8 w-8 text-primary" />
+            {isAr ? "إعدادات حساب ولي الأمر والخصوصية" : "Family Settings & Consent"}
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage consents, notifications, and preferences for your family account.
+          <p className="text-muted-foreground mt-1 text-sm">
+            {isAr
+              ? "إدارة قنوات الإشعارات وموافقات معالجة البيانات الأكاديمية للأبناء."
+              : "Manage notification channels and academic data processing consents for your children."}
           </p>
         </div>
       </div>
 
-      <Tabs defaultValue="notifications" className="w-full space-y-6">
-        <TabsList className="bg-card/50 border border-border p-1">
-          <TabsTrigger value="notifications" className="data-[state=active]:bg-fuchsia-600 data-[state=active]:text-foreground">
-            <BellRing className="w-4 h-4 mr-2" /> Notifications
+      <Tabs defaultValue="notifications" className="w-full">
+        <TabsList className="bg-card/80 border border-border p-1 rounded-2xl mb-6">
+          <TabsTrigger value="notifications" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
+            <BellRing className="w-4 h-4 mr-2" />
+            <span>{isAr ? "تفضيلات الإشعارات" : "Notifications"}</span>
           </TabsTrigger>
-          <TabsTrigger value="consent" className="data-[state=active]:bg-fuchsia-600 data-[state=active]:text-foreground">
-            <ShieldCheck className="w-4 h-4 mr-2" /> Consent Management
+          <TabsTrigger value="consent" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
+            <ShieldCheck className="w-4 h-4 mr-2" />
+            <span>{isAr ? "الموافقات الأكاديمية" : "Consent Management"}</span>
           </TabsTrigger>
-          <TabsTrigger value="billing" className="data-[state=active]:bg-fuchsia-600 data-[state=active]:text-foreground">
-            <CreditCard className="w-4 h-4 mr-2" /> Billing
+          <TabsTrigger value="billing" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
+            <CreditCard className="w-4 h-4 mr-2" />
+            <span>{isAr ? "الرسوم والخدمات" : "Tuition & Fees"}</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="notifications" className="space-y-6 m-0 animate-in fade-in duration-300">
-          <Card className="bg-card/50 border-border">
-            <CardHeader>
-              <CardTitle className="text-xl text-foreground">Alert Preferences</CardTitle>
-              <CardDescription className="text-muted-foreground">Choose how and when you receive updates about your children.</CardDescription>
+        {/* Tab 1: Notifications */}
+        <TabsContent value="notifications" className="space-y-6">
+          <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm">
+            <CardHeader className="p-0 pb-5">
+              <CardTitle className="text-base font-bold text-foreground">
+                {isAr ? "قنوات استلام التنبيهات" : "Alert Preferences & Channels"}
+              </CardTitle>
+              <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                {isAr ? "اختر كيفية وتوقيت وصول الإشعارات الأكاديمية الخاصة بالأبناء." : "Choose how and when you receive updates about your children."}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              
-              <div className="space-y-4 pb-6 border-b border-white/5">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Channels</h3>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col space-y-1">
-                    <Label htmlFor="push" className="text-foreground text-base">Mobile Push Notifications</Label>
-                    <span className="text-sm text-muted-foreground">Receive instant alerts via the mobile app/PWA.</span>
-                  </div>
-                  <Switch id="push" checked={pushEnabled} onCheckedChange={setPushEnabled} className="data-[state=checked]:bg-fuchsia-500" />
+            <CardContent className="p-0 space-y-5 pt-2">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="push" className="text-xs font-bold text-foreground">
+                    {isAr ? "إشعارات التطبيق الفورية (Push)" : "Mobile Push Notifications"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "استلام تنبيهات لحظية عبر التطبيق." : "Instant alerts via the browser / PWA."}
+                  </p>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col space-y-1">
-                    <Label htmlFor="email" className="text-foreground text-base">Email Notifications</Label>
-                    <span className="text-sm text-muted-foreground">Receive detailed reports and alerts via email.</span>
-                  </div>
-                  <Switch id="email" checked={emailEnabled} onCheckedChange={setEmailEnabled} className="data-[state=checked]:bg-fuchsia-500" />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col space-y-1">
-                    <Label htmlFor="sms" className="text-foreground text-base">SMS Text Messages</Label>
-                    <span className="text-sm text-muted-foreground">Receive critical alerts via SMS (carrier charges may apply).</span>
-                  </div>
-                  <Switch id="sms" checked={smsEnabled} onCheckedChange={setSmsEnabled} className="data-[state=checked]:bg-fuchsia-500" />
-                </div>
+                <Switch id="push" checked={pushEnabled} onCheckedChange={setPushEnabled} />
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Frequency</h3>
-                <div className="max-w-xs">
-                  <Label className="text-foreground mb-2 block">Alert Digest</Label>
-                  <Select value={alertFrequency} onValueChange={setAlertFrequency}>
-                    <SelectTrigger className="w-full bg-background border-border text-foreground">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border text-foreground">
-                      <SelectItem value="immediate">Immediate (Real-time)</SelectItem>
-                      <SelectItem value="daily">Daily Digest</SelectItem>
-                      <SelectItem value="weekly">Weekly Summary</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-2">Critical safety alerts will always be sent immediately regardless of this setting.</p>
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="email" className="text-xs font-bold text-foreground">
+                    {isAr ? "البريد الإلكتروني" : "Email Reports"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "استلام التقارير الشهرية والإنذارات عبر البريد." : "Receive periodic reports and summary alerts via email."}
+                  </p>
                 </div>
+                <Switch id="email" checked={emailEnabled} onCheckedChange={setEmailEnabled} />
               </div>
 
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="sms" className="text-xs font-bold text-foreground">
+                    {isAr ? "رسائل SMS القصيرة" : "SMS Text Alerts"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "استلام التنبيهات الطارئة عبر الرسائل النصية." : "Receive critical alerts via SMS message."}
+                  </p>
+                </div>
+                <Switch id="sms" checked={smsEnabled} onCheckedChange={setSmsEnabled} />
+              </div>
             </CardContent>
-            <CardFooter className="border-t border-white/5 pt-4 bg-white/[0.02]">
-              <Button className="bg-fuchsia-600 hover:bg-fuchsia-700 text-foreground">
-                <Save className="w-4 h-4 mr-2" /> Save Notification Settings
+            <CardFooter className="p-0 pt-6">
+              <Button onClick={handleSave} className="rounded-full bg-primary text-primary-foreground text-xs font-bold h-9 px-5">
+                {isSaved ? (
+                  <span className="flex items-center gap-1.5 text-white">
+                    <Check className="w-4 h-4" /> {isAr ? "تم الحفظ!" : "Saved!"}
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <Save className="w-4 h-4" /> {isAr ? "حفظ الإعدادات" : "Save Settings"}
+                  </span>
+                )}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
-        <TabsContent value="consent" className="space-y-6 m-0 animate-in fade-in duration-300">
-          <Card className="bg-card/50 border-border">
-            <CardHeader>
-              <div className="flex justify-between items-start">
+        {/* Tab 2: Consent */}
+        <TabsContent value="consent" className="space-y-6">
+          <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm">
+            <CardHeader className="p-0 pb-5">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <CardTitle className="text-xl text-foreground">Data Consent Management</CardTitle>
-                  <CardDescription className="text-muted-foreground">Manage platform permissions on behalf of your minor children.</CardDescription>
+                  <CardTitle className="text-base font-bold text-foreground">
+                    {isAr ? "إدارة موافقات البيانات الأكاديمية" : "Data Consent Management"}
+                  </CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                    {isAr ? "التحكم في معالجة البيانات التحليلية نيابة عن الطالب." : "Manage permissions on behalf of your enrolled child."}
+                  </CardDescription>
                 </div>
-                <div className="w-[200px]">
-                  <Select value={selectedChild} onValueChange={setSelectedChild}>
-                    <SelectTrigger className="w-full bg-background border-border text-foreground">
-                      <SelectValue placeholder="Select a child" />
+
+                {children.length > 0 && (
+                  <Select value={selectedChildId} onValueChange={setSelectedChildId}>
+                    <SelectTrigger className="w-[180px] h-8 rounded-full bg-card border-border text-xs font-bold text-foreground">
+                      <SelectValue placeholder="Select child" />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-border text-foreground">
-                      <SelectItem value="STU-001">Alice Johnson</SelectItem>
-                      <SelectItem value="STU-002">Bob Johnson</SelectItem>
+                    <SelectContent className="bg-card border-border text-foreground rounded-2xl">
+                      {children.map((c) => (
+                        <SelectItem key={c.id} value={String(c.id)} className="text-xs font-semibold">
+                          {c.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                </div>
+                )}
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-start gap-3">
-                <UserCheck className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-200">
-                  As the registered guardian, you have the authority to manage these settings for {selectedChild === 'STU-001' ? 'Alice' : 'Bob'}. 
-                  Changes take effect immediately across the platform.
+
+            <CardContent className="p-0 space-y-5 pt-2">
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl flex items-center gap-3">
+                <UserCheck className="w-5 h-5 text-primary shrink-0" />
+                <p className="text-xs text-foreground font-medium">
+                  {isAr
+                    ? `بصفتك ولي الأمر المسجل، تسري هذه الخيارات مباشرة على حساب الطالب: ${activeChild?.name || ""}`
+                    : `As the registered guardian, settings apply directly to student: ${activeChild?.name || ""}`}
                 </p>
               </div>
 
-              <div className="space-y-6 mt-4">
-                <div className="flex items-start justify-between space-x-4">
-                  <div className="flex flex-col space-y-1">
-                    <Label htmlFor="child-data-consent" className="text-foreground text-base">Core Academic Processing</Label>
-                    <span className="text-sm text-muted-foreground">
-                      Allow the institution to process grades, attendance, and behavioral logs to generate reports and calculate basic risk scores. Required for enrollment.
-                    </span>
-                  </div>
-                  <Switch 
-                    id="child-data-consent" 
-                    checked={dataConsent} 
-                    onCheckedChange={setDataConsent}
-                    className="data-[state=checked]:bg-emerald-500 mt-1"
-                  />
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="c-data" className="text-xs font-bold text-foreground">
+                    {isAr ? "معالجة السجلات الأكاديمية" : "Academic Records Processing"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "السماح بتحليل الدرجات والغياب لحساب مؤشرات الإنذار المبكر." : "Allow calculation of risk scores from grades and attendance."}
+                  </p>
                 </div>
+                <Switch id="c-data" checked={dataConsent} onCheckedChange={setDataConsent} />
+              </div>
 
-                <div className="flex items-start justify-between space-x-4">
-                  <div className="flex flex-col space-y-1">
-                    <Label htmlFor="child-ai-consent" className="text-foreground text-base">Advanced AI Analytics</Label>
-                    <span className="text-sm text-muted-foreground">
-                      Allow the platform's AI models to analyze your child's data to discover hidden patterns, provide personalized recommendations, and project future performance.
-                    </span>
-                  </div>
-                  <Switch 
-                    id="child-ai-consent" 
-                    checked={aiConsent} 
-                    onCheckedChange={setAiConsent}
-                    className="data-[state=checked]:bg-emerald-500 mt-1"
-                  />
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="c-ai" className="text-xs font-bold text-foreground">
+                    {isAr ? "نماذج الذكاء الاصطناعي التنبؤية" : "Predictive AI Insights"}
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground">
+                    {isAr ? "تمكين الذكاء الاصطناعي من تقديم توصيات استذكار موجهة." : "Allow AI models to generate early-warning recommendations."}
+                  </p>
                 </div>
+                <Switch id="c-ai" checked={aiConsent} onCheckedChange={setAiConsent} />
               </div>
             </CardContent>
-            <CardFooter className="border-t border-white/5 pt-4 bg-white/[0.02]">
-              <Button className="bg-fuchsia-600 hover:bg-fuchsia-700 text-foreground">
-                <Save className="w-4 h-4 mr-2" /> Save Consent Settings
+
+            <CardFooter className="p-0 pt-6">
+              <Button onClick={handleSave} className="rounded-full bg-primary text-primary-foreground text-xs font-bold h-9 px-5">
+                {isSaved ? (
+                  <span className="flex items-center gap-1.5 text-white">
+                    <Check className="w-4 h-4" /> {isAr ? "تم الحفظ!" : "Saved!"}
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <Save className="w-4 h-4" /> {isAr ? "حفظ خيارات الموافقة" : "Save Consent"}
+                  </span>
+                )}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
-        <TabsContent value="billing" className="space-y-6 m-0 animate-in fade-in duration-300">
-          <Card className="bg-card/50 border-border">
-            <CardHeader>
-              <CardTitle className="text-xl text-foreground">Tuition & Billing</CardTitle>
-              <CardDescription className="text-muted-foreground">View balances and payment history.</CardDescription>
+        {/* Tab 3: Billing */}
+        <TabsContent value="billing" className="space-y-6">
+          <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-base font-bold text-foreground">
+                {isAr ? "الرسوم والالتزامات المالية" : "Tuition & Fee Status"}
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="p-8 text-center border-2 border-dashed border-border rounded-xl">
-                <CreditCard className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-muted-foreground">No balances due</h3>
-                <p className="text-slate-500 max-w-sm mx-auto mt-2">All tuition and fee accounts are currently up to date.</p>
+            <CardContent className="p-0 pt-4">
+              <div className="p-8 text-center border border-dashed border-border rounded-2xl bg-secondary/30">
+                <CreditCard className="w-10 h-10 text-muted-foreground mx-auto mb-2 opacity-50" />
+                <h3 className="text-xs font-bold text-foreground">{isAr ? "لا توجد مستحقات مالية متأخرة" : "No balances due"}</h3>
+                <p className="text-[11px] text-muted-foreground mt-1">{isAr ? "جميع الرسوم مسددة ومحدثة بنجاح." : "All tuition and institutional fee accounts are in good standing."}</p>
               </div>
             </CardContent>
           </Card>
