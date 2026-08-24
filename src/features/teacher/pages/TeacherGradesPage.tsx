@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, Plus, Search, Trash2, Loader2, RefreshCw } from "lucide-react";
+import { BookOpen, Search, Plus, Trash2, Award, Loader2, RefreshCw, Building, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -23,35 +24,46 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { api, getApiErrorMessage } from "@/lib/api";
-import type { Course } from "@/types/api";
+import { useAppStore } from "@/lib/store";
 
 export default function TeacherGradesPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const currentUser = useAppStore((state) => state.user);
 
   const [grades, setGrades] = useState<any[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("all");
+  const [scopeMode, setScopeMode] = useState<"my_sections" | "all_institution">("my_sections");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Dialog Form
+  // Dialog Form State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [studentId, setStudentId] = useState("");
   const [examName, setExamName] = useState("");
-  const [score, setScore] = useState("85");
+  const [score, setScore] = useState("");
   const [weight, setWeight] = useState("0.2");
 
   const loadData = async () => {
     setIsLoading(true);
     try {
+      const isMySections = scopeMode === "my_sections";
+
       const [gradesRes, coursesRes, usersRes] = await Promise.allSettled([
-        api.get('/academic/grades'),
-        api.get('/academic/courses'),
+        api.get('/academic/grades', {
+          params: {
+            ...(isMySections ? { my_sections: true } : {}),
+            ...(selectedCourse !== 'all' ? { course_id: selectedCourse } : {})
+          }
+        }),
+        api.get('/academic/courses', {
+          params: isMySections ? { my_courses: true } : {}
+        }),
         api.get('/admin/users?role=student'),
       ]);
 
@@ -74,7 +86,7 @@ export default function TeacherGradesPage() {
         });
         const finalStudents = studentsOnly.length > 0 ? studentsOnly : allUsers;
         setUsers(finalStudents);
-        if (finalStudents.length > 0) {
+        if (finalStudents.length > 0 && !studentId) {
           setStudentId(String(finalStudents[0].id));
         }
       }
@@ -87,7 +99,7 @@ export default function TeacherGradesPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [selectedCourse, scopeMode]);
 
   const handleCreateGrade = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +116,7 @@ export default function TeacherGradesPage() {
 
       setIsDialogOpen(false);
       setExamName("");
+      setScore("");
       loadData();
     } catch (err: any) {
       setFormError(getApiErrorMessage(err, isAr));
@@ -123,30 +136,71 @@ export default function TeacherGradesPage() {
   };
 
   const filteredGrades = grades.filter((g) => {
-    const studentName = g.student?.name || g.user?.name || `Student #${g.enrollment_id || g.id}`;
-    const assessmentName = g.exam_name || g.assessment_name || "";
-    return (
-      studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      assessmentName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const student = g.enrollment?.student || g.student;
+    const course = g.enrollment?.section?.course || g.course;
+    const sName = student?.name || "";
+    const cName = course?.name || "";
+    const exam = g.exam_name || "";
+
+    const matchesSearch =
+      sName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      exam.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCourse = selectedCourse === "all" || String(course?.id) === String(selectedCourse);
+
+    return matchesSearch && matchesCourse;
   });
 
+  const instName = currentUser?.institution?.name || (currentUser as any)?.institution_name;
+  const colName = currentUser?.college?.name;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <BookOpen className="h-8 w-8 text-primary" />
-            {isAr ? "رصد الدرجات والتقييمات" : "Grades & Evaluation"}
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <BookOpen className="h-8 w-8 text-primary" />
+              {isAr ? "رصد وتقييم درجات الطلاب" : "Grades & Evaluation"}
+            </h1>
+            {instName && (
+              <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-xs px-3 py-1 font-bold flex items-center gap-1.5">
+                <Building className="w-3 h-3 text-primary" />
+                <span>{instName}</span>
+              </Badge>
+            )}
+            {colName && (
+              <Badge variant="outline" className="rounded-full bg-primary/10 text-primary border-primary/20 text-xs px-3 py-1 font-bold flex items-center gap-1.5">
+                <GraduationCap className="w-3 h-3" />
+                <span>{colName}</span>
+              </Badge>
+            )}
+          </div>
+          <p className="text-muted-foreground text-sm">
             {isAr
-              ? "إدخال ومتابعة درجات الواجبات والاختبارات المحفوظة مباشرة في قاعدة بيانات MySQL."
-              : "Manage student assessment marks and exam results live from your MySQL academic records."}
+              ? "رصد التقييمات والاختبارات الدورية لطلاب شُعبك ومؤسستك التعليمية مباشرة في MySQL."
+              : "Record exam scores and grade evaluations scoped to your assigned students & courses in MySQL."}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Scope Selector */}
+          <Select value={scopeMode} onValueChange={(val: any) => setScopeMode(val)}>
+            <SelectTrigger className="w-[160px] rounded-full h-9 bg-card border-border text-xs font-bold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border rounded-2xl">
+              <SelectItem value="my_sections" className="text-xs font-semibold">
+                👤 {isAr ? "شُعبي المسندة" : "My Taught Sections"}
+              </SelectItem>
+              <SelectItem value="all_institution" className="text-xs font-semibold">
+                🏛️ {isAr ? "مقررات المؤسسة" : "All Institution"}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
           <Button
             variant="outline"
             size="sm"
@@ -161,14 +215,14 @@ export default function TeacherGradesPage() {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-4 h-9 shadow-lg shadow-primary/20 transition-all hover:scale-105">
-                <Plus className="mr-2 h-4 w-4" /> {isAr ? "رصد درجة جديدة" : "Record Grade"}
+                <Plus className="mr-1.5 h-4 w-4" /> {isAr ? "رصد درجة جديدة" : "Record Grade"}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[480px] bg-card border-border text-foreground rounded-3xl">
               <DialogHeader>
-                <DialogTitle>{isAr ? "رصد درجة تقييم جديدة" : "Record New Assessment Score"}</DialogTitle>
-                <DialogDescription className="text-xs text-muted-foreground">
-                  {isAr ? "سيتم إدخال الدرجة مباشرة في جدول grades في MySQL لتحديث مؤشر الذكاء الاصطناعي." : "Scores are saved to MySQL and feed into the AI risk scoring model."}
+                <DialogTitle>{isAr ? "رصد تقييم جديد لطالب" : "Record Student Grade"}</DialogTitle>
+                <DialogDescription className="text-muted-foreground text-xs">
+                  {isAr ? "سيتم حفظ الدرجة وربطها بسجل الطالب والشعبة في MySQL." : "Save grade entry live to MySQL."}
                 </DialogDescription>
               </DialogHeader>
 
@@ -180,14 +234,14 @@ export default function TeacherGradesPage() {
 
               <form onSubmit={handleCreateGrade} className="space-y-4 py-2">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">{isAr ? "اختيار الطالب" : "Select Student"}</Label>
+                  <Label className="text-xs font-semibold">{isAr ? "الطالب" : "Student"}</Label>
                   <Select value={studentId} onValueChange={setStudentId}>
                     <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
-                      <SelectValue placeholder="Choose student" />
+                      <SelectValue placeholder={isAr ? "اختر الطالب..." : "Select student..."} />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
+                    <SelectContent className="bg-card border-border rounded-2xl">
                       {users.map((u) => (
-                        <SelectItem key={u.id} value={String(u.id)}>
+                        <SelectItem key={u.id} value={String(u.id)} className="text-xs font-semibold">
                           {u.name} ({u.email})
                         </SelectItem>
                       ))}
@@ -196,60 +250,56 @@ export default function TeacherGradesPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">{isAr ? "اسم التقييم / الاختبار" : "Assessment Name"}</Label>
+                  <Label htmlFor="exam-name" className="text-xs font-semibold">{isAr ? "اسم التقييم / الاختبار" : "Assessment Name"}</Label>
                   <Input
+                    id="exam-name"
                     required
                     value={examName}
                     onChange={(e) => setExamName(e.target.value)}
-                    placeholder="E.g. Midterm Exam 1"
+                    placeholder="Midterm Exam / Final Project / Quiz 1"
                     className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">{isAr ? "الدرجة (من 100)" : "Score (0-100)"}</Label>
+                    <Label htmlFor="score" className="text-xs font-semibold">{isAr ? "الدرجة (من 100)" : "Score (out of 100)"}</Label>
                     <Input
+                      id="score"
                       type="number"
                       min="0"
                       max="100"
                       required
                       value={score}
                       onChange={(e) => setScore(e.target.value)}
+                      placeholder="85"
                       className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
                     />
                   </div>
-
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">{isAr ? "الوزن النسبي" : "Weight (0-1.0)"}</Label>
+                    <Label htmlFor="weight" className="text-xs font-semibold">{isAr ? "الوزن النسبي" : "Weight (0-1)"}</Label>
                     <Input
+                      id="weight"
                       type="number"
                       step="0.05"
-                      min="0.05"
+                      min="0"
                       max="1"
                       required
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
+                      placeholder="0.2"
                       className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
-                    className="rounded-full text-xs"
-                  >
+                <div className="pt-2 flex justify-end gap-2">
+                  <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-full text-xs font-semibold">
                     {isAr ? "إلغاء" : "Cancel"}
                   </Button>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="rounded-full bg-primary text-primary-foreground text-xs font-bold"
-                  >
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAr ? "حفظ الدرجة" : "Save Grade")}
+                  <Button type="submit" disabled={isSubmitting} className="rounded-full bg-primary text-primary-foreground text-xs font-bold px-5">
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                    {isAr ? "حفظ الدرجة" : "Save Grade"}
                   </Button>
                 </div>
               </form>
@@ -258,94 +308,110 @@ export default function TeacherGradesPage() {
         </div>
       </div>
 
-      <div className="bg-card/85 backdrop-blur-xl rounded-3xl p-4 sm:p-6 border border-border">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={isAr ? "بحث بالطالب أو الاختبار..." : "Search grades..."}
-              className="pl-9 h-9 rounded-full bg-secondary/60 border-border text-xs"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-            <SelectTrigger className="w-[180px] rounded-full h-9 bg-secondary/60 border-border text-xs font-bold">
-              <SelectValue placeholder="All Courses" />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-border">
-              <SelectItem value="all">{isAr ? "جميع المقررات" : "All Courses"}</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={String(c.id)}>
-                  {c.code ? `${c.code} - ${c.name || c.title || 'Course'}` : (c.name || c.title || 'Course')}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground rtl:left-auto rtl:right-3.5" />
+          <Input
+            placeholder={isAr ? "بحث بالطالب، الاختبار، المقرر..." : "Search student, exam, course..."}
+            className="pl-10 rtl:pl-3 rtl:pr-10 h-10 rounded-full bg-secondary/60 border-border text-xs"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
-        <div className="rounded-2xl border border-border overflow-hidden bg-card/40">
-          <Table>
-            <TableHeader className="bg-secondary/40">
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground text-xs">{isAr ? "الرقم / المعرف" : "Record ID"}</TableHead>
-                <TableHead className="text-muted-foreground text-xs">{isAr ? "اسم التقييم" : "Assessment"}</TableHead>
-                <TableHead className="text-muted-foreground text-xs">{isAr ? "الدرجة" : "Score"}</TableHead>
-                <TableHead className="text-muted-foreground text-xs">{isAr ? "التقدير" : "Grade"}</TableHead>
-                <TableHead className="text-muted-foreground text-xs">{isAr ? "الوزن" : "Weight"}</TableHead>
-                <TableHead className="text-right text-muted-foreground text-xs">{isAr ? "الإجراءات" : "Actions"}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-muted-foreground text-xs">
-                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
-                    {isAr ? "جارٍ جلب الدرجات من MySQL..." : "Loading grades from MySQL..."}
-                  </TableCell>
-                </TableRow>
-              ) : filteredGrades.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-12 text-muted-foreground text-xs">
-                    {isAr ? "لا توجد درجات مسجلة في قاعدة البيانات حالياً." : "No grade records found in database."}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredGrades.map((g) => {
-                  const numScore = Number(g.score || 0);
-                  const letter = numScore >= 90 ? "A" : numScore >= 80 ? "B" : numScore >= 70 ? "C" : numScore >= 60 ? "D" : "F";
-                  const badgeColor = numScore >= 80 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : numScore >= 60 ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20";
-
-                  return (
-                    <TableRow key={g.id} className="border-border hover:bg-secondary/40 transition-colors">
-                      <TableCell className="text-xs font-mono text-muted-foreground">#{g.id}</TableCell>
-                      <TableCell className="text-xs font-semibold text-foreground">{g.exam_name || g.assessment_name || "Assignment"}</TableCell>
-                      <TableCell className="text-xs font-bold text-foreground font-mono">{numScore}%</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={`text-[11px] font-bold rounded-full ${badgeColor}`}>
-                          {letter}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground font-mono">{((Number(g.weight || 0.2)) * 100).toFixed(0)}%</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteGrade(g.id)}
-                          className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-full h-8 px-2.5"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+          <SelectTrigger className="w-full sm:w-[220px] rounded-full h-10 bg-card border-border text-xs font-bold">
+            <SelectValue placeholder={isAr ? "جميع المقررات" : "All Courses"} />
+          </SelectTrigger>
+          <SelectContent className="bg-card border-border rounded-2xl">
+            <SelectItem value="all">{isAr ? "جميع المقررات" : "All Courses"}</SelectItem>
+            {courses.map((c) => (
+              <SelectItem key={c.id} value={String(c.id)}>
+                {c.code ? `${c.code} - ${c.name || 'Course'}` : (c.name || 'Course')}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      {/* Table Card */}
+      <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader className="bg-secondary/40">
+            <TableRow className="border-border">
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الطالب" : "Student"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "المقرر / الشعبة" : "Course"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الاختبار / التقييم" : "Assessment"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الدرجة" : "Score"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الوزن" : "Weight"}</TableHead>
+              <TableHead className="text-right rtl:text-left text-xs font-bold text-muted-foreground uppercase">{isAr ? "الإجراءات" : "Actions"}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-32 text-center text-xs text-muted-foreground">
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
+                  {isAr ? "جارٍ جلب الدرجات من MySQL..." : "Loading grades from MySQL..."}
+                </TableCell>
+              </TableRow>
+            ) : filteredGrades.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-32 text-center text-xs text-muted-foreground">
+                  <Award className="w-8 h-8 mx-auto mb-2 text-primary/30" />
+                  {isAr ? "لا توجد درجات مسجلة مطابقة للبحث." : "No grade records found."}
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredGrades.map((g) => {
+                const student = g.enrollment?.student || g.student;
+                const course = g.enrollment?.section?.course || g.course;
+                const scoreVal = Number(g.score || 0);
+
+                let scoreBadge = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+                if (scoreVal < 60) scoreBadge = "bg-rose-500/10 text-rose-500 border-rose-500/20";
+                else if (scoreVal < 75) scoreBadge = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+
+                return (
+                  <TableRow key={g.id} className="border-border hover:bg-secondary/30 transition-colors">
+                    <TableCell className="py-3">
+                      <div>
+                        <p className="font-bold text-xs text-foreground">{student?.name || `Student #${g.enrollment_id}`}</p>
+                        <p className="text-[11px] text-muted-foreground">{student?.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs font-semibold text-foreground">
+                      {course?.name ? `${course.code ? `${course.code} - ` : ''}${course.name}` : (isAr ? "مقرر عام" : "General Course")}
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground font-semibold">
+                      {g.exam_name || "Assessment"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`rounded-full text-xs font-mono font-bold px-2.5 py-0.5 ${scoreBadge}`}>
+                        {scoreVal}%
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs font-mono text-muted-foreground">
+                      {g.weight ? `${Number(g.weight) * 100}%` : "20%"}
+                    </TableCell>
+                    <TableCell className="text-right rtl:text-left">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDeleteGrade(g.id)}
+                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

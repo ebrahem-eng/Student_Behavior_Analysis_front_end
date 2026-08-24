@@ -10,10 +10,12 @@ import {
   BookOpen,
   Sparkles,
   Award,
-  RefreshCw
+  RefreshCw,
+  Building
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   LineChart,
@@ -27,6 +29,7 @@ import {
   Bar,
 } from "recharts";
 import { api } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 import type { Course } from "@/types/api";
 
 interface StatCardProps {
@@ -91,10 +94,12 @@ const StatCard = ({
 export default function TeacherDashboardPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const currentUser = useAppStore((state) => state.user);
 
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("all");
+  const [scopeMode, setScopeMode] = useState<"my_sections" | "all_institution">("my_sections");
 
   const [metrics, setMetrics] = useState({
     classAverage: "84.5%",
@@ -122,21 +127,34 @@ export default function TeacherDashboardPage() {
   const loadTeacherData = async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch courses
-      const coursesRes = await api.get('/academic/courses').catch(() => ({ data: [] }));
+      const isMySections = scopeMode === "my_sections";
+
+      // 1. Fetch courses (scoped)
+      const coursesRes = await api.get('/academic/courses', {
+        params: isMySections ? { my_courses: true } : {}
+      }).catch(() => ({ data: [] }));
       const coursesData = Array.isArray(coursesRes.data) ? coursesRes.data : (coursesRes.data?.data || []);
       setCourses(coursesData);
 
-      // 2. Fetch grades
-      const gradesRes = await api.get('/academic/grades').catch(() => ({ data: [] }));
+      // 2. Fetch grades (scoped to teacher's institution/sections)
+      const gradesRes = await api.get('/academic/grades', {
+        params: {
+          ...(isMySections ? { my_sections: true } : {}),
+          ...(selectedCourse !== 'all' ? { course_id: selectedCourse } : {})
+        }
+      }).catch(() => ({ data: [] }));
       const gradesData = Array.isArray(gradesRes.data) ? gradesRes.data : (gradesRes.data?.data || []);
 
-      // 3. Fetch attendances
-      const attendancesRes = await api.get('/academic/attendances').catch(() => ({ data: [] }));
+      // 3. Fetch attendances (scoped)
+      const attendancesRes = await api.get('/academic/attendances', {
+        params: isMySections ? { my_sections: true } : {}
+      }).catch(() => ({ data: [] }));
       const attendancesData = Array.isArray(attendancesRes.data) ? attendancesRes.data : (attendancesRes.data?.data || []);
 
-      // 4. Fetch behavior logs
-      const logsRes = await api.get('/academic/behavior-logs').catch(() => ({ data: [] }));
+      // 4. Fetch behavior logs (scoped)
+      const logsRes = await api.get('/academic/behavior-logs', {
+        params: isMySections ? { my_reports: true } : {}
+      }).catch(() => ({ data: [] }));
       const logsData = Array.isArray(logsRes.data) ? logsRes.data : (logsRes.data?.data || []);
 
       // Compute grade distribution
@@ -188,7 +206,7 @@ export default function TeacherDashboardPage() {
 
   useEffect(() => {
     loadTeacherData();
-  }, []);
+  }, [selectedCourse, scopeMode]);
 
   const stats = [
     {
@@ -198,42 +216,42 @@ export default function TeacherDashboardPage() {
       change: "+3.2%",
       isPositive: true,
       description: isAr ? "تحسن مستمر في التقييمات" : "across active assessments",
-      icon: GraduationCap,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/20",
-    },
-    {
-      number: "02",
-      title: isAr ? "نسبة الالتزام بالحضور" : "Attendance Rate",
-      value: metrics.attendanceRate,
-      change: "+1.5%",
-      isPositive: true,
-      description: isAr ? "حضور المحاضرات اليومية" : "regular attendance logged",
-      icon: Users,
+      icon: Award,
       color: "text-emerald-500",
       bg: "bg-emerald-500/10",
       border: "border-emerald-500/20",
     },
     {
+      number: "02",
+      title: isAr ? "نسبة الالتزام بالحضور" : "Attendance Rate",
+      value: metrics.attendanceRate,
+      change: "+1.4%",
+      isPositive: true,
+      description: isAr ? "نسبة حضور الفصول المقيدة" : "attendance compliance",
+      icon: Users,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20",
+    },
+    {
       number: "03",
-      title: isAr ? "الملاحظات المسجلة" : "Flagged Concerns",
-      value: metrics.atRiskStudents.toString(),
+      title: isAr ? "حالات تحتاج لمتابعة" : "At-Risk Focus",
+      value: metrics.atRiskStudents,
       change: "-2",
       isPositive: true,
-      description: isAr ? "حالات تحت التوجيه الأكاديمي" : "behavior logs logged",
+      description: isAr ? "ملاحظات وتنبيهات نشطة" : "requiring academic support",
       icon: AlertTriangle,
-      color: "text-rose-500",
-      bg: "bg-rose-500/10",
-      border: "border-rose-500/20",
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
     },
     {
       number: "04",
-      title: isAr ? "الشُعب والمقررات" : "Active Courses",
-      value: (metrics.totalCourses || 4).toString(),
-      change: "+1",
+      title: isAr ? "المقررات والشُعب" : "Active Courses",
+      value: metrics.totalCourses,
+      change: "Active",
       isPositive: true,
-      description: isAr ? "مقررات مسجلة بقاعدة البيانات" : "teaching sections assigned",
+      description: isAr ? "الشُعب الدراسية التابعة لك" : "assigned teaching sections",
       icon: BookOpen,
       color: "text-violet-500",
       bg: "bg-violet-500/10",
@@ -241,29 +259,81 @@ export default function TeacherDashboardPage() {
     },
   ];
 
+  const instName = currentUser?.institution?.name || (currentUser as any)?.institution_name;
+  const colName = currentUser?.college?.name;
+
   return (
     <div className="space-y-8 pb-10">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3.5 py-1">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-bold text-primary tracking-wide uppercase">
-              {isAr ? "بوابة الأستاذ / المعلم" : "Faculty Teaching Console"}
-            </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3.5 py-1">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-bold text-primary tracking-wide uppercase">
+                {isAr ? "بوابة عضو هيئة التدريس" : "Faculty Teaching Console"}
+              </span>
+            </div>
+
+            {/* Institution Badge */}
+            {instName && (
+              <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-xs px-3 py-1 font-bold flex items-center gap-1.5">
+                <Building className="w-3 h-3 text-primary" />
+                <span>{instName}</span>
+              </Badge>
+            )}
+
+            {/* College Badge */}
+            {colName && (
+              <Badge variant="outline" className="rounded-full bg-primary/10 text-primary border-primary/20 text-xs px-3 py-1 font-bold flex items-center gap-1.5">
+                <GraduationCap className="w-3 h-3" />
+                <span>{colName}</span>
+              </Badge>
+            )}
           </div>
+
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
             {isAr ? "لوحة أداء الفصول والشُعب" : "Classroom Velocity & Performance"}
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
             {isAr
-              ? "مؤشرات حية متصلة بقاعدة البيانات MySQL لمتابعة تحصيل الطلاب ورصد الدرجات والغياب."
-              : "Live analytics connected directly to your MySQL academic records for active teaching insights."}
+              ? `بيانات حية مقيدة بمؤسستك الأكاديمية ومقرراتك المعتمدة في MySQL.`
+              : `Live data scoped strictly to your educational institution and assigned courses.`}
           </p>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          {/* Scope Selector: My Sections vs All Institution */}
+          <Select value={scopeMode} onValueChange={(val: any) => setScopeMode(val)}>
+            <SelectTrigger className="w-[170px] rounded-full h-9 bg-card/90 border-border text-xs font-bold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border rounded-2xl">
+              <SelectItem value="my_sections" className="text-xs font-semibold">
+                👤 {isAr ? "شُعبي المسندة إليّ" : "My Taught Sections"}
+              </SelectItem>
+              <SelectItem value="all_institution" className="text-xs font-semibold">
+                🏛️ {isAr ? "جميع مقررات المؤسسة" : "All Institution Courses"}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Course Selector */}
+          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+            <SelectTrigger className="w-[170px] sm:w-[200px] rounded-full h-9 bg-card/90 border-border text-xs font-bold">
+              <SelectValue placeholder={isAr ? "جميع المقررات" : "All Courses"} />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border rounded-2xl">
+              <SelectItem value="all">{isAr ? "جميع المقررات" : "All Assigned Courses"}</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c.id} value={String(c.id)}>
+                  {c.code ? `${c.code} - ${c.name || 'Course'}` : (c.name || 'Course')}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Button
             variant="outline"
             size="sm"
@@ -274,20 +344,6 @@ export default function TeacherDashboardPage() {
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
             <span>{isAr ? "تحديث" : "Refresh"}</span>
           </Button>
-
-          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-            <SelectTrigger className="w-[180px] sm:w-[220px] rounded-full h-9 bg-card/90 border-border text-xs font-bold">
-              <SelectValue placeholder={isAr ? "جميع الشُعب" : "All Classes"} />
-            </SelectTrigger>
-            <SelectContent className="bg-card border-border">
-              <SelectItem value="all">{isAr ? "جميع المقررات" : "All Assigned Courses"}</SelectItem>
-              {courses.map((c) => (
-                <SelectItem key={c.id} value={String(c.id)}>
-                  {c.code ? `${c.code} - ${c.name || c.title || 'Course'}` : (c.name || c.title || 'Course')}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
@@ -318,24 +374,24 @@ export default function TeacherDashboardPage() {
               </span>
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
+          <CardContent className="pt-2">
             <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={performanceTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} vertical={false} />
-                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} domain={[60, 100]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} domain={[60, 100]} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       borderColor: "hsl(var(--border))",
                       borderRadius: "1rem",
-                      color: "hsl(var(--foreground))",
                       fontSize: "12px",
+                      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                     }}
                   />
-                  <Line type="monotone" dataKey="avgScore" name={isAr ? "متوسط الدرجة" : "Avg Score"} stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
-                  <Line type="monotone" dataKey="attendance" name={isAr ? "نسبة الحضور" : "Attendance %"} stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} strokeDasharray="4 4" />
+                  <Line type="monotone" dataKey="avgScore" name={isAr ? "متوسط الدرجة %" : "Avg Score %"} stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="attendance" name={isAr ? "نسبة الحضور %" : "Attendance %"} stroke="#10b981" strokeWidth={3} strokeDasharray="4 4" dot={{ r: 4, fill: "#10b981" }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -347,32 +403,31 @@ export default function TeacherDashboardPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                <Award className="w-4 h-4 text-emerald-500" />
-                <span>{isAr ? "توزيع التقديرات الأكاديمية (A - F)" : "Grade Distribution Spectrum"}</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <span>{isAr ? "توزيع الدرجات والتقديرات للشُعبة" : "Grade Spectrum Distribution"}</span>
               </CardTitle>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
-                {isAr ? "تقييم مباشر" : "Live Cohort"}
+              <span className="text-xs font-semibold text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full border border-border">
+                {isAr ? "توزيع إحصائي" : "Statistical Spread"}
               </span>
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
+          <CardContent className="pt-2">
             <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={gradeDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} vertical={false} />
-                  <XAxis dataKey="grade" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} vertical={false} />
+                  <XAxis dataKey="grade" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
                       borderColor: "hsl(var(--border))",
                       borderRadius: "1rem",
-                      color: "hsl(var(--foreground))",
                       fontSize: "12px",
+                      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
                     }}
-                    cursor={{ fill: "hsl(var(--primary) / 0.05)" }}
                   />
-                  <Bar dataKey="count" name={isAr ? "عدد الطلاب" : "Students"} fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="count" name={isAr ? "عدد الطلاب" : "Students"} radius={[8, 8, 0, 0]} fill="hsl(var(--primary))" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
