@@ -1,12 +1,27 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Bot, Send, Search, Users, User, Loader2, RefreshCw, Sparkles, TrendingUp, AlertTriangle } from "lucide-react";
+import {
+  MessageCircle,
+  Bot,
+  Send,
+  Search,
+  Users,
+  User,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  TrendingUp,
+  AlertTriangle,
+  GraduationCap,
+  CheckCheck
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api, getApiErrorMessage } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 
@@ -17,13 +32,15 @@ export default function AdvisorCommunicationsPage() {
 
   const [parents, setParents] = useState<any[]>([]);
   const [activeParent, setActiveParent] = useState<any>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
+  const [allMessages, setAllMessages] = useState<any[]>([]);
   const [inputMsg, setInputMsg] = useState("");
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // Live Cohort Data Cache for AI Query Engine
+  // Live Cohort Data Cache for AI Query Engine & Student Metadata
   const [cohortData, setCohortData] = useState<{
     students: any[];
     courses: any[];
@@ -65,10 +82,10 @@ export default function AdvisorCommunicationsPage() {
     }
   ]);
 
-  // Load participants & cohort data from live MySQL APIs
+  // 1. Load participants, cohort data & global message threads from live MySQL APIs
   const loadCohortData = async () => {
     try {
-      const [usersRes, coursesRes, gradesRes, attRes, alertsRes, recsRes, logsRes] = await Promise.allSettled([
+      const [usersRes, coursesRes, gradesRes, attRes, alertsRes, recsRes, logsRes, msgsRes] = await Promise.allSettled([
         api.get('/admin/users'),
         api.get('/academic/courses'),
         api.get('/academic/grades'),
@@ -76,6 +93,7 @@ export default function AdvisorCommunicationsPage() {
         api.get('/alerts'),
         api.get('/academic/recommendations'),
         api.get('/academic/behavior-logs'),
+        api.get('/messages'),
       ]);
 
       let userList: any[] = [];
@@ -106,6 +124,11 @@ export default function AdvisorCommunicationsPage() {
       const recsData = recsRes.status === 'fulfilled' ? (Array.isArray(recsRes.value.data) ? recsRes.value.data : (recsRes.value.data?.data || [])) : [];
       const logsData = logsRes.status === 'fulfilled' ? (Array.isArray(logsRes.value.data) ? logsRes.value.data : (logsRes.value.data?.data || [])) : [];
 
+      if (msgsRes.status === 'fulfilled') {
+        const data = Array.isArray(msgsRes.value.data) ? msgsRes.value.data : (msgsRes.value.data?.data || []);
+        setAllMessages(data);
+      }
+
       setCohortData({
         students: studentList.length > 0 ? studentList : userList,
         courses: coursesData,
@@ -129,9 +152,10 @@ export default function AdvisorCommunicationsPage() {
     }
   };
 
-  const loadMessages = async () => {
+  // 2. Load messages for active parent (with silent real-time refresh capability)
+  const loadMessages = async (silent = false) => {
     if (!activeParent) return;
-    setIsLoadingMessages(true);
+    if (!silent) setIsLoadingMessages(true);
     try {
       const res = await api.get('/messages', {
         params: {
@@ -140,11 +164,22 @@ export default function AdvisorCommunicationsPage() {
       });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setMessages(data);
-      setTimeout(scrollToBottom, 100);
+
+      // Auto-detect student_id from recent messages in this conversation if not manually selected
+      if (data.length > 0) {
+        const lastMsgWithStudent = [...data].reverse().find((m) => m.student_id);
+        if (lastMsgWithStudent && !selectedStudentId) {
+          setSelectedStudentId(String(lastMsgWithStudent.student_id));
+        }
+      }
+
+      if (!silent) {
+        setTimeout(scrollToBottom, 100);
+      }
     } catch (e) {
       console.warn("Load messages error:", e);
     } finally {
-      setIsLoadingMessages(false);
+      if (!silent) setIsLoadingMessages(false);
     }
   };
 
@@ -152,15 +187,21 @@ export default function AdvisorCommunicationsPage() {
     loadCohortData();
   }, []);
 
+  // Set up real-time polling every 3 seconds for active conversation
   useEffect(() => {
     if (activeParent) {
-      loadMessages();
+      loadMessages(false);
+      const timer = setInterval(() => {
+        loadMessages(true);
+      }, 3000);
+      return () => clearInterval(timer);
     }
   }, [activeParent]);
 
   const handleSelectParent = (p: any) => {
     setActiveParent(p);
     localStorage.setItem("sba_advisor_selected_parent_id", String(p.id));
+    setSelectedStudentId("");
   };
 
   const handleSendMessage = async () => {
@@ -169,10 +210,15 @@ export default function AdvisorCommunicationsPage() {
     setIsSending(true);
 
     try {
-      const res = await api.post('/messages', {
+      const payload: any = {
         recipient_id: activeParent.id,
         message: text,
-      });
+      };
+      if (selectedStudentId) {
+        payload.student_id = Number(selectedStudentId);
+      }
+
+      const res = await api.post('/messages', payload);
       const newMsg = res.data?.data || res.data;
       setMessages((prev) => [...prev, newMsg]);
       setInputMsg("");
@@ -182,6 +228,22 @@ export default function AdvisorCommunicationsPage() {
     } finally {
       setIsSending(false);
     }
+  };
+
+  // Helper to determine which student(s) a parent is asking about
+  const getParentStudentInfo = (parentId: number) => {
+    const parentMsgs = allMessages.filter(
+      (m) => Number(m.sender_id) === Number(parentId) || Number(m.recipient_id) === Number(parentId)
+    );
+    const studentIds = Array.from(new Set(parentMsgs.map((m) => m.student_id).filter(Boolean)));
+    const studentNames = studentIds.map((sId) => {
+      const s = cohortData.students.find((st) => Number(st.id) === Number(sId));
+      return s ? s.name : `Student #${sId}`;
+    });
+    return {
+      studentIds,
+      studentNames,
+    };
   };
 
   // Real Intelligence Query Engine evaluating live MySQL data
@@ -231,7 +293,6 @@ export default function AdvisorCommunicationsPage() {
       const totalAbsent = attendances.filter((a) => a.status === 'absent').length;
       const overallRate = ((totalPresent / totalSessions) * 100).toFixed(1);
 
-      // Find top students with absences
       const absMap: Record<number, number> = {};
       attendances.forEach((a) => {
         if (a.status === 'absent') {
@@ -282,7 +343,7 @@ ${topAbsentNames.length > 0 ? `• Students with highest absence frequency: ${to
 ${atRiskNames.length > 0 ? `• قائمة الطلاب الذين يحتاجون لتدخل إرشادي عاجل: ${atRiskNames.join("، ")}.` : "• لم يتم رصد حالات رسوب حرجة مسجلة في التقييمات الأخيرة."}
 • الإجراء المقترح: اعتماد خطط التدخل الموصى بها في تبويب (خطط وتوصيات التدخل).`;
       } else {
-        return `⚠️ Live At-Risk Student Cohort Diagnostic (from MySQL):
+        return `⚠️ Live At-Risk Cohort Diagnostic (from MySQL):
 • Total Active Students Ingested: ${students.length} students.
 • Students with Scores Below 60%: ${failingStudentIds.length} students.
 • High / Critical Risk Alerts Flagged: ${criticalAlerts.length} flags.
@@ -368,6 +429,9 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
     (p.email || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const activeStudentInfo = activeParent ? getParentStudentInfo(activeParent.id) : { studentIds: [], studentNames: [] };
+  const currentActiveStudent = cohortData.students.find((s) => String(s.id) === String(selectedStudentId));
+
   return (
     <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -378,8 +442,8 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "التواصل المباشر والمحفوظ في MySQL مع أولياء الأمور والاستعلام الذكي عبر محرك الذكاء الاصطناعي."
-              : "Live database-backed messaging with parents and analytical cohort query assistant."}
+              ? "محادثة حية وفورية في الوقت الحقيقي مع أولياء الأمور موضحة اسم الطالب المعني لكل استفسار."
+              : "Live real-time messaging with guardians displaying the targeted student for each inquiry."}
           </p>
         </div>
       </div>
@@ -388,7 +452,7 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
         <TabsList className="bg-card/80 border border-border p-1 rounded-2xl mb-6">
           <TabsTrigger value="parents" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
             <Users className="w-4 h-4 mr-2" />
-            <span>{isAr ? "بوابة تواصل أولياء الأمور" : "Guardian Portal"}</span>
+            <span>{isAr ? "بوابة تواصل أولياء الأمور (مباشر)" : "Guardian Live Portal"}</span>
           </TabsTrigger>
           <TabsTrigger value="ai" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
             <Bot className="w-4 h-4 mr-2" />
@@ -414,7 +478,7 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={loadMessages}
+                  onClick={() => loadMessages(false)}
                   className="h-8 w-8 rounded-full"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isLoadingMessages ? 'animate-spin' : ''}`} />
@@ -425,6 +489,8 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
                 <div className="p-2 space-y-1">
                   {filteredParents.map((p) => {
                     const isSelected = activeParent?.id === p.id;
+                    const studentInfo = getParentStudentInfo(p.id);
+
                     return (
                       <button
                         key={p.id}
@@ -437,11 +503,21 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
                       >
                         <div className="flex justify-between items-start mb-0.5">
                           <span className="font-bold text-xs text-foreground">{p.name || `User #${p.id}`}</span>
-                          <Badge variant="outline" className="text-[9px] font-mono rounded-full px-1.5 py-0">
+                          <Badge variant="outline" className="text-[9px] font-mono rounded-full px-1.5 py-0 bg-secondary">
                             {p.role || "Guardian"}
                           </Badge>
                         </div>
                         <p className="text-[11px] text-muted-foreground truncate">{p.email || "Contact account"}</p>
+
+                        {/* Display Which Student this Guardian is Asking About */}
+                        {studentInfo.studentNames.length > 0 && (
+                          <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-primary font-bold bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10 w-fit">
+                            <GraduationCap className="w-3 h-3 text-primary shrink-0" />
+                            <span className="truncate">
+                              {isAr ? `الطالب: ${studentInfo.studentNames.join("، ")}` : `Student: ${studentInfo.studentNames.join(", ")}`}
+                            </span>
+                          </div>
+                        )}
                       </button>
                     );
                   })}
@@ -451,18 +527,53 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
 
             {/* Chat Area */}
             <div className="flex-1 flex flex-col bg-card/40">
-              <div className="p-4 border-b border-border flex justify-between items-center bg-secondary/20">
+              {/* Chat Header with Student Context */}
+              <div className="p-4 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-secondary/20">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm">
                     {(activeParent?.name || "G").charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="font-bold text-xs text-foreground">{activeParent?.name || (isAr ? "ولي أمر الطالب" : "Guardian")}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-xs text-foreground">{activeParent?.name || (isAr ? "ولي أمر الطالب" : "Guardian")}</h3>
+                      <span className="flex items-center gap-1 text-[10px] text-emerald-500 font-semibold">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>{isAr ? "متصل مباشر" : "Live Real-Time"}</span>
+                      </span>
+                    </div>
                     <p className="text-[11px] text-muted-foreground">{activeParent?.email || "guardian@sba-platform.edu"}</p>
                   </div>
                 </div>
+
+                {/* Target Student Badge / Selector */}
+                <div className="flex items-center gap-2 bg-card border border-border p-1.5 rounded-2xl shadow-xs">
+                  <GraduationCap className="w-4 h-4 text-primary ml-1" />
+                  <span className="text-[11px] font-bold text-muted-foreground">
+                    {isAr ? "الطالب المعني:" : "Target Student:"}
+                  </span>
+
+                  {cohortData.students.length > 0 ? (
+                    <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                      <SelectTrigger className="h-7 w-[150px] rounded-xl bg-secondary/60 border-none text-[11px] font-bold text-foreground focus:ring-0">
+                        <SelectValue placeholder={currentActiveStudent?.name || (isAr ? "اختر الطالب" : "Select Student")} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border rounded-xl">
+                        {cohortData.students.map((s) => (
+                          <SelectItem key={s.id} value={String(s.id)} className="text-xs font-semibold">
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <span className="text-[11px] font-bold text-primary">
+                      {currentActiveStudent?.name || activeStudentInfo.studentNames[0] || (isAr ? "عام" : "General")}
+                    </span>
+                  )}
+                </div>
               </div>
 
+              {/* Chat Timeline */}
               <ScrollArea className="flex-1 p-4">
                 {isLoadingMessages ? (
                   <div className="py-20 text-center text-muted-foreground text-xs">
@@ -483,15 +594,28 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
                         ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : "";
 
+                      // Resolve student name attached to this message
+                      const studentName = msg.student?.name ||
+                        cohortData.students.find((s) => Number(s.id) === Number(msg.student_id))?.name;
+
                       return (
                         <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground border border-border'}`}>
                             {isMe ? "Adv" : "P"}
                           </div>
                           <div className={`rounded-2xl p-3.5 max-w-[80%] text-xs ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary/70 text-foreground border border-border'}`}>
+                            {/* Prominent Student Badge on Incoming Messages */}
+                            {studentName && (
+                              <div className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mb-1.5 ${isMe ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-primary/10 text-primary border border-primary/20'}`}>
+                                <GraduationCap className="w-3 h-3" />
+                                <span>{isAr ? `بخصوص الطالب: ${studentName}` : `Regarding: ${studentName}`}</span>
+                              </div>
+                            )}
+
                             <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>
-                            <span className={`text-[10px] mt-1 block font-mono ${isMe ? 'text-primary-foreground/70 text-right' : 'text-muted-foreground'}`}>
-                              {timeStr}
+                            <span className={`text-[10px] mt-1 flex items-center justify-end gap-1 font-mono ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                              <span>{timeStr}</span>
+                              {isMe && <CheckCheck className="w-3 h-3 text-primary-foreground/90" />}
                             </span>
                           </div>
                         </div>
@@ -502,20 +626,25 @@ ${courseList.slice(0, 5).map((c, i) => `${i + 1}. ${c}`).join("\n")}
                 )}
               </ScrollArea>
 
+              {/* Chat Input Bar */}
               <div className="p-4 border-t border-border bg-card/60">
                 <div className="flex items-center gap-2">
                   <Input
                     value={inputMsg}
                     onChange={(e) => setInputMsg(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder={isAr ? "اكتب رسالتك لولي الأمر..." : "Type your message..."}
+                    placeholder={
+                      currentActiveStudent
+                        ? (isAr ? `اكتب رسالتك لولي الأمر بخصوص ${currentActiveStudent.name}...` : `Type your message regarding ${currentActiveStudent.name}...`)
+                        : (isAr ? "اكتب رسالتك لولي الأمر..." : "Type your message to the guardian...")
+                    }
                     className="flex-1 h-10 rounded-full bg-secondary/60 border-border text-xs"
                     disabled={isSending}
                   />
                   <Button
                     onClick={handleSendMessage}
                     disabled={isSending || !inputMsg.trim()}
-                    className="rounded-full bg-primary text-primary-foreground h-10 px-4"
+                    className="rounded-full bg-primary text-primary-foreground h-10 px-5 shadow-xs"
                   >
                     {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </Button>

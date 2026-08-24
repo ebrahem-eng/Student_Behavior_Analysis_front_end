@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Send, Loader2, RefreshCw, UserCheck } from "lucide-react";
+import { MessageCircle, Send, Loader2, RefreshCw, UserCheck, GraduationCap, CheckCheck } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -106,9 +106,9 @@ export default function ParentCommunicationsPage() {
     }
   };
 
-  // 2. Load messages for the active conversation
-  const loadMessages = async () => {
-    setIsLoading(true);
+  // 2. Load messages for the active conversation (supports silent background sync)
+  const loadMessages = async (silent = false) => {
+    if (!silent) setIsLoading(true);
     try {
       const params: any = {};
       if (selectedChildId) params.student_id = selectedChildId;
@@ -117,11 +117,13 @@ export default function ParentCommunicationsPage() {
       const res = await api.get('/messages', { params });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setMessages(data);
-      setTimeout(scrollToBottom, 100);
+      if (!silent) {
+        setTimeout(scrollToBottom, 100);
+      }
     } catch (e) {
       console.warn("Error loading messages:", e);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
 
@@ -129,9 +131,14 @@ export default function ParentCommunicationsPage() {
     loadParticipants();
   }, []);
 
+  // Real-time polling every 3000ms
   useEffect(() => {
     if (selectedChildId || selectedAdvisorId) {
-      loadMessages();
+      loadMessages(false);
+      const timer = setInterval(() => {
+        loadMessages(true);
+      }, 3000);
+      return () => clearInterval(timer);
     }
   }, [selectedChildId, selectedAdvisorId]);
 
@@ -193,7 +200,8 @@ export default function ParentCommunicationsPage() {
           {/* Child Picker */}
           {children.length > 0 && (
             <div className="flex items-center gap-2 bg-secondary/80 p-1.5 rounded-full border border-border">
-              <span className="text-xs text-muted-foreground font-semibold px-2">
+              <GraduationCap className="w-4 h-4 text-primary ml-1 shrink-0" />
+              <span className="text-xs text-muted-foreground font-semibold px-1">
                 {isAr ? "الطالب:" : "Child:"}
               </span>
               <Select value={selectedChildId} onValueChange={handleSelectChild}>
@@ -235,7 +243,7 @@ export default function ParentCommunicationsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={loadMessages}
+            onClick={() => loadMessages(false)}
             disabled={isLoading}
             className="rounded-full text-xs font-semibold px-3 h-9 border-border bg-secondary/60 hover:bg-secondary flex items-center gap-1.5"
           >
@@ -253,21 +261,23 @@ export default function ParentCommunicationsPage() {
               {(activeAdvisor?.name || "A").charAt(0).toUpperCase()}
             </div>
             <div>
-              <CardTitle className="text-sm font-bold text-foreground">
-                {activeAdvisor?.name || (isAr ? "المرشد الأكاديمي" : "Academic Advisor")}
+              <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
+                <span>{activeAdvisor?.name || (isAr ? "المرشد الأكاديمي" : "Academic Advisor")}</span>
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[9px] font-bold rounded-full">
+                  <UserCheck className="w-2.5 h-2.5 mr-1" />
+                  <span>{isAr ? "متصل مباشر" : "Live Channel"}</span>
+                </Badge>
               </CardTitle>
-              <CardDescription className="text-[11px] text-muted-foreground">
-                {isAr
-                  ? `بخصوص الطالب: ${activeChild?.name || ""}`
-                  : `Regarding student: ${activeChild?.name || "Student"}`}
+              <CardDescription className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                <span>
+                  {isAr
+                    ? `محادثة خاصة بالطالب: ${activeChild?.name || ""}`
+                    : `Inquiry regarding student: ${activeChild?.name || "Student"}`}
+                </span>
               </CardDescription>
             </div>
           </div>
-
-          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-bold rounded-full">
-            <UserCheck className="w-3 h-3 mr-1" />
-            <span>{isAr ? "متصل" : "Live Channel"}</span>
-          </Badge>
         </CardHeader>
 
         <ScrollArea className="flex-1 p-5">
@@ -294,6 +304,9 @@ export default function ParentCommunicationsPage() {
                   ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                   : "";
 
+                const studentName = msg.student?.name ||
+                  children.find((s) => Number(s.id) === Number(msg.student_id))?.name;
+
                 return (
                   <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary border border-border text-foreground'}`}>
@@ -308,7 +321,21 @@ export default function ParentCommunicationsPage() {
                           {timeStr}
                         </span>
                       </div>
+
+                      {studentName && (
+                        <div className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full mb-1.5 ${isMe ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-primary/10 text-primary border border-primary/20'}`}>
+                          <GraduationCap className="w-2.5 h-2.5" />
+                          <span>{isAr ? `الطالب: ${studentName}` : `Student: ${studentName}`}</span>
+                        </div>
+                      )}
+
                       <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+
+                      {isMe && (
+                        <div className="flex justify-end mt-1 text-primary-foreground/80">
+                          <CheckCheck className="w-3 h-3" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -322,7 +349,11 @@ export default function ParentCommunicationsPage() {
         <div className="p-4 border-t border-border bg-card/60 shrink-0">
           <div className="flex items-center gap-2">
             <Input
-              placeholder={isAr ? "اكتب رسالتك للمرشد الأكاديمي..." : "Type your message to the advisor..."}
+              placeholder={
+                activeChild
+                  ? (isAr ? `اكتب استفسارك للمرشد بخصوص ${activeChild.name}...` : `Type message regarding ${activeChild.name}...`)
+                  : (isAr ? "اكتب رسالتك للمرشد الأكاديمي..." : "Type your message to the advisor...")
+              }
               className="flex-1 h-10 rounded-full bg-secondary/60 border-border text-xs"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
