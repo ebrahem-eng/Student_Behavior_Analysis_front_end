@@ -1,164 +1,259 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Send, User } from "lucide-react";
+import { MessageCircle, Send, Loader2, RefreshCw } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { api } from "@/lib/api";
-
-interface ChatMessage {
-  id: string | number;
-  sender: "advisor" | "parent";
-  name: string;
-  text: string;
-  time: string;
-}
+import { api, getApiErrorMessage } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 
 export default function ParentCommunicationsPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const currentUser = useAppStore((state) => state.user);
 
   const [children, setChildren] = useState<any[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string>("");
+  const [advisors, setAdvisors] = useState<any[]>([]);
+  const [selectedAdvisorId, setSelectedAdvisorId] = useState<string>("");
+  const [messages, setMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      sender: "advisor",
-      name: isAr ? "د. سارة الأحمد (المرشد الأكاديمي)" : "Dr. Sarah Smith (Advisor)",
-      text: isAr
-        ? "أهلاً بك! نتابع بشكل دوري مستوى الطالب في المقررات، وتم رصد تحسن ملحوظ في الالتزام بالحضور."
-        : "Hello! We are actively monitoring your student's progress and noticed a strong improvement in weekly attendance.",
-      time: "10:30 AM"
-    },
-    {
-      id: 2,
-      sender: "parent",
-      name: isAr ? "أنت (ولي الأمر)" : "You (Parent)",
-      text: isAr
-        ? "شكراً جزيلاً لاهتمامكم وحرصكم المستمر."
-        : "Thank you for the update and your continuous support.",
-      time: "11:15 AM"
-    }
-  ]);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const loadStudents = async () => {
+  // Load students & advisors
+  const loadParticipants = async () => {
     try {
-      const res = await api.get('/admin/users?role=student');
-      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-      const students = data.filter((u: any) => {
-        const r = (u.role || '').toLowerCase();
-        const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
-        return r === 'student' || roles.includes('student');
-      });
-      const list = students.length > 0 ? students : data;
-      setChildren(list);
-      if (list.length > 0 && !selectedChildId) {
-        setSelectedChildId(String(list[0].id));
+      const [studentsRes, usersRes] = await Promise.allSettled([
+        api.get('/admin/users?role=student'),
+        api.get('/admin/users'),
+      ]);
+
+      if (studentsRes.status === 'fulfilled') {
+        const raw = Array.isArray(studentsRes.value.data) ? studentsRes.value.data : (studentsRes.value.data?.data || []);
+        setChildren(raw);
+        if (raw.length > 0 && !selectedChildId) {
+          setSelectedChildId(String(raw[0].id));
+        }
+      }
+
+      if (usersRes.status === 'fulfilled') {
+        const raw = Array.isArray(usersRes.value.data) ? usersRes.value.data : (usersRes.value.data?.data || []);
+        const advisorList = raw.filter((u: any) => {
+          const r = (u.role || '').toLowerCase();
+          const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
+          return r === 'advisor' || roles.includes('advisor') || r === 'teacher' || roles.includes('teacher');
+        });
+        const list = advisorList.length > 0 ? advisorList : raw;
+        setAdvisors(list);
+        if (list.length > 0 && !selectedAdvisorId) {
+          setSelectedAdvisorId(String(list[0].id));
+        }
       }
     } catch (e) {
-      console.warn("Parent communications student load error:", e);
+      console.warn("Error loading participants:", e);
+    }
+  };
+
+  // Load messages for the selected student & advisor
+  const loadMessages = async () => {
+    setIsLoading(true);
+    try {
+      const params: any = {};
+      if (selectedChildId) params.student_id = selectedChildId;
+      if (selectedAdvisorId) params.recipient_id = selectedAdvisorId;
+
+      const res = await api.get('/messages', { params });
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setMessages(data);
+    } catch (e) {
+      console.warn("Error loading messages:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadStudents();
+    loadParticipants();
   }, []);
 
-  const handleSendMessage = () => {
-    if (!chatInput.trim()) return;
-    const newMsg: ChatMessage = {
-      id: Date.now(),
-      sender: "parent",
-      name: isAr ? "أنت (ولي الأمر)" : "You (Parent)",
-      text: chatInput.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    setMessages((prev) => [...prev, newMsg]);
-    setChatInput("");
+  useEffect(() => {
+    if (selectedChildId || selectedAdvisorId) {
+      loadMessages();
+    }
+  }, [selectedChildId, selectedAdvisorId]);
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim() || isSending) return;
+    const text = chatInput.trim();
+    setIsSending(true);
+
+    try {
+      const payload: any = {
+        message: text,
+      };
+      if (selectedChildId) payload.student_id = Number(selectedChildId);
+      if (selectedAdvisorId) payload.recipient_id = Number(selectedAdvisorId);
+
+      const res = await api.post('/messages', payload);
+      const newMsg = res.data?.data || res.data;
+
+      setMessages((prev) => [...prev, newMsg]);
+      setChatInput("");
+    } catch (err) {
+      alert(getApiErrorMessage(err, isAr));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const activeChild = children.find((c) => String(c.id) === String(selectedChildId)) || children[0];
+  const activeAdvisor = advisors.find((a) => String(a.id) === String(selectedAdvisorId)) || advisors[0];
 
   return (
     <div className="space-y-6 h-[calc(100vh-8rem)] flex flex-col pb-6">
+      {/* Header with Student and Advisor Selectors */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <MessageCircle className="h-8 w-8 text-primary" />
-            {isAr ? "التواصل مع المرشد الأكاديمي" : "Advisor Communications"}
+            {isAr ? "التواصل المباشر مع المرشد الأكاديمي" : "Advisor Direct Communications"}
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "محادثة وتواصل مباشر مع المرشد الأكاديمي المخصص للطالب."
-              : "Direct messaging channel with your child's assigned academic advisor."}
+              ? "محادثة حية مشفرة ومحفوظة في قاعدة البيانات مع المرشد المخصص للطالب."
+              : "Live interactive messaging stored in MySQL with your student's academic advisor."}
           </p>
         </div>
 
-        {children.length > 0 && (
-          <div className="flex items-center gap-3 bg-secondary/80 p-2 rounded-full border border-border">
-            <span className="text-xs text-muted-foreground font-semibold px-2">
-              {isAr ? "الطالب:" : "Student:"}
-            </span>
-            <Select value={selectedChildId} onValueChange={setSelectedChildId}>
-              <SelectTrigger className="w-[180px] h-8 rounded-full bg-card border-border text-xs font-bold text-foreground">
-                <SelectValue placeholder="Select a child" />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border text-foreground rounded-2xl">
-                {children.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)} className="text-xs font-semibold">
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Child Picker */}
+          {children.length > 0 && (
+            <div className="flex items-center gap-2 bg-secondary/80 p-1.5 rounded-full border border-border">
+              <span className="text-xs text-muted-foreground font-semibold px-2">
+                {isAr ? "الطالب:" : "Child:"}
+              </span>
+              <Select value={selectedChildId} onValueChange={setSelectedChildId}>
+                <SelectTrigger className="w-[160px] h-8 rounded-full bg-card border-border text-xs font-bold text-foreground">
+                  <SelectValue placeholder="Select child" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border text-foreground rounded-2xl">
+                  {children.map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)} className="text-xs font-semibold">
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Advisor Picker */}
+          {advisors.length > 0 && (
+            <div className="flex items-center gap-2 bg-secondary/80 p-1.5 rounded-full border border-border">
+              <span className="text-xs text-muted-foreground font-semibold px-2">
+                {isAr ? "المرشد:" : "Advisor:"}
+              </span>
+              <Select value={selectedAdvisorId} onValueChange={setSelectedAdvisorId}>
+                <SelectTrigger className="w-[160px] h-8 rounded-full bg-card border-border text-xs font-bold text-foreground">
+                  <SelectValue placeholder="Select advisor" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border text-foreground rounded-2xl">
+                  {advisors.map((a) => (
+                    <SelectItem key={a.id} value={String(a.id)} className="text-xs font-semibold">
+                      {a.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadMessages}
+            disabled={isLoading}
+            className="rounded-full text-xs font-semibold px-3 h-9 border-border bg-secondary/60 hover:bg-secondary flex items-center gap-1.5"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>{isAr ? "تحديث" : "Refresh"}</span>
+          </Button>
+        </div>
       </div>
 
+      {/* Chat Card */}
       <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl flex-1 flex flex-col min-h-0 shadow-sm overflow-hidden">
-        <CardHeader className="border-b border-border shrink-0 bg-primary/5 p-4">
+        <CardHeader className="border-b border-border shrink-0 bg-primary/5 p-4 flex flex-row items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold">
-              <User className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-sm">
+              {(activeAdvisor?.name || "A").charAt(0).toUpperCase()}
             </div>
             <div>
               <CardTitle className="text-sm font-bold text-foreground">
-                {isAr ? "د. سارة الأحمد (المرشد الأكاديمي)" : "Dr. Sarah Smith"}
+                {activeAdvisor?.name || (isAr ? "المرشد الأكاديمي" : "Academic Advisor")}
               </CardTitle>
               <CardDescription className="text-[11px] text-muted-foreground">
                 {isAr
-                  ? `المرشد الأكاديمي للطالب: ${activeChild?.name || ""}`
-                  : `Academic Advisor for ${activeChild?.name || "Student"}`}
+                  ? `بخصوص الطالب: ${activeChild?.name || ""}`
+                  : `Regarding student: ${activeChild?.name || "Student"}`}
               </CardDescription>
             </div>
           </div>
         </CardHeader>
 
-        <ScrollArea className="flex-1 p-5">
-          <div className="space-y-4">
-            {messages.map((msg) => {
-              const isMe = msg.sender === "parent";
-              return (
-                <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
-                    {isMe ? "P" : "Adv"}
+        <ScrollArea className="flex-1 p-5" ref={scrollRef}>
+          {isLoading ? (
+            <div className="py-20 text-center text-muted-foreground text-xs">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
+              {isAr ? "جارٍ جلب المحادثة من MySQL..." : "Loading messages from MySQL..."}
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="py-20 text-center text-muted-foreground text-xs space-y-2">
+              <MessageCircle className="w-8 h-8 text-primary/30 mx-auto" />
+              <p className="font-semibold text-foreground">{isAr ? "لا توجد رسائل سابقة." : "No messages yet."}</p>
+              <p>{isAr ? "ابدأ المحادثة الآن مع المرشد الأكاديمي للاستفسار عن مستوى الطالب." : "Send a message to the advisor to discuss your child's progress."}</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {messages.map((msg) => {
+                const isMe = Number(msg.sender_id) === Number(currentUser?.id);
+                const senderName = isMe
+                  ? (isAr ? "أنت (ولي الأمر)" : "You (Parent)")
+                  : (msg.sender?.name || (isAr ? "المرشد الأكاديمي" : "Academic Advisor"));
+
+                const timeStr = msg.created_at
+                  ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : "";
+
+                return (
+                  <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary border border-border text-foreground'}`}>
+                      {isMe ? "P" : "Adv"}
+                    </div>
+                    <div className={`rounded-2xl p-4 max-w-[80%] text-xs ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary/70 text-foreground border border-border'}`}>
+                      <div className="flex items-center justify-between gap-4 mb-1">
+                        <span className={`text-[10px] font-bold ${isMe ? 'text-primary-foreground/90' : 'text-primary'}`}>
+                          {senderName}
+                        </span>
+                        <span className={`text-[10px] font-mono ${isMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                          {timeStr}
+                        </span>
+                      </div>
+                      <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                    </div>
                   </div>
-                  <div className={`rounded-2xl p-4 max-w-[80%] text-xs ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary/70 text-foreground border border-border'}`}>
-                    <p className="leading-relaxed">{msg.text}</p>
-                    <span className={`text-[10px] mt-1 block font-mono ${isMe ? 'text-primary-foreground/70 text-right' : 'text-muted-foreground'}`}>
-                      {msg.time}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </ScrollArea>
 
+        {/* Input Footer */}
         <div className="p-4 border-t border-border bg-card/60 shrink-0">
           <div className="flex items-center gap-2">
             <Input
@@ -167,9 +262,14 @@ export default function ParentCommunicationsPage() {
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              disabled={isSending}
             />
-            <Button onClick={handleSendMessage} className="rounded-full bg-primary text-primary-foreground h-10 px-4">
-              <Send className="w-4 h-4" />
+            <Button
+              onClick={handleSendMessage}
+              disabled={isSending || !chatInput.trim()}
+              className="rounded-full bg-primary text-primary-foreground h-10 px-5 shadow-xs"
+            >
+              {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
           </div>
         </div>

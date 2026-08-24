@@ -1,43 +1,27 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, Bot, Send, Search, Users, User, Loader2 } from "lucide-react";
+import { MessageCircle, Bot, Send, Search, Users, User, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { api } from "@/lib/api";
-
-interface ChatMessage {
-  id: string | number;
-  sender: "advisor" | "parent" | "ai";
-  text: string;
-  time: string;
-}
+import { api, getApiErrorMessage } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 
 export default function AdvisorCommunicationsPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
+  const currentUser = useAppStore((state) => state.user);
 
   const [parents, setParents] = useState<any[]>([]);
   const [activeParent, setActiveParent] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      sender: "parent",
-      text: isAr ? "السلام عليكم ورحمة الله، لاحظت إشعاراً بانخفاض معدل حضور الطالب، هل هناك ما يقلق؟" : "Hello, I noticed the alert about the recent attendance drop. Is everything okay?",
-      time: "10:15 AM"
-    },
-    {
-      id: 2,
-      sender: "advisor",
-      text: isAr ? "وعليكم السلام، تم رصد غياب غير مبرر في آخر 3 محاضرات، نوصي بجدولة جلسة إرشادية مشتركة." : "Hello. We recorded 3 consecutive absences. I suggest a 15-minute sync to formulate an improvement plan.",
-      time: "10:30 AM"
-    }
-  ]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [inputMsg, setInputMsg] = useState("");
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   // AI Chat Tab
   const [aiQuery, setAiQuery] = useState("");
@@ -62,9 +46,29 @@ export default function AdvisorCommunicationsPage() {
       });
       const list = parentUsers.length > 0 ? parentUsers : data;
       setParents(list);
-      if (list.length > 0) setActiveParent(list[0]);
+      if (list.length > 0 && !activeParent) {
+        setActiveParent(list[0]);
+      }
     } catch (e) {
       console.warn("Parents load error:", e);
+    }
+  };
+
+  const loadMessages = async () => {
+    if (!activeParent) return;
+    setIsLoadingMessages(true);
+    try {
+      const res = await api.get('/messages', {
+        params: {
+          recipient_id: activeParent.id,
+        }
+      });
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setMessages(data);
+    } catch (e) {
+      console.warn("Load messages error:", e);
+    } finally {
+      setIsLoadingMessages(false);
     }
   };
 
@@ -72,16 +76,30 @@ export default function AdvisorCommunicationsPage() {
     loadParents();
   }, []);
 
-  const handleSendMessage = () => {
-    if (!inputMsg.trim()) return;
-    const newMsg: ChatMessage = {
-      id: Date.now(),
-      sender: "advisor",
-      text: inputMsg.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    setMessages((prev) => [...prev, newMsg]);
-    setInputMsg("");
+  useEffect(() => {
+    if (activeParent) {
+      loadMessages();
+    }
+  }, [activeParent]);
+
+  const handleSendMessage = async () => {
+    if (!inputMsg.trim() || !activeParent || isSending) return;
+    const text = inputMsg.trim();
+    setIsSending(true);
+
+    try {
+      const res = await api.post('/messages', {
+        recipient_id: activeParent.id,
+        message: text,
+      });
+      const newMsg = res.data?.data || res.data;
+      setMessages((prev) => [...prev, newMsg]);
+      setInputMsg("");
+    } catch (err) {
+      alert(getApiErrorMessage(err, isAr));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleSendAiQuery = (promptText?: string) => {
@@ -123,8 +141,8 @@ export default function AdvisorCommunicationsPage() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "التواصل المباشر مع أولياء الأمور والاستعلام الذكي عبر محرك الذكاء الاصطناعي."
-              : "Connect with guardians directly and query the academic analytical assistant."}
+              ? "التواصل المباشر والمحفوظ في MySQL مع أولياء الأمور والاستعلام الذكي عبر محرك الذكاء الاصطناعي."
+              : "Live database-backed messaging with parents and analytical cohort query assistant."}
           </p>
         </div>
       </div>
@@ -143,11 +161,11 @@ export default function AdvisorCommunicationsPage() {
 
         {/* Tab 1: Guardian Communications */}
         <TabsContent value="parents" className="h-[600px]">
-          <Card className="h-full bg-card/85 backdrop-blur-xl border-border rounded-3xl flex flex-col sm:flex-row overflow-hidden shadow-sm">
+          <Card className="h-full bg-card/85 backdrop-blur-xl border border-border rounded-3xl flex flex-col sm:flex-row overflow-hidden shadow-sm">
             {/* Sidebar Contact List */}
             <div className="w-full sm:w-1/3 border-b sm:border-b-0 sm:border-r border-border flex flex-col">
-              <div className="p-4 border-b border-border">
-                <div className="relative">
+              <div className="p-4 border-b border-border flex items-center justify-between gap-2">
+                <div className="relative flex-1">
                   <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder={isAr ? "بحث في جهات الاتصال..." : "Search contacts..."}
@@ -156,7 +174,16 @@ export default function AdvisorCommunicationsPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={loadMessages}
+                  className="h-8 w-8 rounded-full"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLoadingMessages ? 'animate-spin' : ''}`} />
+                </Button>
               </div>
+
               <ScrollArea className="flex-1">
                 <div className="p-2 space-y-1">
                   {filteredParents.map((p) => {
@@ -172,10 +199,12 @@ export default function AdvisorCommunicationsPage() {
                         }`}
                       >
                         <div className="flex justify-between items-start mb-0.5">
-                          <span className="font-bold text-xs text-foreground">{p.name || `Guardian #${p.id}`}</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">Live</span>
+                          <span className="font-bold text-xs text-foreground">{p.name || `User #${p.id}`}</span>
+                          <Badge variant="outline" className="text-[9px] font-mono rounded-full px-1.5 py-0">
+                            {p.role || "Guardian"}
+                          </Badge>
                         </div>
-                        <p className="text-[11px] text-muted-foreground truncate">{p.email || "Guardian account"}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{p.email || "Contact account"}</p>
                       </button>
                     );
                   })}
@@ -198,24 +227,41 @@ export default function AdvisorCommunicationsPage() {
               </div>
 
               <ScrollArea className="flex-1 p-4">
-                <div className="space-y-4">
-                  {messages.map((msg) => {
-                    const isMe = msg.sender === "advisor";
-                    return (
-                      <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
-                          {isMe ? "Adv" : "P"}
+                {isLoadingMessages ? (
+                  <div className="py-20 text-center text-muted-foreground text-xs">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
+                    {isAr ? "جارٍ جلب المحادثة من MySQL..." : "Loading messages from MySQL..."}
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div className="py-20 text-center text-muted-foreground text-xs space-y-2">
+                    <MessageCircle className="w-8 h-8 text-primary/30 mx-auto" />
+                    <p className="font-semibold text-foreground">{isAr ? "لا توجد رسائل مع هذا المستخدم بعد." : "No messages with this contact yet."}</p>
+                    <p>{isAr ? "أرسل رسالة لبدء التنسيق الأكاديمي مع ولي الأمر." : "Send a message to coordinate with the student's guardian."}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {messages.map((msg) => {
+                      const isMe = Number(msg.sender_id) === Number(currentUser?.id);
+                      const timeStr = msg.created_at
+                        ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : "";
+
+                      return (
+                        <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
+                            {isMe ? "Adv" : "P"}
+                          </div>
+                          <div className={`rounded-2xl p-3.5 max-w-[80%] text-xs ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary/70 text-foreground border border-border'}`}>
+                            <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                            <span className={`text-[10px] mt-1 block font-mono ${isMe ? 'text-primary-foreground/70 text-right' : 'text-muted-foreground'}`}>
+                              {timeStr}
+                            </span>
+                          </div>
                         </div>
-                        <div className={`rounded-2xl p-3.5 max-w-[80%] text-xs ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary/70 text-foreground'}`}>
-                          <p className="leading-relaxed">{msg.text}</p>
-                          <span className={`text-[10px] mt-1 block font-mono ${isMe ? 'text-primary-foreground/70 text-right' : 'text-muted-foreground'}`}>
-                            {msg.time}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </ScrollArea>
 
               <div className="p-4 border-t border-border bg-card/60">
@@ -226,9 +272,14 @@ export default function AdvisorCommunicationsPage() {
                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                     placeholder={isAr ? "اكتب رسالتك لولي الأمر..." : "Type your message..."}
                     className="flex-1 h-10 rounded-full bg-secondary/60 border-border text-xs"
+                    disabled={isSending}
                   />
-                  <Button onClick={handleSendMessage} className="rounded-full bg-primary text-primary-foreground h-10 px-4">
-                    <Send className="w-4 h-4" />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={isSending || !inputMsg.trim()}
+                    className="rounded-full bg-primary text-primary-foreground h-10 px-4"
+                  >
+                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </Button>
                 </div>
               </div>
