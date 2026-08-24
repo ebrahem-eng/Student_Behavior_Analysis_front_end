@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { 
   User, Mail, Phone, Lock, Shield, Key, Save, CheckCircle2, 
-  AlertCircle, Loader2, Sparkles, Building
+  AlertCircle, Loader2, Sparkles, Building, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -250,14 +250,28 @@ export default function AccountSettingsPage() {
                   <div className="space-y-2">
                     <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
                       <Building className="w-3.5 h-3.5 text-primary" />
-                      <span>{isAr ? "المؤسسة التعليمية" : "Institution"}</span>
+                      <span>{isAr ? "المؤسسة التعليمية" : "Educational Institution"}</span>
                     </Label>
                     <Input
                       disabled
-                      value={user?.institution_name || "SBA Main Campus"}
+                      value={user?.institution?.name || user?.institution_name || (isAr ? "الجامعة الرئيسية" : "Main Campus")}
                       className="h-11 rounded-2xl bg-secondary/30 border-border text-xs text-muted-foreground cursor-not-allowed"
                     />
                   </div>
+
+                  {user?.college && (
+                    <div className="space-y-2 md:col-span-2">
+                      <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                        <span>{isAr ? "الكلية / القسم الأكاديمي التابع له" : "Assigned College / Faculty"}</span>
+                      </Label>
+                      <Input
+                        disabled
+                        value={`${user.college.name} ${user.college.code ? `(${user.college.code})` : ''}`}
+                        className="h-11 rounded-2xl bg-primary/5 border-primary/20 text-xs text-primary font-bold cursor-not-allowed"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-end pt-4 border-t border-border/80">

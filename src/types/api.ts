@@ -2,6 +2,17 @@ export type UserRole = "admin" | "teacher" | "advisor" | "student" | "parent";
 
 export type RiskLevel = "Critical" | "High" | "Medium" | "Low" | "Stable";
 
+export interface College {
+  id: number | string;
+  institution_id: number | string;
+  name: string;
+  code?: string;
+  dean_name?: string;
+  description?: string;
+  users_count?: number;
+  created_at?: string;
+}
+
 export interface User {
   id: number | string;
   name: string;
@@ -10,8 +21,12 @@ export interface User {
   roles?: string[];
   institution_id?: number | string;
   institution_name?: string;
+  institution?: Institution;
+  college_id?: number | string;
+  college?: College;
   avatar_url?: string;
   phone?: string;
+  national_id?: string;
   created_at?: string;
 }
 
@@ -27,11 +42,16 @@ export interface AuthResponse {
 export interface Institution {
   id: number | string;
   name: string;
-  code: string;
-  mode: "school" | "university";
-  risk_threshold: number;
-  total_students: number;
-  total_courses: number;
+  code?: string;
+  type?: "school" | "university";
+  mode?: "school" | "university";
+  address?: string;
+  colleges?: College[];
+  colleges_count?: number;
+  users_count?: number;
+  risk_threshold?: number;
+  total_students?: number;
+  total_courses?: number;
   created_at?: string;
 }
 

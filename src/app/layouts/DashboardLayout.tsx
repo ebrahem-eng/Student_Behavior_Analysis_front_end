@@ -20,7 +20,8 @@ import {
   CalendarDays,
   Bell,
   ArrowRight,
-  Shield
+  Shield,
+  GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -254,6 +255,22 @@ export function DashboardLayout() {
                     <div className="flex flex-col space-y-1">
                       <p className="text-xs font-bold leading-none text-foreground">{user?.name || `${userRole || 'User'} Portal`}</p>
                       <p className="text-[11px] leading-none text-muted-foreground truncate">{user?.email || `${userRole || 'user'}@sba-platform.edu`}</p>
+                      {(user?.institution?.name || user?.college?.name) && (
+                        <div className="pt-1.5 flex flex-col gap-0.5 border-t border-border/60 mt-1">
+                          {user.institution?.name && (
+                            <span className="text-[10px] font-semibold text-primary truncate flex items-center gap-1">
+                              <Building className="w-2.5 h-2.5 shrink-0" />
+                              <span className="truncate">{user.institution.name}</span>
+                            </span>
+                          )}
+                          {user.college?.name && (
+                            <span className="text-[10px] font-bold text-foreground/80 truncate flex items-center gap-1">
+                              <GraduationCap className="w-2.5 h-2.5 text-primary shrink-0" />
+                              <span className="truncate">{user.college.name}</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-border" />
