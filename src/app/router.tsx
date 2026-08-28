@@ -11,6 +11,7 @@ import TeacherGradesPage from "@/features/teacher/pages/TeacherGradesPage";
 import TeacherAttendancePage from "@/features/teacher/pages/TeacherAttendancePage";
 import TeacherDashboardPage from "@/features/teacher/pages/TeacherDashboardPage";
 import TeacherIncidentsPage from "@/features/teacher/pages/TeacherIncidentsPage";
+import TeacherFeedbackPage from "@/features/teacher/pages/TeacherFeedbackPage";
 import AdvisorDashboardPage from "@/features/advisor/pages/AdvisorDashboardPage";
 import AdvisorInboxPage from "@/features/advisor/pages/AdvisorInboxPage";
 import AdvisorCommunicationsPage from "@/features/advisor/pages/AdvisorCommunicationsPage";
@@ -89,6 +90,10 @@ export const router = createBrowserRouter([
           {
             path: "/teacher/incidents",
             element: <TeacherIncidentsPage />,
+          },
+          {
+            path: "/teacher/feedback",
+            element: <TeacherFeedbackPage />,
           },
         ],
       },
