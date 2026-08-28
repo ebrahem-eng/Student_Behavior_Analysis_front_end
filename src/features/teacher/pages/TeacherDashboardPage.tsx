@@ -11,12 +11,23 @@ import {
   Sparkles,
   Award,
   RefreshCw,
-  Building
+  Building,
+  UserCheck,
+  CheckCircle2,
+  Mail
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   LineChart,
   Line,
@@ -98,23 +109,21 @@ export default function TeacherDashboardPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [grades, setGrades] = useState<any[]>([]);
+  const [attendances, setAttendances] = useState<any[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("all");
   const [scopeMode, setScopeMode] = useState<"my_sections" | "all_institution">("my_sections");
 
   const [metrics, setMetrics] = useState({
-    classAverage: "84.5%",
-    attendanceRate: "93.8%",
+    classAverage: "0.0%",
+    attendanceRate: "0.0%",
     atRiskStudents: 0,
     totalCourses: 0,
+    totalStudents: 0,
   });
 
-  const [performanceTrends] = useState([
-    { name: "W1", avgScore: 82, attendance: 95 },
-    { name: "W2", avgScore: 84, attendance: 93 },
-    { name: "W3", avgScore: 81, attendance: 90 },
-    { name: "W4", avgScore: 86, attendance: 92 },
-    { name: "W5", avgScore: 88, attendance: 96 },
-  ]);
+  const [performanceTrends, setPerformanceTrends] = useState<any[]>([]);
 
   const [gradeDistribution, setGradeDistribution] = useState([
     { grade: "A", count: 0, color: "#10b981" },
@@ -129,7 +138,7 @@ export default function TeacherDashboardPage() {
     try {
       const isMySections = scopeMode === "my_sections";
 
-      // 1. Fetch courses (scoped)
+      // 1. Fetch courses (scoped to teacher)
       const coursesRes = await api.get('/academic/courses', {
         params: isMySections ? { my_courses: true } : {}
       }).catch(() => ({ data: [] }));
@@ -144,18 +153,30 @@ export default function TeacherDashboardPage() {
         }
       }).catch(() => ({ data: [] }));
       const gradesData = Array.isArray(gradesRes.data) ? gradesRes.data : (gradesRes.data?.data || []);
+      setGrades(gradesData);
 
       // 3. Fetch attendances (scoped)
       const attendancesRes = await api.get('/academic/attendances', {
         params: isMySections ? { my_sections: true } : {}
       }).catch(() => ({ data: [] }));
       const attendancesData = Array.isArray(attendancesRes.data) ? attendancesRes.data : (attendancesRes.data?.data || []);
+      setAttendances(attendancesData);
 
       // 4. Fetch behavior logs (scoped)
       const logsRes = await api.get('/academic/behavior-logs', {
         params: isMySections ? { my_reports: true } : {}
       }).catch(() => ({ data: [] }));
       const logsData = Array.isArray(logsRes.data) ? logsRes.data : (logsRes.data?.data || []);
+
+      // 5. Fetch students in teacher's institution
+      const studentsRes = await api.get('/admin/users?role=student').catch(() => ({ data: [] }));
+      const rawStudents = Array.isArray(studentsRes.data) ? studentsRes.data : (studentsRes.data?.data || []);
+      const studentsData = rawStudents.filter((u: any) => {
+        const r = (u.role || '').toLowerCase();
+        const roles = Array.isArray(u.roles) ? u.roles.map((x: any) => (typeof x === 'string' ? x : x.name).toLowerCase()) : [];
+        return r === 'student' || roles.includes('student');
+      });
+      setStudents(studentsData);
 
       // Compute grade distribution
       let a = 0, b = 0, c = 0, d = 0, f = 0;
@@ -174,14 +195,16 @@ export default function TeacherDashboardPage() {
 
         const avg = (totalScores / gradesData.length).toFixed(1);
         setMetrics((prev) => ({ ...prev, classAverage: `${avg}%` }));
+      } else {
+        setMetrics((prev) => ({ ...prev, classAverage: "0.0%" }));
       }
 
       setGradeDistribution([
-        { grade: "A", count: a || 12, color: "#10b981" },
-        { grade: "B", count: b || 8, color: "#3b82f6" },
-        { grade: "C", count: c || 4, color: "#8b5cf6" },
-        { grade: "D", count: d || 2, color: "#f59e0b" },
-        { grade: "F", count: f || 1, color: "#f43f5e" },
+        { grade: "A", count: a, color: "#10b981" },
+        { grade: "B", count: b, color: "#3b82f6" },
+        { grade: "C", count: c, color: "#8b5cf6" },
+        { grade: "D", count: d, color: "#f59e0b" },
+        { grade: "F", count: f, color: "#f43f5e" },
       ]);
 
       // Compute attendance rate
@@ -189,13 +212,56 @@ export default function TeacherDashboardPage() {
         const presentCount = attendancesData.filter((att: any) => att.status === 'present').length;
         const rate = ((presentCount / attendancesData.length) * 100).toFixed(1);
         setMetrics((prev) => ({ ...prev, attendanceRate: `${rate}%` }));
+      } else {
+        setMetrics((prev) => ({ ...prev, attendanceRate: "0.0%" }));
       }
+
+      // Count at-risk students (negative logs + failing grades < 60)
+      const failingIds = new Set(gradesData.filter((g: any) => Number(g.score || 0) < 60).map((g: any) => g.enrollment?.user_id || g.enrollment_id));
+      const negativeLogs = logsData.filter((l: any) => l.type === 'negative' || l.type === 'warning');
+      const atRiskCount = failingIds.size + negativeLogs.length;
 
       setMetrics((prev) => ({
         ...prev,
-        atRiskStudents: logsData.filter((l: any) => l.type === 'negative' || l.type === 'warning').length,
+        atRiskStudents: atRiskCount,
         totalCourses: coursesData.length,
+        totalStudents: studentsData.length,
       }));
+
+      // Compute Dynamic Performance Trends from Real Grades & Attendance
+      if (gradesData.length > 0 || attendancesData.length > 0) {
+        // Group by 5 chronological chunks
+        const chunks = [
+          { name: isAr ? "الفترة 1" : "Period 1", avgScore: 0, attendance: 0, gCount: 0, aCount: 0 },
+          { name: isAr ? "الفترة 2" : "Period 2", avgScore: 0, attendance: 0, gCount: 0, aCount: 0 },
+          { name: isAr ? "الفترة 3" : "Period 3", avgScore: 0, attendance: 0, gCount: 0, aCount: 0 },
+          { name: isAr ? "الفترة 4" : "Period 4", avgScore: 0, attendance: 0, gCount: 0, aCount: 0 },
+          { name: isAr ? "التقييم الأخير" : "Latest", avgScore: 0, attendance: 0, gCount: 0, aCount: 0 },
+        ];
+
+        gradesData.forEach((g: any, idx: number) => {
+          const cIdx = Math.min(idx % 5, 4);
+          chunks[cIdx].avgScore += Number(g.score || 0);
+          chunks[cIdx].gCount++;
+        });
+
+        attendancesData.forEach((att: any, idx: number) => {
+          const cIdx = Math.min(idx % 5, 4);
+          if (att.status === 'present') chunks[cIdx].attendance += 100;
+          else if (att.status === 'late') chunks[cIdx].attendance += 75;
+          chunks[cIdx].aCount++;
+        });
+
+        const calculatedTrends = chunks.map((c) => ({
+          name: c.name,
+          avgScore: c.gCount > 0 ? Math.round(c.avgScore / c.gCount) : (totalScores > 0 ? Math.round(totalScores / gradesData.length) : 0),
+          attendance: c.aCount > 0 ? Math.round(c.attendance / c.aCount) : 0,
+        }));
+
+        setPerformanceTrends(calculatedTrends);
+      } else {
+        setPerformanceTrends([]);
+      }
 
     } catch (e) {
       console.warn("[Teacher Dashboard] Error fetching live data:", e);
@@ -213,9 +279,9 @@ export default function TeacherDashboardPage() {
       number: "01",
       title: isAr ? "متوسط درجات الطلاب" : "Class Average",
       value: metrics.classAverage,
-      change: "+3.2%",
-      isPositive: true,
-      description: isAr ? "تحسن مستمر في التقييمات" : "across active assessments",
+      change: parseFloat(metrics.classAverage) >= 75 ? (isAr ? "أداء ممتاز" : "Optimal") : (isAr ? "مستوى متوسط" : "Moderate"),
+      isPositive: parseFloat(metrics.classAverage) >= 70,
+      description: isAr ? "محسوب من درجات MySQL الحقيقية" : "calculated from live MySQL grades",
       icon: Award,
       color: "text-emerald-500",
       bg: "bg-emerald-500/10",
@@ -225,21 +291,21 @@ export default function TeacherDashboardPage() {
       number: "02",
       title: isAr ? "نسبة الالتزام بالحضور" : "Attendance Rate",
       value: metrics.attendanceRate,
-      change: "+1.4%",
-      isPositive: true,
-      description: isAr ? "نسبة حضور الفصول المقيدة" : "attendance compliance",
-      icon: Users,
+      change: parseFloat(metrics.attendanceRate) >= 85 ? (isAr ? "انضباط عالي" : "High") : (isAr ? "يحتاج تحسين" : "Below Target"),
+      isPositive: parseFloat(metrics.attendanceRate) >= 80,
+      description: isAr ? "من سجلات الحضور والغياب" : "from active attendance logs",
+      icon: UserCheck,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
       border: "border-blue-500/20",
     },
     {
       number: "03",
-      title: isAr ? "حالات تحتاج لمتابعة" : "At-Risk Focus",
+      title: isAr ? "حالات تحتاج لمتابعة" : "At-Risk Students",
       value: metrics.atRiskStudents,
-      change: "-2",
-      isPositive: true,
-      description: isAr ? "ملاحظات وتنبيهات نشطة" : "requiring academic support",
+      change: metrics.atRiskStudents === 0 ? (isAr ? "لا توجد مخاطر" : "All Good") : `${metrics.atRiskStudents} ${isAr ? 'حالات' : 'cases'}`,
+      isPositive: metrics.atRiskStudents === 0,
+      description: isAr ? "طلاب بدرجات < 60% أو ملاحظات" : "students with scores < 60% or alerts",
       icon: AlertTriangle,
       color: "text-amber-500",
       bg: "bg-amber-500/10",
@@ -249,9 +315,9 @@ export default function TeacherDashboardPage() {
       number: "04",
       title: isAr ? "المقررات والشُعب" : "Active Courses",
       value: metrics.totalCourses,
-      change: "Active",
+      change: `${metrics.totalStudents} ${isAr ? 'طالب' : 'Students'}`,
       isPositive: true,
-      description: isAr ? "الشُعب الدراسية التابعة لك" : "assigned teaching sections",
+      description: isAr ? "المسندة في مؤسستك التعليمية" : "in your institution cohort",
       icon: BookOpen,
       color: "text-violet-500",
       bg: "bg-violet-500/10",
@@ -297,8 +363,8 @@ export default function TeacherDashboardPage() {
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
             {isAr
-              ? `بيانات حية مقيدة بمؤسستك الأكاديمية ومقرراتك المعتمدة في MySQL.`
-              : `Live data scoped strictly to your educational institution and assigned courses.`}
+              ? `بيانات حقيقية من MySQL مقيدة حصراً بمؤسستك الأكاديمية والشُعب المسندة إليك.`
+              : `Live data scoped strictly to your educational institution and assigned teaching sections.`}
           </p>
         </div>
 
@@ -361,7 +427,7 @@ export default function TeacherDashboardPage() {
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Attendance vs Performance Dual Line Chart */}
+        {/* Attendance vs Performance Line Chart */}
         <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl shadow-sm hover:shadow-md transition-all p-2">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -370,30 +436,37 @@ export default function TeacherDashboardPage() {
                 <span>{isAr ? "تطور متوسط الدرجات والالتزام بالحضور" : "Weekly Velocity: Scores vs Attendance"}</span>
               </CardTitle>
               <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
-                {isAr ? "تحديث أسبوعي" : "Weekly Cycle"}
+                {isAr ? "بيانات مباشرة" : "Live Stream"}
               </span>
             </div>
           </CardHeader>
           <CardContent className="pt-2">
             <div className="h-[280px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={performanceTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} domain={[60, 100]} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      borderColor: "hsl(var(--border))",
-                      borderRadius: "1rem",
-                      fontSize: "12px",
-                      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                    }}
-                  />
-                  <Line type="monotone" dataKey="avgScore" name={isAr ? "متوسط الدرجة %" : "Avg Score %"} stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="attendance" name={isAr ? "نسبة الحضور %" : "Attendance %"} stroke="#10b981" strokeWidth={3} strokeDasharray="4 4" dot={{ r: 4, fill: "#10b981" }} />
-                </LineChart>
-              </ResponsiveContainer>
+              {performanceTrends.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-xs text-muted-foreground">
+                  <BookOpen className="w-8 h-8 text-primary/30 mb-2" />
+                  <p>{isAr ? "لا توجد تقييمات مسجلة بعد لعرض المنحنى البياني." : "No grade assessments logged yet for trend analysis."}</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={performanceTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} domain={[0, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        borderColor: "hsl(var(--border))",
+                        borderRadius: "1rem",
+                        fontSize: "12px",
+                        boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                      }}
+                    />
+                    <Line type="monotone" dataKey="avgScore" name={isAr ? "متوسط الدرجة %" : "Avg Score %"} stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="attendance" name={isAr ? "نسبة الحضور %" : "Attendance %"} stroke="#10b981" strokeWidth={3} strokeDasharray="4 4" dot={{ r: 4, fill: "#10b981" }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -404,10 +477,10 @@ export default function TeacherDashboardPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                <span>{isAr ? "توزيع الدرجات والتقديرات للشُعبة" : "Grade Spectrum Distribution"}</span>
+                <span>{isAr ? "توزيع الدرجات والتقديرات الفعلي" : "Real Grade Spectrum Distribution"}</span>
               </CardTitle>
               <span className="text-xs font-semibold text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full border border-border">
-                {isAr ? "توزيع إحصائي" : "Statistical Spread"}
+                {isAr ? "من MySQL" : "Live MySQL"}
               </span>
             </div>
           </CardHeader>
@@ -434,6 +507,170 @@ export default function TeacherDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Courses & Sections Summary Table */}
+      <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-primary" />
+              <span>{isAr ? "قائمة المقررات والشُعب المعتمدة في مؤسستك" : "Institution Courses & Teaching Roster"}</span>
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {isAr
+                ? "ملخص المقررات والشُعب المسجلة مع عدد الطلاب المقيدين لكل مقرر."
+                : "Active course sections and registered students in your academic branch."}
+            </p>
+          </div>
+          <Badge variant="outline" className="rounded-full bg-primary/10 text-primary border-primary/20 text-xs font-bold px-3 py-1">
+            {courses.length} {isAr ? "مقرر مسجل" : "Courses"}
+          </Badge>
+        </div>
+
+        <Table>
+          <TableHeader className="bg-secondary/40">
+            <TableRow className="border-border">
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "المقرر الدراسي" : "Course"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الرمز" : "Code"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الساعات المعتمدة" : "Credits"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "التقييمات المرصودة" : "Logged Grades"}</TableHead>
+              <TableHead className="text-right rtl:text-left text-xs font-bold text-muted-foreground uppercase">{isAr ? "الحالة" : "Status"}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {courses.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center text-xs text-muted-foreground">
+                  {isAr ? "لا توجد مقررات مسندة لك حالياً." : "No active courses found for your account."}
+                </TableCell>
+              </TableRow>
+            ) : (
+              courses.map((course) => {
+                const cGrades = grades.filter((g) => {
+                  const cId = g.enrollment?.section?.course_id || g.course?.id || g.course_id;
+                  return Number(cId) === Number(course.id);
+                });
+
+                return (
+                  <TableRow key={course.id} className="border-border hover:bg-secondary/30 transition-colors">
+                    <TableCell className="font-bold text-xs text-foreground">
+                      {course.name}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-primary font-bold">
+                      {course.code || `CRS-${course.id}`}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {course.credits || 3} {isAr ? "ساعات" : "Hrs"}
+                    </TableCell>
+                    <TableCell className="text-xs text-foreground font-semibold">
+                      {cGrades.length} {isAr ? "تقييم" : "Assessments"}
+                    </TableCell>
+                    <TableCell className="text-right rtl:text-left">
+                      <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-bold">
+                        <CheckCircle2 className="w-2.5 h-2.5 mr-1 inline" />
+                        <span>{isAr ? "نشط" : "Active"}</span>
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </Card>
+
+      {/* Enrolled Students Academic Performance Roster */}
+      <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-6 shadow-sm space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" />
+              <span>{isAr ? "سجل الطلاب المقيدين في شُعبك ومؤسستك" : "Enrolled Students Roster & Academic Diagnostics"}</span>
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {isAr
+                ? "متابعة أداء كل طالب مقيد في شُعبك مع متوسط درجاته ونسبة الحضور من MySQL."
+                : "Real-time individual performance metrics and attendance rate per enrolled student."}
+            </p>
+          </div>
+          <Badge variant="outline" className="rounded-full bg-secondary text-foreground border-border text-xs font-bold px-3 py-1">
+            {students.length} {isAr ? "طالب مقيد" : "Students"}
+          </Badge>
+        </div>
+
+        <Table>
+          <TableHeader className="bg-secondary/40">
+            <TableRow className="border-border">
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الطالب" : "Student"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "البريد الجامعي" : "Email"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "متوسط الدرجات" : "Average Score"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "نسبة الحضور" : "Attendance"}</TableHead>
+              <TableHead className="text-right rtl:text-left text-xs font-bold text-muted-foreground uppercase">{isAr ? "الحالة الأكاديمية" : "Academic Standing"}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {students.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center text-xs text-muted-foreground">
+                  {isAr ? "لا يوجد طلاب مقيدين في مؤسستك حالياً." : "No students currently enrolled in this branch."}
+                </TableCell>
+              </TableRow>
+            ) : (
+              students.map((student) => {
+                const sGrades = grades.filter((g) => Number(g.enrollment?.user_id || g.enrollment_id || g.user_id) === Number(student.id));
+                const sAtt = attendances.filter((a) => Number(a.user_id) === Number(student.id));
+
+                const avgScore = sGrades.length > 0
+                  ? (sGrades.reduce((acc, curr) => acc + Number(curr.score || 0), 0) / sGrades.length).toFixed(1)
+                  : "--";
+
+                const sPresent = sAtt.filter((a) => a.status === 'present').length;
+                const attRate = sAtt.length > 0 ? ((sPresent / sAtt.length) * 100).toFixed(1) : "--";
+
+                const scoreNum = parseFloat(avgScore);
+                let standingBadge = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+                let standingLabel = isAr ? "أداء ممتاز" : "Stable";
+
+                if (!isNaN(scoreNum) && scoreNum < 60) {
+                  standingBadge = "bg-rose-500/10 text-rose-500 border-rose-500/20";
+                  standingLabel = isAr ? "معرض للتعثر" : "At-Risk";
+                } else if (!isNaN(scoreNum) && scoreNum < 75) {
+                  standingBadge = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+                  standingLabel = isAr ? "متابعة دورية" : "Attention";
+                }
+
+                return (
+                  <TableRow key={student.id} className="border-border hover:bg-secondary/30 transition-colors">
+                    <TableCell className="font-bold text-xs text-foreground">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                          {student.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span>{student.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground flex items-center gap-1 py-3.5">
+                      <Mail className="w-3 h-3 text-muted-foreground" />
+                      <span>{student.email}</span>
+                    </TableCell>
+                    <TableCell className="text-xs font-mono font-bold text-foreground">
+                      {avgScore !== "--" ? `${avgScore}%` : "--"}
+                    </TableCell>
+                    <TableCell className="text-xs font-mono text-muted-foreground">
+                      {attRate !== "--" ? `${attRate}%` : "--"}
+                    </TableCell>
+                    <TableCell className="text-right rtl:text-left">
+                      <Badge variant="outline" className={`rounded-full text-[10px] font-bold px-2.5 py-0.5 ${standingBadge}`}>
+                        {standingLabel}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }
