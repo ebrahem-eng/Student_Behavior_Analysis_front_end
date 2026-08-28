@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   TrendingUp,
   BrainCircuit,
-  FileCheck
+  FileCheck,
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,15 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/ca
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { api, getApiErrorMessage } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 
@@ -35,7 +45,14 @@ export default function TeacherFeedbackPage() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [grades, setGrades] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
-  
+
+  // Create Recommendation Dialog State
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dialogError, setDialogError] = useState<string | null>(null);
+  const [newStudentId, setNewStudentId] = useState<string>("");
+  const [newAction, setNewAction] = useState<string>("");
+
   // AI Interactive Assistant for Teaching
   const [chatPrompt, setChatPrompt] = useState("");
   const [isAiThinking, setIsAiThinking] = useState(false);
@@ -84,6 +101,9 @@ export default function TeacherFeedbackPage() {
           return r === 'student' || roles.includes('student');
         });
         setStudents(stdList);
+        if (stdList.length > 0 && !newStudentId) {
+          setNewStudentId(String(stdList[0].id));
+        }
       }
     } catch (e) {
       console.warn("[Teacher Feedback] Error loading insights:", e);
@@ -95,6 +115,28 @@ export default function TeacherFeedbackPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleCreateRecommendation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStudentId || !newAction.trim()) return;
+    setIsSubmitting(true);
+    setDialogError(null);
+
+    try {
+      await api.post('/academic/recommendations', {
+        student_id: Number(newStudentId),
+        ai_suggested_action: newAction.trim(),
+        status: 'proposed',
+      });
+      setIsDialogOpen(false);
+      setNewAction("");
+      loadData();
+    } catch (err: any) {
+      setDialogError(getApiErrorMessage(err, isAr));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleImplementRecommendation = async (recId: number) => {
     const note = actionNotes[recId] || (isAr ? "تم تطبيق الإجراء التربوي والمتابعة في الفصل." : "Intervention implemented during class session.");
@@ -209,6 +251,69 @@ export default function TeacherFeedbackPage() {
               ))}
             </SelectContent>
           </Select>
+
+          {/* New Recommendation Button & Modal */}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-4 h-9 shadow-lg shadow-primary/20 transition-all hover:scale-105">
+                <Plus className="mr-1.5 h-4 w-4" /> {isAr ? "تسجيل خطة تدخل" : "Add Intervention"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[480px] bg-card border-border text-foreground rounded-3xl">
+              <DialogHeader>
+                <DialogTitle>{isAr ? "تسجيل خطة تدخل وتوصية جديدة" : "Create New Intervention Plan"}</DialogTitle>
+                <DialogDescription className="text-muted-foreground text-xs">
+                  {isAr ? "سيتم حفظ الخطة في جدول recommendations في MySQL مع إشعار الإرشاد الطلابي." : "Save the pedagogical action into MySQL for academic tracking."}
+                </DialogDescription>
+              </DialogHeader>
+
+              {dialogError && (
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs">
+                  {dialogError}
+                </div>
+              )}
+
+              <form onSubmit={handleCreateRecommendation} className="space-y-4 py-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{isAr ? "الطالب المعني" : "Target Student"}</Label>
+                  <Select value={newStudentId} onValueChange={setNewStudentId}>
+                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
+                      <SelectValue placeholder={isAr ? "اختر الطالب..." : "Select student..."} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border rounded-2xl">
+                      {students.map((s) => (
+                        <SelectItem key={s.id} value={String(s.id)} className="text-xs font-semibold">
+                          {s.name} ({s.email})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="action-desc" className="text-xs font-semibold">{isAr ? "الإجراء الأكاديمي / خطة التدخل المقترحة" : "Recommended Action"}</Label>
+                  <Input
+                    id="action-desc"
+                    required
+                    value={newAction}
+                    onChange={(e) => setNewAction(e.target.value)}
+                    placeholder={isAr ? "مثال: جلسة مراجعة لمفاهيم الخوارزميات وتكليف بتمارين إضافية" : "E.g. Schedule concept tutoring and assign practice tasks"}
+                    className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end gap-2">
+                  <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-full text-xs font-semibold">
+                    {isAr ? "إلغاء" : "Cancel"}
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting} className="rounded-full bg-primary text-primary-foreground text-xs font-bold px-5">
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                    {isAr ? "حفظ وتوثيق الخطة" : "Save Plan"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
 
           <Button
             variant="outline"
