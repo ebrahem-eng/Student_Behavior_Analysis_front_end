@@ -25,8 +25,10 @@ export default function TeacherIncidentsPage() {
 
   const [behaviorLogs, setBehaviorLogs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [institutions, setInstitutions] = useState<any[]>([]);
+  const [selectedInstitution, setSelectedInstitution] = useState<string>("all");
   const [scopeMode, setScopeMode] = useState<"my_reports" | "all_institution">("my_reports");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   // Dialog Form State
@@ -43,13 +45,30 @@ export default function TeacherIncidentsPage() {
     setIsLoading(true);
     try {
       const isMyReports = scopeMode === "my_reports";
+      const instParams = selectedInstitution !== "all" ? { institution_id: selectedInstitution } : {};
 
-      const [logsRes, usersRes] = await Promise.allSettled([
+      const [logsRes, usersRes, instRes] = await Promise.allSettled([
         api.get('/academic/behavior-logs', {
-          params: isMyReports ? { my_reports: true } : {}
+          params: {
+            ...(isMyReports ? { my_reports: true } : {}),
+            ...instParams,
+          }
         }),
-        api.get('/admin/users?role=student'),
+        api.get('/admin/users', {
+          params: {
+            role: 'student',
+            ...instParams,
+          }
+        }),
+        api.get('/admin/institutions', {
+          params: { my_affiliations: true }
+        }),
       ]);
+
+      if (instRes.status === 'fulfilled') {
+        const data = Array.isArray(instRes.value.data) ? instRes.value.data : (instRes.value.data?.data || []);
+        setInstitutions(data);
+      }
 
       if (logsRes.status === 'fulfilled') {
         const data = Array.isArray(logsRes.value.data) ? logsRes.value.data : (logsRes.value.data?.data || []);
@@ -78,7 +97,7 @@ export default function TeacherIncidentsPage() {
 
   useEffect(() => {
     loadData();
-  }, [scopeMode]);
+  }, [scopeMode, selectedInstitution]);
 
   const handleCreateIncident = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,6 +182,25 @@ export default function TeacherIncidentsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Active Teaching Institution Context Selector */}
+          {institutions.length > 0 && (
+            <Select value={selectedInstitution} onValueChange={(val: any) => setSelectedInstitution(val)}>
+              <SelectTrigger className="w-[170px] rounded-full h-9 bg-card border-border text-xs font-bold">
+                <SelectValue placeholder={isAr ? "المؤسسة التعليمية" : "Institution"} />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border rounded-2xl">
+                <SelectItem value="all" className="text-xs font-semibold">
+                  🌐 {isAr ? "كافة المؤسسات التدريسية" : "All Affiliations"}
+                </SelectItem>
+                {institutions.map((inst) => (
+                  <SelectItem key={inst.id} value={String(inst.id)} className="text-xs font-semibold">
+                    {inst.type === 'school' ? '🏫 ' : '🎓 '}{inst.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {/* Scope Selector */}
           <Select value={scopeMode} onValueChange={(val: any) => setScopeMode(val)}>
             <SelectTrigger className="w-[160px] rounded-full h-9 bg-card border-border text-xs font-bold">

@@ -44,6 +44,8 @@ export default function TeacherFeedbackPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
+  const [institutions, setInstitutions] = useState<any[]>([]);
+  const [selectedInstitution, setSelectedInstitution] = useState<string>("all");
   const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [grades, setGrades] = useState<any[]>([]);
@@ -76,14 +78,22 @@ export default function TeacherFeedbackPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [coursesRes, recsRes, gradesRes, attendancesRes, logsRes, studentsRes] = await Promise.allSettled([
-        api.get('/academic/courses', { params: { my_courses: true } }),
-        api.get('/academic/recommendations'),
-        api.get('/academic/grades', { params: { my_sections: true } }),
-        api.get('/academic/attendances', { params: { my_sections: true } }),
-        api.get('/academic/behavior-logs', { params: { my_reports: true } }),
-        api.get('/admin/users?role=student'),
+      const instParams = selectedInstitution !== "all" ? { institution_id: selectedInstitution } : {};
+
+      const [coursesRes, recsRes, gradesRes, attendancesRes, logsRes, studentsRes, instRes] = await Promise.allSettled([
+        api.get('/academic/courses', { params: { my_courses: true, ...instParams } }),
+        api.get('/academic/recommendations', { params: instParams }),
+        api.get('/academic/grades', { params: { my_sections: true, ...instParams } }),
+        api.get('/academic/attendances', { params: { my_sections: true, ...instParams } }),
+        api.get('/academic/behavior-logs', { params: { my_reports: true, ...instParams } }),
+        api.get('/admin/users', { params: { role: 'student', ...instParams } }),
+        api.get('/admin/institutions', { params: { my_affiliations: true } }),
       ]);
+
+      if (instRes.status === 'fulfilled') {
+        const data = Array.isArray(instRes.value.data) ? instRes.value.data : (instRes.value.data?.data || []);
+        setInstitutions(data);
+      }
 
       if (coursesRes.status === 'fulfilled') {
         const data = Array.isArray(coursesRes.value.data) ? coursesRes.value.data : (coursesRes.value.data?.data || []);
@@ -118,12 +128,9 @@ export default function TeacherFeedbackPage() {
           return r === 'student' || roles.includes('student');
         });
         setStudents(stdList);
-        if (stdList.length > 0 && !newStudentId) {
-          setNewStudentId(String(stdList[0].id));
-        }
       }
     } catch (e) {
-      console.warn("[Teacher Feedback] Error loading insights:", e);
+      console.warn("Feedback data load error:", e);
     } finally {
       setIsLoading(false);
     }
@@ -262,6 +269,25 @@ export default function TeacherFeedbackPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Active Teaching Institution Context Selector */}
+          {institutions.length > 0 && (
+            <Select value={selectedInstitution} onValueChange={(val: any) => { setSelectedInstitution(val); setSelectedCourseId("all"); }}>
+              <SelectTrigger className="w-[170px] rounded-full h-9 bg-card border-border text-xs font-bold">
+                <SelectValue placeholder={isAr ? "المؤسسة التعليمية" : "Institution"} />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border rounded-2xl">
+                <SelectItem value="all" className="text-xs font-semibold">
+                  🌐 {isAr ? "كافة المؤسسات التدريسية" : "All Affiliations"}
+                </SelectItem>
+                {institutions.map((inst) => (
+                  <SelectItem key={inst.id} value={String(inst.id)} className="text-xs font-semibold">
+                    {inst.type === 'school' ? '🏫 ' : '🎓 '}{inst.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {/* Course Selector */}
           <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
             <SelectTrigger className="w-[180px] rounded-full h-9 bg-card border-border text-xs font-bold">

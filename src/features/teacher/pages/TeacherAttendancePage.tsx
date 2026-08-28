@@ -47,6 +47,8 @@ export default function TeacherAttendancePage() {
   const [attendances, setAttendances] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [institutions, setInstitutions] = useState<any[]>([]);
+  const [selectedInstitution, setSelectedInstitution] = useState<string>("all");
   const [selectedCourse, setSelectedCourse] = useState<string>("all");
   const [scopeMode, setScopeMode] = useState<"my_sections" | "all_institution">("my_sections");
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,19 +71,38 @@ export default function TeacherAttendancePage() {
     setIsLoading(true);
     try {
       const isMySections = scopeMode === "my_sections";
+      const instParams = selectedInstitution !== "all" ? { institution_id: selectedInstitution } : {};
 
-      const [attRes, coursesRes, usersRes] = await Promise.allSettled([
+      const [attRes, coursesRes, usersRes, instRes] = await Promise.allSettled([
         api.get('/academic/attendances', {
           params: {
             ...(isMySections ? { my_sections: true } : {}),
-            ...(selectedCourse !== 'all' ? { course_id: selectedCourse } : {})
+            ...(selectedCourse !== 'all' ? { course_id: selectedCourse } : {}),
+            ...instParams,
           }
         }),
         api.get('/academic/courses', {
-          params: isMySections ? { my_courses: true } : {}
+          params: {
+            ...(isMySections ? { my_courses: true } : {}),
+            ...instParams,
+          }
         }),
-        api.get('/admin/users?role=student'),
+        api.get('/admin/users', {
+          params: {
+            role: 'student',
+            ...(targetCourseId ? { course_id: targetCourseId } : {}),
+            ...instParams,
+          }
+        }),
+        api.get('/admin/institutions', {
+          params: { my_affiliations: true }
+        }),
       ]);
+
+      if (instRes.status === 'fulfilled') {
+        const data = Array.isArray(instRes.value.data) ? instRes.value.data : (instRes.value.data?.data || []);
+        setInstitutions(data);
+      }
 
       if (attRes.status === 'fulfilled') {
         const data = Array.isArray(attRes.value.data) ? attRes.value.data : (attRes.value.data?.data || []);
@@ -118,7 +139,7 @@ export default function TeacherAttendancePage() {
 
   useEffect(() => {
     loadData();
-  }, [selectedCourse, scopeMode]);
+  }, [selectedCourse, scopeMode, selectedInstitution]);
 
   const handleCreateAttendance = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,6 +236,25 @@ export default function TeacherAttendancePage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Active Teaching Institution Context Selector */}
+          {institutions.length > 0 && (
+            <Select value={selectedInstitution} onValueChange={(val: any) => { setSelectedInstitution(val); setSelectedCourse("all"); }}>
+              <SelectTrigger className="w-[170px] rounded-full h-9 bg-card border-border text-xs font-bold">
+                <SelectValue placeholder={isAr ? "المؤسسة التعليمية" : "Institution"} />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border rounded-2xl">
+                <SelectItem value="all" className="text-xs font-semibold">
+                  🌐 {isAr ? "كافة المؤسسات التدريسية" : "All Affiliations"}
+                </SelectItem>
+                {institutions.map((inst) => (
+                  <SelectItem key={inst.id} value={String(inst.id)} className="text-xs font-semibold">
+                    {inst.type === 'school' ? '🏫 ' : '🎓 '}{inst.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {/* Scope Selector */}
           <Select value={scopeMode} onValueChange={(val: any) => setScopeMode(val)}>
             <SelectTrigger className="w-[160px] rounded-full h-9 bg-card border-border text-xs font-bold">

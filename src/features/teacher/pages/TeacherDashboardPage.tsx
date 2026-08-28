@@ -113,6 +113,8 @@ export default function TeacherDashboardPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [grades, setGrades] = useState<any[]>([]);
   const [attendances, setAttendances] = useState<any[]>([]);
+  const [institutions, setInstitutions] = useState<any[]>([]);
+  const [selectedInstitution, setSelectedInstitution] = useState<string>("all");
   const [selectedCourse, setSelectedCourse] = useState<string>("all");
   const [scopeMode, setScopeMode] = useState<"my_sections" | "all_institution">("my_sections");
 
@@ -138,10 +140,19 @@ export default function TeacherDashboardPage() {
     setIsLoading(true);
     try {
       const isMySections = scopeMode === "my_sections";
+      const instParams = selectedInstitution !== "all" ? { institution_id: selectedInstitution } : {};
 
-      // 1. Fetch courses (scoped to teacher)
+      // 0. Fetch affiliated institutions
+      const instRes = await api.get('/admin/institutions', { params: { my_affiliations: true } }).catch(() => ({ data: [] }));
+      const instData = Array.isArray(instRes.data) ? instRes.data : (instRes.data?.data || []);
+      setInstitutions(instData);
+
+      // 1. Fetch courses (scoped to teacher & selected institution)
       const coursesRes = await api.get('/academic/courses', {
-        params: isMySections ? { my_courses: true } : {}
+        params: {
+          ...(isMySections ? { my_courses: true } : {}),
+          ...instParams,
+        }
       }).catch(() => ({ data: [] }));
       const coursesData = Array.isArray(coursesRes.data) ? coursesRes.data : (coursesRes.data?.data || []);
       setCourses(coursesData);
@@ -150,7 +161,8 @@ export default function TeacherDashboardPage() {
       const gradesRes = await api.get('/academic/grades', {
         params: {
           ...(isMySections ? { my_sections: true } : {}),
-          ...(selectedCourse !== 'all' ? { course_id: selectedCourse } : {})
+          ...(selectedCourse !== 'all' ? { course_id: selectedCourse } : {}),
+          ...instParams,
         }
       }).catch(() => ({ data: [] }));
       const gradesData = Array.isArray(gradesRes.data) ? gradesRes.data : (gradesRes.data?.data || []);
@@ -158,19 +170,30 @@ export default function TeacherDashboardPage() {
 
       // 3. Fetch attendances (scoped)
       const attendancesRes = await api.get('/academic/attendances', {
-        params: isMySections ? { my_sections: true } : {}
+        params: {
+          ...(isMySections ? { my_sections: true } : {}),
+          ...instParams,
+        }
       }).catch(() => ({ data: [] }));
       const attendancesData = Array.isArray(attendancesRes.data) ? attendancesRes.data : (attendancesRes.data?.data || []);
       setAttendances(attendancesData);
 
       // 4. Fetch behavior logs (scoped)
       const logsRes = await api.get('/academic/behavior-logs', {
-        params: isMySections ? { my_reports: true } : {}
+        params: {
+          ...(isMySections ? { my_reports: true } : {}),
+          ...instParams,
+        }
       }).catch(() => ({ data: [] }));
       const logsData = Array.isArray(logsRes.data) ? logsRes.data : (logsRes.data?.data || []);
 
       // 5. Fetch students in teacher's institution
-      const studentsRes = await api.get('/admin/users?role=student').catch(() => ({ data: [] }));
+      const studentsRes = await api.get('/admin/users', {
+        params: {
+          role: 'student',
+          ...instParams,
+        }
+      }).catch(() => ({ data: [] }));
       const rawStudents = Array.isArray(studentsRes.data) ? studentsRes.data : (studentsRes.data?.data || []);
       const studentsData = rawStudents.filter((u: any) => {
         const r = (u.role || '').toLowerCase();
@@ -273,9 +296,9 @@ export default function TeacherDashboardPage() {
 
   useEffect(() => {
     loadTeacherData();
-  }, [selectedCourse, scopeMode]);
+  }, [selectedCourse, scopeMode, selectedInstitution]);
 
-  const stats = [
+  const stats: StatCardProps[] = [
     {
       number: "01",
       title: isAr ? "متوسط درجات الطلاب" : "Class Average",
@@ -378,6 +401,25 @@ export default function TeacherDashboardPage() {
 
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          {/* Active Teaching Institution Context Selector */}
+          {institutions.length > 0 && (
+            <Select value={selectedInstitution} onValueChange={(val: any) => { setSelectedInstitution(val); setSelectedCourse("all"); }}>
+              <SelectTrigger className="w-[180px] rounded-full h-9 bg-card/90 border-border text-xs font-bold">
+                <SelectValue placeholder={isAr ? "المؤسسة التعليمية" : "Institution"} />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border rounded-2xl">
+                <SelectItem value="all" className="text-xs font-semibold">
+                  🌐 {isAr ? "كافة المؤسسات التدريسية" : "All Affiliations"}
+                </SelectItem>
+                {institutions.map((inst) => (
+                  <SelectItem key={inst.id} value={String(inst.id)} className="text-xs font-semibold">
+                    {inst.type === 'school' ? '🏫 ' : '🎓 '}{inst.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {/* Scope Selector: My Sections vs All Institution */}
           <Select value={scopeMode} onValueChange={(val: any) => setScopeMode(val)}>
             <SelectTrigger className="w-[170px] rounded-full h-9 bg-card/90 border-border text-xs font-bold">
