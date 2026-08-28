@@ -12,7 +12,9 @@ import {
   ShieldCheck,
   RefreshCw,
   Loader2,
-  GraduationCap
+  GraduationCap,
+  Building,
+  School
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -616,6 +618,31 @@ export default function ParentDashboardPage() {
               </div>
               <h3 className="text-base font-bold text-foreground">{activeChild.name}</h3>
               <p className="text-xs text-muted-foreground font-mono mt-0.5">{activeChild.email || "student@sba-edu.com"}</p>
+
+              {/* Child's Affiliation Badges */}
+              {(activeChild.institution?.name || activeChild.college?.name) && (
+                <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
+                  {activeChild.institution?.name && (
+                    <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-[10px] font-bold px-2 py-0.5 flex items-center gap-1">
+                      {activeChild.institution?.type === 'school' ? <School className="w-2.5 h-2.5 text-emerald-500" /> : <Building className="w-2.5 h-2.5 text-primary" />}
+                      <span>{activeChild.institution.name}</span>
+                    </Badge>
+                  )}
+                  {activeChild.college?.name && (
+                    <Badge
+                      variant="outline"
+                      className={`rounded-full text-[10px] font-bold px-2 py-0.5 flex items-center gap-1 ${
+                        activeChild.institution?.type === 'school'
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                          : 'bg-primary/10 text-primary border-primary/20'
+                      }`}
+                    >
+                      {activeChild.institution?.type === 'school' ? <School className="w-2.5 h-2.5" /> : <GraduationCap className="w-2.5 h-2.5" />}
+                      <span>{activeChild.college.name}</span>
+                    </Badge>
+                  )}
+                </div>
+              )}
 
               <div className="w-full mt-6 space-y-3 text-left">
                 <div className="flex justify-between items-center pb-2.5 border-b border-border text-xs">

@@ -13,7 +13,9 @@ import {
   Sparkles,
   RefreshCw,
   BookOpen,
-  CheckCircle2
+  CheckCircle2,
+  Building,
+  School
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -231,11 +233,36 @@ export default function StudentDashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3.5 py-1">
-            <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-bold text-primary tracking-wide uppercase">
-              {isAr ? "بوابة الطالب الأكاديمية" : "Student Academic Portal"}
-            </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3.5 py-1">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-bold text-primary tracking-wide uppercase">
+                {isAr ? "بوابة الطالب الأكاديمية" : "Student Academic Portal"}
+              </span>
+            </div>
+
+            {/* Institution Badge */}
+            {(user?.institution?.name || user?.institution_name) && (
+              <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-xs px-3 py-1 font-bold flex items-center gap-1.5">
+                {user?.institution?.type === 'school' ? <School className="w-3 h-3 text-emerald-500" /> : <Building className="w-3 h-3 text-primary" />}
+                <span>{user?.institution?.name || user?.institution_name}</span>
+              </Badge>
+            )}
+
+            {/* Stage or College Badge */}
+            {user?.college?.name && (
+              <Badge
+                variant="outline"
+                className={`rounded-full text-xs px-3 py-1 font-bold flex items-center gap-1.5 ${
+                  user?.institution?.type === 'school'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    : 'bg-primary/10 text-primary border-primary/20'
+                }`}
+              >
+                {user?.institution?.type === 'school' ? <School className="w-3 h-3" /> : <GraduationCap className="w-3 h-3" />}
+                <span>{user.college.name}</span>
+              </Badge>
+            )}
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
             {isAr ? `مرحباً، ${user?.name || "الطالب"}` : `Welcome back, ${user?.name || "Student"}`}

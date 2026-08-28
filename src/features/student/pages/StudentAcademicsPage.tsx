@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, Bot, TrendingUp, Send, User, Award, RefreshCw, Loader2 } from "lucide-react";
+import { BookOpen, Bot, TrendingUp, Send, User, Award, RefreshCw, Loader2, Building, GraduationCap, School } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { api } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 
 export default function StudentAcademicsPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
 
+  const currentUser = useAppStore((state) => state.user);
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -86,10 +88,31 @@ export default function StudentAcademicsPage() {
     <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <BookOpen className="h-8 w-8 text-primary" />
-            {isAr ? "التحصيل الأكاديمي والمساعد الذكي" : "Academics & AI Study Copilot"}
-          </h1>
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <BookOpen className="h-8 w-8 text-primary" />
+              {isAr ? "التحصيل الأكاديمي والمساعد الذكي" : "Academics & AI Study Copilot"}
+            </h1>
+            {(currentUser?.institution?.name || currentUser?.institution_name) && (
+              <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-xs px-3 py-1 font-bold flex items-center gap-1.5">
+                {currentUser?.institution?.type === 'school' ? <School className="w-3 h-3 text-emerald-500" /> : <Building className="w-3 h-3 text-primary" />}
+                <span>{currentUser?.institution?.name || currentUser?.institution_name}</span>
+              </Badge>
+            )}
+            {currentUser?.college?.name && (
+              <Badge
+                variant="outline"
+                className={`rounded-full text-xs px-3 py-1 font-bold flex items-center gap-1.5 ${
+                  currentUser?.institution?.type === 'school'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    : 'bg-primary/10 text-primary border-primary/20'
+                }`}
+              >
+                {currentUser?.institution?.type === 'school' ? <School className="w-3 h-3" /> : <GraduationCap className="w-3 h-3" />}
+                <span>{currentUser.college.name}</span>
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
               ? "متابعة درجات المقررات من قاعدة بيانات MySQL واستشارة المساعد الذكي لتحسين التحصيل."

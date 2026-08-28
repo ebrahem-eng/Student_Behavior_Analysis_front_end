@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, Search, CheckCircle2, CalendarDays, GraduationCap, RefreshCw, Loader2, PlusCircle, Trash2 } from "lucide-react";
+import { BookOpen, Search, CheckCircle2, CalendarDays, GraduationCap, RefreshCw, Loader2, PlusCircle, Trash2, Building, School } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api, getApiErrorMessage } from "@/lib/api";
+import { useAppStore } from "@/lib/store";
 
 export default function StudentRegistrationPage() {
   const { i18n } = useTranslation();
@@ -98,18 +99,42 @@ export default function StudentRegistrationPage() {
     { category: isAr ? "المقررات الاختيارية" : "Electives", required: 45, completed: 15 },
   ];
 
+  const currentUser = useAppStore((state) => state.user);
+  const isSchool = currentUser?.institution?.type === 'school';
+
   return (
     <div className="space-y-6 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <BookOpen className="h-8 w-8 text-primary" />
-            {isAr ? "تسجيل المقررات والخطة الدراسية" : "Course Registration & Degree Progress"}
-          </h1>
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <BookOpen className="h-8 w-8 text-primary" />
+              {isAr ? (isSchool ? "تسجيل المواد والجدول الدراسي" : "تسجيل المقررات والخطة الدراسية") : (isSchool ? "Course Registration & Timetable" : "Course Registration & Degree Progress")}
+            </h1>
+            {(currentUser?.institution?.name || currentUser?.institution_name) && (
+              <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-xs px-3 py-1 font-bold flex items-center gap-1.5">
+                {isSchool ? <School className="w-3 h-3 text-emerald-500" /> : <Building className="w-3 h-3 text-primary" />}
+                <span>{currentUser?.institution?.name || currentUser?.institution_name}</span>
+              </Badge>
+            )}
+            {currentUser?.college?.name && (
+              <Badge
+                variant="outline"
+                className={`rounded-full text-xs px-3 py-1 font-bold flex items-center gap-1.5 ${
+                  isSchool
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    : 'bg-primary/10 text-primary border-primary/20'
+                }`}
+              >
+                {isSchool ? <School className="w-3 h-3" /> : <GraduationCap className="w-3 h-3" />}
+                <span>{currentUser.college.name}</span>
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "إدارة جدولك الفصلي ومتابعة التقدم نحو متطلبات التخرج عبر MySQL."
-              : "Manage your class schedule and track your graduation milestones."}
+              ? (isSchool ? "إدارة جدولك الأسبوعي ومتابعة إنجاز متطلبات المرحلة الدراسية عبر MySQL." : "إدارة جدولك الفصلي ومتابعة التقدم نحو متطلبات التخرج عبر MySQL.")
+              : "Manage your class schedule and track your educational milestones."}
           </p>
         </div>
 
@@ -128,12 +153,12 @@ export default function StudentRegistrationPage() {
       <Tabs defaultValue="registration" className="w-full">
         <TabsList className="bg-card/80 border border-border p-1 rounded-2xl mb-6">
           <TabsTrigger value="registration" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
-            <CalendarDays className="w-4 h-4 mr-2" />
-            <span>{isAr ? "تسجيل المقررات" : "Course Registration"}</span>
+            <CalendarDays className="w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0" />
+            <span>{isAr ? (isSchool ? "تسجيل المواد والجدول" : "تسجيل المقررات") : "Course Registration"}</span>
           </TabsTrigger>
           <TabsTrigger value="progress" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
-            <GraduationCap className="w-4 h-4 mr-2" />
-            <span>{isAr ? "مخطط التخرج" : "Degree Progress"}</span>
+            {isSchool ? <School className="w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0" /> : <GraduationCap className="w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0" />}
+            <span>{isAr ? (isSchool ? "مخطط المرحلة الدراسية" : "مخطط التخرج") : (isSchool ? "Stage Progress" : "Degree Progress")}</span>
           </TabsTrigger>
         </TabsList>
 

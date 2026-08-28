@@ -15,7 +15,8 @@ import {
   BrainCircuit,
   FileCheck,
   Plus,
-  Users
+  Users,
+  School
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -229,15 +230,22 @@ export default function TeacherFeedbackPage() {
             {/* Institution Badge */}
             {instName && (
               <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-xs px-3 py-1 font-bold flex items-center gap-1.5">
-                <Building className="w-3 h-3 text-primary" />
+                {currentUser?.institution?.type === 'school' ? <School className="w-3 h-3 text-emerald-500" /> : <Building className="w-3 h-3 text-primary" />}
                 <span>{instName}</span>
               </Badge>
             )}
 
-            {/* College Badge */}
+            {/* College or Stage Badge */}
             {colName && (
-              <Badge variant="outline" className="rounded-full bg-primary/10 text-primary border-primary/20 text-xs px-3 py-1 font-bold flex items-center gap-1.5">
-                <GraduationCap className="w-3 h-3" />
+              <Badge
+                variant="outline"
+                className={`rounded-full text-xs px-3 py-1 font-bold flex items-center gap-1.5 ${
+                  currentUser?.institution?.type === 'school'
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                    : 'bg-primary/10 text-primary border-primary/20'
+                }`}
+              >
+                {currentUser?.institution?.type === 'school' ? <School className="w-3 h-3" /> : <GraduationCap className="w-3 h-3" />}
                 <span>{colName}</span>
               </Badge>
             )}

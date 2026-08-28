@@ -9,7 +9,9 @@ import {
   User,
   ArrowLeft,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Building,
+  School
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -150,8 +152,35 @@ export default function AdvisorStudentViewPage() {
               <p className="text-muted-foreground text-xs mt-0.5 truncate max-w-[200px]">{studentEmail}</p>
 
               <div className="w-full mt-6 space-y-3 text-left">
+                {/* Institution & Stage / College Badges */}
+                {(selectedStudent?.institution?.name || selectedStudent?.college?.name) && (
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 pb-3 border-b border-border">
+                    {selectedStudent?.institution?.name && (
+                      <Badge variant="outline" className="rounded-full bg-secondary/80 text-foreground border-border text-[10px] font-bold px-2 py-0.5 flex items-center gap-1">
+                        {selectedStudent?.institution?.type === 'school' ? <School className="w-2.5 h-2.5 text-emerald-500" /> : <Building className="w-2.5 h-2.5 text-primary" />}
+                        <span>{selectedStudent.institution.name}</span>
+                      </Badge>
+                    )}
+                    {selectedStudent?.college?.name && (
+                      <Badge
+                        variant="outline"
+                        className={`rounded-full text-[10px] font-bold px-2 py-0.5 flex items-center gap-1 ${
+                          selectedStudent?.institution?.type === 'school'
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                            : 'bg-primary/10 text-primary border-primary/20'
+                        }`}
+                      >
+                        {selectedStudent?.institution?.type === 'school' ? <School className="w-2.5 h-2.5" /> : <GraduationCap className="w-2.5 h-2.5" />}
+                        <span>{selectedStudent.college.name}</span>
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center pb-2 border-b border-border text-xs">
-                  <span className="text-muted-foreground">{isAr ? "التخصص" : "Major"}</span>
+                  <span className="text-muted-foreground">
+                    {selectedStudent?.institution?.type === 'school' ? (isAr ? "المسار الدراسي" : "Educational Track") : (isAr ? "التخصص الأكاديمي" : "Major")}
+                  </span>
                   <span className="text-foreground font-semibold">{studentMajor}</span>
                 </div>
                 <div className="flex justify-between items-center pb-2 border-b border-border text-xs">
@@ -171,12 +200,16 @@ export default function AdvisorStudentViewPage() {
             <Tabs defaultValue="progress" className="w-full">
               <TabsList className="bg-secondary/60 border border-border p-1 rounded-2xl mb-6">
                 <TabsTrigger value="progress" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
-                  <GraduationCap className="w-4 h-4 mr-2" />
-                  <span>{isAr ? "التقدم في الخطة الدراسية" : "Graduation Progress"}</span>
+                  {selectedStudent?.institution?.type === 'school' ? <School className="w-4 h-4 mr-2" /> : <GraduationCap className="w-4 h-4 mr-2" />}
+                  <span>
+                    {selectedStudent?.institution?.type === 'school'
+                      ? (isAr ? "التقدم في المرحلة الدراسية" : "Stage Progress")
+                      : (isAr ? "التقدم في الخطة الدراسية" : "Graduation Progress")}
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger value="registration" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-xs font-bold px-4 py-2">
                   <BookOpen className="w-4 h-4 mr-2" />
-                  <span>{isAr ? "المقررات المسجلة" : "Course Registration"}</span>
+                  <span>{isAr ? (selectedStudent?.institution?.type === 'school' ? "المواد المسجلة" : "المقررات المسجلة") : "Course Registration"}</span>
                 </TabsTrigger>
               </TabsList>
 
