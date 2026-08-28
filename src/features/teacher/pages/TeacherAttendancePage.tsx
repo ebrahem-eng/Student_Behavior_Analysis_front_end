@@ -1,6 +1,19 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { UserCheck, Search, Plus, Trash2, Loader2, RefreshCw, Building, GraduationCap, School } from "lucide-react";
+import {
+  UserCheck,
+  Search,
+  Plus,
+  Trash2,
+  Loader2,
+  RefreshCw,
+  Building,
+  GraduationCap,
+  School,
+  BookOpen,
+  CalendarDays,
+  FileText
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -45,9 +58,12 @@ export default function TeacherAttendancePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const [targetCourseId, setTargetCourseId] = useState<string>("");
   const [targetUserId, setTargetUserId] = useState("");
   const [status, setStatus] = useState<"present" | "absent" | "late">("present");
   const [notes, setNotes] = useState("");
+
+  const isSchool = currentUser?.institution?.type === 'school';
 
   const loadData = async () => {
     setIsLoading(true);
@@ -56,7 +72,10 @@ export default function TeacherAttendancePage() {
 
       const [attRes, coursesRes, usersRes] = await Promise.allSettled([
         api.get('/academic/attendances', {
-          params: isMySections ? { my_sections: true } : {}
+          params: {
+            ...(isMySections ? { my_sections: true } : {}),
+            ...(selectedCourse !== 'all' ? { course_id: selectedCourse } : {})
+          }
         }),
         api.get('/academic/courses', {
           params: isMySections ? { my_courses: true } : {}
@@ -72,6 +91,9 @@ export default function TeacherAttendancePage() {
       if (coursesRes.status === 'fulfilled') {
         const data = Array.isArray(coursesRes.value.data) ? coursesRes.value.data : (coursesRes.value.data?.data || []);
         setCourses(data);
+        if (data.length > 0 && !targetCourseId) {
+          setTargetCourseId(String(data[0].id));
+        }
       }
 
       if (usersRes.status === 'fulfilled') {
@@ -100,16 +122,21 @@ export default function TeacherAttendancePage() {
 
   const handleCreateAttendance = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!targetCourseId || !targetUserId) {
+      setFormError(isAr ? "يرجى اختيار المادة الدراسية والطالب." : "Please select course and student.");
+      return;
+    }
+
     setIsSubmitting(true);
     setFormError(null);
 
     try {
       await api.post('/academic/attendances', {
-        user_id: targetUserId || users[0]?.id,
-        section_id: 1,
+        user_id: targetUserId,
+        course_id: targetCourseId,
         date: date,
         status: status,
-        notes: notes || undefined,
+        notes: notes.trim() || undefined,
       });
 
       setIsDialogOpen(false);
@@ -142,7 +169,7 @@ export default function TeacherAttendancePage() {
       cName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       notesText.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCourse = selectedCourse === "all" || String(att.section?.course?.id) === String(selectedCourse);
+    const matchesCourse = selectedCourse === "all" || String(att.section?.course_id || att.section?.course?.id) === String(selectedCourse);
 
     return matchesSearch && matchesCourse;
   });
@@ -182,8 +209,8 @@ export default function TeacherAttendancePage() {
           </div>
           <p className="text-muted-foreground text-sm">
             {isAr
-              ? "تسجيل حضور وغياب الطلاب في شُعبك الدراسية ومتابعة نسب الالتزام في MySQL."
-              : "Track classroom attendance and compliance live for your assigned sections in MySQL."}
+              ? "تسجيل حضور وغياب الطلاب في المواد والشُعب المسندة ومتابعة نسب الالتزام في MySQL."
+              : "Track classroom attendance and compliance live for your assigned subjects in MySQL."}
           </p>
         </div>
 
@@ -195,10 +222,10 @@ export default function TeacherAttendancePage() {
             </SelectTrigger>
             <SelectContent className="bg-card border-border rounded-2xl">
               <SelectItem value="my_sections" className="text-xs font-semibold">
-                👤 {isAr ? "شُعبي المسندة" : "My Taught Sections"}
+                👤 {isAr ? "شُعبي وموادي" : "My Taught Classes"}
               </SelectItem>
               <SelectItem value="all_institution" className="text-xs font-semibold">
-                🏛️ {isAr ? "مقررات المؤسسة" : "All Institution"}
+                🏛️ {isAr ? "جميع المواد بالمؤسسة" : "All Institution"}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -220,12 +247,19 @@ export default function TeacherAttendancePage() {
                 <Plus className="mr-1.5 h-4 w-4" /> {isAr ? "تسجيل حضور جديد" : "Log Attendance"}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[480px] bg-card border-border text-foreground rounded-3xl">
+            <DialogContent className="sm:max-w-[500px] bg-card border-border text-foreground rounded-3xl">
               <DialogHeader>
-                <DialogTitle>{isAr ? "تسجيل حالة حضور طالب" : "Log Attendance Entry"}</DialogTitle>
-                <DialogDescription className="text-muted-foreground text-xs">
-                  {isAr ? "سيتم حفظ حالة الحضور مباشرة في قاعدة بيانات MySQL." : "Save attendance status directly to MySQL."}
-                </DialogDescription>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold">
+                    <UserCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <DialogTitle>{isAr ? "تسجيل حالة حضور لطالب" : "Log Student Attendance"}</DialogTitle>
+                    <DialogDescription className="text-muted-foreground text-xs">
+                      {isAr ? "حدد المادة، الطالب، وتاريخ الجلسة لتحديث سجل الحضور مباشرة." : "Select subject, student, and status to record in MySQL."}
+                    </DialogDescription>
+                  </div>
+                </div>
               </DialogHeader>
 
               {formError && (
@@ -235,13 +269,37 @@ export default function TeacherAttendancePage() {
               )}
 
               <form onSubmit={handleCreateAttendance} className="space-y-4 py-2">
+                {/* 1. Subject / Course Selector */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">{isAr ? "الطالب" : "Student"}</Label>
+                  <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-primary" />
+                    <span>{isAr ? (isSchool ? "المادة الدراسية / الفصل" : "المقرر الدراسي / الشعبة") : "Course / Subject"}</span>
+                  </Label>
+                  <Select value={targetCourseId} onValueChange={setTargetCourseId}>
+                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs font-semibold">
+                      <SelectValue placeholder={isAr ? "اختر المادة الدراسية..." : "Select course or subject..."} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border rounded-2xl max-h-56">
+                      {courses.map((c) => (
+                        <SelectItem key={c.id} value={String(c.id)} className="text-xs font-semibold">
+                          {c.code ? `[${c.code}] ` : ''}{c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 2. Student Selector */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    {isSchool ? <School className="w-3.5 h-3.5 text-emerald-500" /> : <GraduationCap className="w-3.5 h-3.5 text-primary" />}
+                    <span>{isAr ? "الطالب" : "Student"}</span>
+                  </Label>
                   <Select value={targetUserId} onValueChange={setTargetUserId}>
-                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
+                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs font-semibold">
                       <SelectValue placeholder={isAr ? "اختر الطالب..." : "Select student..."} />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-border rounded-2xl">
+                    <SelectContent className="bg-card border-border rounded-2xl max-h-56">
                       {users.map((u) => (
                         <SelectItem key={u.id} value={String(u.id)} className="text-xs font-semibold">
                           {u.name} ({u.email})
@@ -251,23 +309,27 @@ export default function TeacherAttendancePage() {
                   </Select>
                 </div>
 
+                {/* 3. Status and Date Grid */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">{isAr ? "الحالة" : "Status"}</Label>
+                    <Label className="text-xs font-bold text-foreground">{isAr ? "حالة الحضور" : "Attendance Status"}</Label>
                     <Select value={status} onValueChange={(val: any) => setStatus(val)}>
-                      <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
+                      <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs font-semibold">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-card border-border rounded-2xl">
-                        <SelectItem value="present">🟢 {isAr ? "حاضر" : "Present"}</SelectItem>
-                        <SelectItem value="late">🟡 {isAr ? "متأخر" : "Late"}</SelectItem>
-                        <SelectItem value="absent">🔴 {isAr ? "غائب" : "Absent"}</SelectItem>
+                        <SelectItem value="present" className="text-xs font-bold text-emerald-600">🟢 {isAr ? "حاضر" : "Present"}</SelectItem>
+                        <SelectItem value="late" className="text-xs font-bold text-amber-600">🟡 {isAr ? "متأخر" : "Late"}</SelectItem>
+                        <SelectItem value="absent" className="text-xs font-bold text-rose-600">🔴 {isAr ? "غائب" : "Absent"}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="att-date" className="text-xs font-semibold">{isAr ? "التاريخ" : "Date"}</Label>
+                    <Label htmlFor="att-date" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <CalendarDays className="w-3.5 h-3.5 text-primary" />
+                      <span>{isAr ? "التاريخ" : "Date"}</span>
+                    </Label>
                     <Input
                       id="att-date"
                       type="date"
@@ -279,13 +341,17 @@ export default function TeacherAttendancePage() {
                   </div>
                 </div>
 
+                {/* 4. Notes */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="att-notes" className="text-xs font-semibold">{isAr ? "ملاحظات (اختياري)" : "Notes (Optional)"}</Label>
+                  <Label htmlFor="att-notes" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-primary" />
+                    <span>{isAr ? "ملاحظات وتبريرات (اختياري)" : "Notes / Excuse (Optional)"}</span>
+                  </Label>
                   <Input
                     id="att-notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder={isAr ? "مثال: عذر طبي معتمد" : "E.g. Approved medical excuse"}
+                    placeholder={isAr ? "مثال: بعذر طبي معتمد / تأخر 10 دقائق" : "E.g. Approved medical excuse / 10m late"}
                     className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
                   />
                 </div>
@@ -296,7 +362,7 @@ export default function TeacherAttendancePage() {
                   </Button>
                   <Button type="submit" disabled={isSubmitting} className="rounded-full bg-primary text-primary-foreground text-xs font-bold px-5">
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-                    {isAr ? "حفظ الحضور" : "Save Attendance"}
+                    {isAr ? "حفظ الحضور في MySQL" : "Save Attendance"}
                   </Button>
                 </div>
               </form>
@@ -322,7 +388,7 @@ export default function TeacherAttendancePage() {
             <SelectValue placeholder={isAr ? "جميع المقررات" : "All Courses"} />
           </SelectTrigger>
           <SelectContent className="bg-card border-border rounded-2xl">
-            <SelectItem value="all">{isAr ? "جميع المقررات" : "All Courses"}</SelectItem>
+            <SelectItem value="all">{isAr ? "جميع المواد والمقررات" : "All Courses & Subjects"}</SelectItem>
             {courses.map((c) => (
               <SelectItem key={c.id} value={String(c.id)}>
                 {c.code ? `${c.code} - ${c.name || 'Course'}` : (c.name || 'Course')}
@@ -338,8 +404,8 @@ export default function TeacherAttendancePage() {
           <TableHeader className="bg-secondary/40">
             <TableRow className="border-border">
               <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الطالب" : "Student"}</TableHead>
-              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "المقرر / الشعبة" : "Course"}</TableHead>
-              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الحالة" : "Status"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "المادة / المقرر" : "Subject / Course"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "حالة الحضور" : "Status"}</TableHead>
               <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "التاريخ" : "Date"}</TableHead>
               <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "ملاحظات" : "Notes"}</TableHead>
               <TableHead className="text-right rtl:text-left text-xs font-bold text-muted-foreground uppercase">{isAr ? "الإجراءات" : "Actions"}</TableHead>
@@ -350,7 +416,7 @@ export default function TeacherAttendancePage() {
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center text-xs text-muted-foreground">
                   <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
-                  {isAr ? "جارٍ جلب سجلات الحضور..." : "Loading attendance records..."}
+                  {isAr ? "جارٍ جلب سجلات الحضور من MySQL..." : "Loading attendance records from MySQL..."}
                 </TableCell>
               </TableRow>
             ) : filteredAttendances.length === 0 ? (
@@ -363,17 +429,18 @@ export default function TeacherAttendancePage() {
             ) : (
               filteredAttendances.map((att) => {
                 const sName = att.student?.name || `Student #${att.user_id}`;
-                const cName = att.section?.course?.name || (isAr ? "الشعبة العامة" : "General Section");
+                const sEmail = att.student?.email;
+                const cName = att.section?.course?.name || (isAr ? "مقرر عام" : "General Course");
+                const cCode = att.section?.course?.code;
 
-                let badgeVariant = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-                let label = isAr ? "حاضر" : "Present";
-
+                let badgeColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+                let statusLabel = isAr ? "حاضر" : "Present";
                 if (att.status === "absent") {
-                  badgeVariant = "bg-rose-500/10 text-rose-500 border-rose-500/20";
-                  label = isAr ? "غائب" : "Absent";
+                  badgeColor = "bg-rose-500/10 text-rose-500 border-rose-500/20";
+                  statusLabel = isAr ? "غائب" : "Absent";
                 } else if (att.status === "late") {
-                  badgeVariant = "bg-amber-500/10 text-amber-500 border-amber-500/20";
-                  label = isAr ? "متأخر" : "Late";
+                  badgeColor = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+                  statusLabel = isAr ? "متأخر" : "Late";
                 }
 
                 return (
@@ -381,21 +448,21 @@ export default function TeacherAttendancePage() {
                     <TableCell className="py-3">
                       <div>
                         <p className="font-bold text-xs text-foreground">{sName}</p>
-                        <p className="text-[11px] text-muted-foreground">{att.student?.email}</p>
+                        {sEmail && <p className="text-[11px] text-muted-foreground">{sEmail}</p>}
                       </div>
                     </TableCell>
                     <TableCell className="text-xs font-semibold text-foreground">
-                      {cName}
+                      {cCode ? `[${cCode}] ` : ''}{cName}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={`rounded-full text-xs font-bold px-2.5 py-0.5 ${badgeVariant}`}>
-                        {label}
+                      <Badge variant="outline" className={`rounded-full text-xs font-bold px-2.5 py-0.5 ${badgeColor}`}>
+                        {statusLabel}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-xs font-mono text-muted-foreground">
-                      {att.date || new Date().toISOString().split("T")[0]}
+                      {att.date}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-xs truncate">
+                    <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">
                       {att.notes || "-"}
                     </TableCell>
                     <TableCell className="text-right rtl:text-left">

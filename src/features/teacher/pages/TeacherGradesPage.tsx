@@ -1,6 +1,20 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { BookOpen, Search, Plus, Trash2, Award, Loader2, RefreshCw, Building, GraduationCap, School } from "lucide-react";
+import {
+  BookOpen,
+  Search,
+  Plus,
+  Trash2,
+  Award,
+  Loader2,
+  RefreshCw,
+  Building,
+  GraduationCap,
+  School,
+  Sparkles,
+  FileCheck,
+  Percent
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -44,10 +58,13 @@ export default function TeacherGradesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const [studentId, setStudentId] = useState("");
-  const [examName, setExamName] = useState("");
-  const [score, setScore] = useState("");
-  const [weight, setWeight] = useState("0.2");
+  const [targetCourseId, setTargetCourseId] = useState<string>("");
+  const [studentId, setStudentId] = useState<string>("");
+  const [examName, setExamName] = useState<string>("");
+  const [score, setScore] = useState<string>("");
+  const [weight, setWeight] = useState<string>("0.2");
+
+  const isSchool = currentUser?.institution?.type === 'school';
 
   const loadData = async () => {
     setIsLoading(true);
@@ -75,6 +92,9 @@ export default function TeacherGradesPage() {
       if (coursesRes.status === 'fulfilled') {
         const data = Array.isArray(coursesRes.value.data) ? coursesRes.value.data : (coursesRes.value.data?.data || []);
         setCourses(data);
+        if (data.length > 0 && !targetCourseId) {
+          setTargetCourseId(String(data[0].id));
+        }
       }
 
       if (usersRes.status === 'fulfilled') {
@@ -103,15 +123,21 @@ export default function TeacherGradesPage() {
 
   const handleCreateGrade = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!targetCourseId || !studentId || !score) {
+      setFormError(isAr ? "يرجى تحديد المادة الدراسية، الطالب، والدرجة المستحقة." : "Please select course, student, and score.");
+      return;
+    }
+
     setIsSubmitting(true);
     setFormError(null);
 
     try {
       await api.post('/academic/grades', {
-        enrollment_id: studentId || 1,
-        exam_name: examName,
+        course_id: targetCourseId,
+        student_id: studentId,
+        exam_name: examName.trim() || (isAr ? "تقييم فصلي" : "Course Assessment"),
         score: Number(score),
-        weight: Number(weight),
+        weight: Number(weight) || 0.20,
       });
 
       setIsDialogOpen(false);
@@ -187,8 +213,8 @@ export default function TeacherGradesPage() {
           </div>
           <p className="text-muted-foreground text-sm">
             {isAr
-              ? "رصد التقييمات والاختبارات الدورية لطلاب شُعبك ومؤسستك التعليمية مباشرة في MySQL."
-              : "Record exam scores and grade evaluations scoped to your assigned students & courses in MySQL."}
+              ? "رصد وتعديل درجات الطلاب في المواد والشُعب المسندة إليك ومتابعة السجل الأكاديمي في MySQL."
+              : "Record, evaluate, and manage student grades for your assigned subjects live in MySQL."}
           </p>
         </div>
 
@@ -200,10 +226,10 @@ export default function TeacherGradesPage() {
             </SelectTrigger>
             <SelectContent className="bg-card border-border rounded-2xl">
               <SelectItem value="my_sections" className="text-xs font-semibold">
-                👤 {isAr ? "شُعبي المسندة" : "My Taught Sections"}
+                👤 {isAr ? "شُعبي وموادي" : "My Taught Classes"}
               </SelectItem>
               <SelectItem value="all_institution" className="text-xs font-semibold">
-                🏛️ {isAr ? "مقررات المؤسسة" : "All Institution"}
+                🏛️ {isAr ? "جميع المواد بالمؤسسة" : "All Institution"}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -225,12 +251,19 @@ export default function TeacherGradesPage() {
                 <Plus className="mr-1.5 h-4 w-4" /> {isAr ? "رصد درجة جديدة" : "Record Grade"}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[480px] bg-card border-border text-foreground rounded-3xl">
+            <DialogContent className="sm:max-w-[520px] bg-card border-border text-foreground rounded-3xl">
               <DialogHeader>
-                <DialogTitle>{isAr ? "رصد تقييم جديد لطالب" : "Record Student Grade"}</DialogTitle>
-                <DialogDescription className="text-muted-foreground text-xs">
-                  {isAr ? "سيتم حفظ الدرجة وربطها بسجل الطالب والشعبة في MySQL." : "Save grade entry live to MySQL."}
-                </DialogDescription>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <DialogTitle>{isAr ? "رصد تقييم ودرجة جديدة لطالب" : "Record Student Grade"}</DialogTitle>
+                    <DialogDescription className="text-muted-foreground text-xs">
+                      {isAr ? "حدد المادة الدراسية، الطالب، ونوع التقييم لحفظ الدرجة مباشرة في MySQL." : "Select subject, student, and evaluation type to save to MySQL."}
+                    </DialogDescription>
+                  </div>
+                </div>
               </DialogHeader>
 
               {formError && (
@@ -240,13 +273,37 @@ export default function TeacherGradesPage() {
               )}
 
               <form onSubmit={handleCreateGrade} className="space-y-4 py-2">
+                {/* 1. Course / Subject Selector */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">{isAr ? "الطالب" : "Student"}</Label>
+                  <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-primary" />
+                    <span>{isAr ? (isSchool ? "المادة الدراسية / الفصل" : "المقرر الدراسي / الشعبة") : "Course / Subject"}</span>
+                  </Label>
+                  <Select value={targetCourseId} onValueChange={setTargetCourseId}>
+                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs font-semibold">
+                      <SelectValue placeholder={isAr ? "اختر المادة أو المقرر الدراسي..." : "Select course or subject..."} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border rounded-2xl max-h-56">
+                      {courses.map((c) => (
+                        <SelectItem key={c.id} value={String(c.id)} className="text-xs font-semibold">
+                          {c.code ? `[${c.code}] ` : ''}{c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 2. Student Selector */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    {isSchool ? <School className="w-3.5 h-3.5 text-emerald-500" /> : <GraduationCap className="w-3.5 h-3.5 text-primary" />}
+                    <span>{isAr ? "الطالب المستهدف" : "Student"}</span>
+                  </Label>
                   <Select value={studentId} onValueChange={setStudentId}>
-                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
+                    <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs font-semibold">
                       <SelectValue placeholder={isAr ? "اختر الطالب..." : "Select student..."} />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-border rounded-2xl">
+                    <SelectContent className="bg-card border-border rounded-2xl max-h-56">
                       {users.map((u) => (
                         <SelectItem key={u.id} value={String(u.id)} className="text-xs font-semibold">
                           {u.name} ({u.email})
@@ -256,21 +313,74 @@ export default function TeacherGradesPage() {
                   </Select>
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="exam-name" className="text-xs font-semibold">{isAr ? "اسم التقييم / الاختبار" : "Assessment Name"}</Label>
+                {/* 3. Assessment Presets & Title */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label htmlFor="exam-name" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <FileCheck className="w-3.5 h-3.5 text-primary" />
+                      <span>{isAr ? "عنوان التقييم / نوع الاختبار" : "Assessment Title"}</span>
+                    </Label>
+                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-primary" /> {isAr ? "قوالب سريعة" : "Presets"}
+                    </span>
+                  </div>
+
+                  {/* Quick Preset Buttons */}
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => { setExamName(isAr ? "اختبار قصير 1 (Quiz 1)" : "Quiz 1"); setWeight("0.1"); }}
+                      className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                    >
+                      📝 {isAr ? "اختبار قصير" : "Quiz"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setExamName(isAr ? "اختبار منتصف الفصل (Midterm Exam)" : "Midterm Exam"); setWeight("0.3"); }}
+                      className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                    >
+                      📑 {isAr ? "اختبار نصفي" : "Midterm"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setExamName(isAr ? "مشروع عملي / واجب (Project)" : "Applied Project"); setWeight("0.2"); }}
+                      className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                    >
+                      📊 {isAr ? "مشروع / واجب" : "Project"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setExamName(isAr ? "الاختبار النهائي (Final Exam)" : "Final Exam"); setWeight("0.4"); }}
+                      className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                    >
+                      🎓 {isAr ? "اختبار نهائي" : "Final"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setExamName(isAr ? "مشاركة وتفاعل صفي (Participation)" : "Class Participation"); setWeight("0.1"); }}
+                      className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                    >
+                      🌟 {isAr ? "مشاركة" : "Participation"}
+                    </button>
+                  </div>
+
                   <Input
                     id="exam-name"
                     required
                     value={examName}
                     onChange={(e) => setExamName(e.target.value)}
-                    placeholder="Midterm Exam / Final Project / Quiz 1"
+                    placeholder={isAr ? "مثال: اختبار الوحدة الأولى / Midterm Exam" : "E.g. Unit 1 Quiz / Midterm"}
                     className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
                   />
                 </div>
 
+                {/* 4. Score & Weight Grid */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="score" className="text-xs font-semibold">{isAr ? "الدرجة (من 100)" : "Score (out of 100)"}</Label>
+                    <Label htmlFor="score" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <Percent className="w-3.5 h-3.5 text-primary" />
+                      <span>{isAr ? "الدرجة المحصلة (من 100)" : "Score (out of 100)"}</span>
+                    </Label>
                     <Input
                       id="score"
                       type="number"
@@ -280,23 +390,25 @@ export default function TeacherGradesPage() {
                       value={score}
                       onChange={(e) => setScore(e.target.value)}
                       placeholder="85"
-                      className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
+                      className="h-10 rounded-xl bg-secondary/60 border-border text-xs font-bold"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="weight" className="text-xs font-semibold">{isAr ? "الوزن النسبي" : "Weight (0-1)"}</Label>
-                    <Input
-                      id="weight"
-                      type="number"
-                      step="0.05"
-                      min="0"
-                      max="1"
-                      required
-                      value={weight}
-                      onChange={(e) => setWeight(e.target.value)}
-                      placeholder="0.2"
-                      className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
-                    />
+                    <Label htmlFor="weight" className="text-xs font-bold text-foreground">
+                      {isAr ? "الوزن النسبي للتقييم" : "Weight (0 - 1.0)"}
+                    </Label>
+                    <Select value={weight} onValueChange={setWeight}>
+                      <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs font-semibold">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-card border-border rounded-2xl">
+                        <SelectItem value="0.10" className="text-xs">10% ({isAr ? "واجبات ومشاركة" : "Participation"})</SelectItem>
+                        <SelectItem value="0.15" className="text-xs">15% ({isAr ? "اختبار قصير" : "Quiz"})</SelectItem>
+                        <SelectItem value="0.20" className="text-xs">20% ({isAr ? "مشروع فصلي" : "Project"})</SelectItem>
+                        <SelectItem value="0.30" className="text-xs">30% ({isAr ? "اختبار نصفي" : "Midterm"})</SelectItem>
+                        <SelectItem value="0.40" className="text-xs">40% ({isAr ? "اختبار نهائي" : "Final"})</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -306,7 +418,7 @@ export default function TeacherGradesPage() {
                   </Button>
                   <Button type="submit" disabled={isSubmitting} className="rounded-full bg-primary text-primary-foreground text-xs font-bold px-5">
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-                    {isAr ? "حفظ الدرجة" : "Save Grade"}
+                    {isAr ? "حفظ الدرجة في MySQL" : "Save Grade Record"}
                   </Button>
                 </div>
               </form>
@@ -332,7 +444,7 @@ export default function TeacherGradesPage() {
             <SelectValue placeholder={isAr ? "جميع المقررات" : "All Courses"} />
           </SelectTrigger>
           <SelectContent className="bg-card border-border rounded-2xl">
-            <SelectItem value="all">{isAr ? "جميع المقررات" : "All Courses"}</SelectItem>
+            <SelectItem value="all">{isAr ? "جميع المواد والمقررات" : "All Courses & Subjects"}</SelectItem>
             {courses.map((c) => (
               <SelectItem key={c.id} value={String(c.id)}>
                 {c.code ? `${c.code} - ${c.name || 'Course'}` : (c.name || 'Course')}
@@ -348,7 +460,7 @@ export default function TeacherGradesPage() {
           <TableHeader className="bg-secondary/40">
             <TableRow className="border-border">
               <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الطالب" : "Student"}</TableHead>
-              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "المقرر / الشعبة" : "Course"}</TableHead>
+              <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "المادة / المقرر" : "Subject / Course"}</TableHead>
               <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الاختبار / التقييم" : "Assessment"}</TableHead>
               <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الدرجة" : "Score"}</TableHead>
               <TableHead className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الوزن" : "Weight"}</TableHead>
@@ -389,7 +501,7 @@ export default function TeacherGradesPage() {
                       </div>
                     </TableCell>
                     <TableCell className="text-xs font-semibold text-foreground">
-                      {course?.name ? `${course.code ? `${course.code} - ` : ''}${course.name}` : (isAr ? "مقرر عام" : "General Course")}
+                      {course?.name ? `${course.code ? `[${course.code}] ` : ''}${course.name}` : (isAr ? "مقرر عام" : "General Course")}
                     </TableCell>
                     <TableCell className="text-xs text-foreground font-semibold">
                       {g.exam_name || "Assessment"}
