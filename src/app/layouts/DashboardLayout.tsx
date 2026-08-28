@@ -21,7 +21,8 @@ import {
   Bell,
   ArrowRight,
   Shield,
-  GraduationCap
+  GraduationCap,
+  School
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -264,8 +265,14 @@ export function DashboardLayout() {
                             </span>
                           )}
                           {user.college?.name && (
-                            <span className="text-[10px] font-bold text-foreground/80 truncate flex items-center gap-1">
-                              <GraduationCap className="w-2.5 h-2.5 text-primary shrink-0" />
+                            <span className={`text-[10px] font-bold truncate flex items-center gap-1 ${
+                              user.institution?.type === 'school' ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground/80'
+                            }`}>
+                              {user.institution?.type === 'school' ? (
+                                <School className="w-2.5 h-2.5 text-emerald-500 shrink-0" />
+                              ) : (
+                                <GraduationCap className="w-2.5 h-2.5 text-primary shrink-0" />
+                              )}
                               <span className="truncate">{user.college.name}</span>
                             </span>
                           )}

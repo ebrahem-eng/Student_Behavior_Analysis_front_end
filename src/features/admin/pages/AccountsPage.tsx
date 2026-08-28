@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, UserCog, Loader2, Trash2, RefreshCw, Building, GraduationCap, Mail } from "lucide-react";
+import { Plus, Search, UserCog, Loader2, Trash2, RefreshCw, Building, GraduationCap, School, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -283,30 +283,43 @@ export default function AccountsPage() {
                   </Select>
                 </div>
 
-                {/* College / Faculty Selector (Active if University is selected) */}
-                {selectedInstitutionId && selectedInstitutionId !== "none" && availableColleges.length > 0 && (
-                  <div className="space-y-1 p-3 bg-primary/5 rounded-2xl border border-primary/15">
-                    <Label htmlFor="college-select" className="text-xs font-semibold flex items-center gap-1.5 text-primary">
-                      <GraduationCap className="w-3.5 h-3.5" />
-                      <span>{isAr ? "الكلية / القسم الأكاديمي" : "College / Faculty"}</span>
-                    </Label>
-                    <Select value={selectedCollegeId} onValueChange={setSelectedCollegeId}>
-                      <SelectTrigger className="h-9 rounded-xl bg-card border-border text-xs">
-                        <SelectValue placeholder={isAr ? "اختر الكلية التابع لها الطالب/المعلم..." : "Select College / Faculty..."} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-border rounded-2xl">
-                        <SelectItem value="none" className="text-xs text-muted-foreground">
-                          {isAr ? "الجامعة بالكامل (بدون كلية محددة)" : "Entire University"}
-                        </SelectItem>
-                        {availableColleges.map((col) => (
-                          <SelectItem key={col.id} value={String(col.id)} className="text-xs font-semibold">
-                            {col.name} {col.code ? `(${col.code})` : ''}
+                {/* College or School Stage Selector (Contextual based on Institution Type) */}
+                {selectedInstitutionId && selectedInstitutionId !== "none" && availableColleges.length > 0 && (() => {
+                  const targetInst = institutions.find((i) => String(i.id) === String(selectedInstitutionId));
+                  const isSchoolInst = targetInst?.type === 'school';
+
+                  return (
+                    <div className={`space-y-1 p-3 rounded-2xl border ${
+                      isSchoolInst
+                        ? 'bg-emerald-500/5 border-emerald-500/15'
+                        : 'bg-primary/5 border-primary/15'
+                    }`}>
+                      <Label htmlFor="college-select" className={`text-xs font-semibold flex items-center gap-1.5 ${
+                        isSchoolInst ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary'
+                      }`}>
+                        {isSchoolInst ? <School className="w-3.5 h-3.5" /> : <GraduationCap className="w-3.5 h-3.5" />}
+                        <span>{isSchoolInst ? (isAr ? "المرحلة / المسار الدراسي" : "Educational Stage / Track") : (isAr ? "الكلية / القسم الأكاديمي" : "College / Faculty")}</span>
+                      </Label>
+                      <Select value={selectedCollegeId} onValueChange={setSelectedCollegeId}>
+                        <SelectTrigger className="h-9 rounded-xl bg-card border-border text-xs">
+                          <SelectValue placeholder={isSchoolInst ? (isAr ? "اختر المرحلة الدراسية..." : "Select Educational Stage...") : (isAr ? "اختر الكلية التابع لها..." : "Select College / Faculty...")} />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border rounded-2xl">
+                          <SelectItem value="none" className="text-xs text-muted-foreground">
+                            {isSchoolInst
+                              ? (isAr ? "المدرسة بالكامل (جميع المراحل)" : "Entire School (All Stages)")
+                              : (isAr ? "الجامعة بالكامل (بدون كلية محددة)" : "Entire University")}
                           </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                          {availableColleges.map((col) => (
+                            <SelectItem key={col.id} value={String(col.id)} className="text-xs font-semibold">
+                              {col.name} {col.code ? `(${col.code})` : ''}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+                })()}
 
                 <div className="pt-2 flex justify-end gap-2">
                   <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-full text-xs font-semibold">
@@ -429,8 +442,16 @@ export default function AccountsPage() {
                         )}
 
                         {colName && (
-                          <div className="flex items-center gap-1.5 text-[11px] text-primary font-bold bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10 w-fit">
-                            <GraduationCap className="w-3 h-3 text-primary shrink-0" />
+                          <div className={`flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-md border w-fit ${
+                            user.institution?.type === 'school'
+                              ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                              : 'text-primary bg-primary/5 border-primary/10'
+                          }`}>
+                            {user.institution?.type === 'school' ? (
+                              <School className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            ) : (
+                              <GraduationCap className="w-3 h-3 text-primary shrink-0" />
+                            )}
                             <span>{colName}</span>
                           </div>
                         )}

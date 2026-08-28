@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { 
   User, Mail, Phone, Lock, Shield, Key, Save, CheckCircle2, 
-  AlertCircle, Loader2, Sparkles, Building, GraduationCap
+  AlertCircle, Loader2, Sparkles, Building, GraduationCap, School
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -262,13 +262,25 @@ export default function AccountSettingsPage() {
                   {user?.college && (
                     <div className="space-y-2 md:col-span-2">
                       <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                        <GraduationCap className="w-3.5 h-3.5 text-primary" />
-                        <span>{isAr ? "الكلية / القسم الأكاديمي التابع له" : "Assigned College / Faculty"}</span>
+                        {user?.institution?.type === 'school' ? (
+                          <School className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                        )}
+                        <span>
+                          {user?.institution?.type === 'school'
+                            ? (isAr ? "المرحلة / المسار الدراسي المقيد به" : "Assigned Stage / Track")
+                            : (isAr ? "الكلية / القسم الأكاديمي التابع له" : "Assigned College / Faculty")}
+                        </span>
                       </Label>
                       <Input
                         disabled
                         value={`${user.college.name} ${user.college.code ? `(${user.college.code})` : ''}`}
-                        className="h-11 rounded-2xl bg-primary/5 border-primary/20 text-xs text-primary font-bold cursor-not-allowed"
+                        className={`h-11 rounded-2xl text-xs font-bold cursor-not-allowed ${
+                          user?.institution?.type === 'school'
+                            ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                            : "bg-primary/5 border-primary/20 text-primary"
+                        }`}
                       />
                     </div>
                   )}

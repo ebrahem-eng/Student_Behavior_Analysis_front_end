@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Building, Plus, Search, MapPin, Trash2, Loader2, RefreshCw, GraduationCap, School, FolderPlus } from "lucide-react";
+import {
+  Building,
+  Plus,
+  Search,
+  MapPin,
+  Trash2,
+  Loader2,
+  RefreshCw,
+  GraduationCap,
+  School,
+  Layers,
+  Sparkles
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -17,12 +29,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api, getApiErrorMessage } from "@/lib/api";
 
-interface CollegeItem {
+interface SubUnitItem {
   id: number | string;
   institution_id: number | string;
   name: string;
   code?: string;
   dean_name?: string;
+  supervisor_name?: string;
   description?: string;
   users_count?: number;
 }
@@ -43,15 +56,15 @@ export default function InstitutionsPage() {
   const [type, setType] = useState<"school" | "university">("university");
   const [address, setAddress] = useState("");
 
-  // Colleges Management Dialog State
-  const [activeInstitutionForColleges, setActiveInstitutionForColleges] = useState<any>(null);
-  const [collegesList, setCollegesList] = useState<CollegeItem[]>([]);
-  const [isLoadingColleges, setIsLoadingColleges] = useState(false);
-  const [newCollegeName, setNewCollegeName] = useState("");
-  const [newCollegeCode, setNewCollegeCode] = useState("");
-  const [newCollegeDean, setNewCollegeDean] = useState("");
-  const [isAddingCollege, setIsAddingCollege] = useState(false);
-  const [collegeError, setCollegeError] = useState<string | null>(null);
+  // Sub-Units Management Dialog State (Colleges for Universities, Stages for Schools)
+  const [activeInstitution, setActiveInstitution] = useState<any>(null);
+  const [subUnitsList, setSubUnitsList] = useState<SubUnitItem[]>([]);
+  const [isLoadingSubUnits, setIsLoadingSubUnits] = useState(false);
+  const [newUnitName, setNewUnitName] = useState("");
+  const [newUnitCode, setNewUnitCode] = useState("");
+  const [newUnitHead, setNewUnitHead] = useState("");
+  const [isAddingUnit, setIsAddingUnit] = useState(false);
+  const [unitError, setUnitError] = useState<string | null>(null);
 
   const loadInstitutions = async () => {
     setIsLoading(true);
@@ -93,7 +106,7 @@ export default function InstitutionsPage() {
   };
 
   const handleDelete = async (id: number | string) => {
-    if (!confirm(isAr ? "هل أنت متأكد من حذف هذه المؤسسة؟ سيتم حذف الكليات التابعة لها تلقائياً." : "Are you sure you want to delete this institution? All child colleges will be deleted.")) return;
+    if (!confirm(isAr ? "هل أنت متأكد من حذف هذه المؤسسة التعليمية؟" : "Are you sure you want to delete this institution?")) return;
     try {
       await api.delete(`/admin/institutions/${id}`);
       loadInstitutions();
@@ -102,57 +115,65 @@ export default function InstitutionsPage() {
     }
   };
 
-  // Open Colleges Modal & Load Colleges
-  const handleOpenCollegesModal = async (inst: any) => {
-    setActiveInstitutionForColleges(inst);
-    setIsLoadingColleges(true);
-    setCollegeError(null);
+  // Open Sub-Units (Colleges or Stages) Modal
+  const handleOpenSubUnitsModal = async (inst: any) => {
+    setActiveInstitution(inst);
+    setIsLoadingSubUnits(true);
+    setUnitError(null);
+    setNewUnitName("");
+    setNewUnitCode("");
+    setNewUnitHead("");
     try {
       const res = await api.get('/admin/colleges', { params: { institution_id: inst.id } });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-      setCollegesList(data);
+      setSubUnitsList(data);
     } catch (e) {
-      console.warn('[Colleges] Fetch error:', e);
+      console.warn('[SubUnits] Fetch error:', e);
     } finally {
-      setIsLoadingColleges(false);
+      setIsLoadingSubUnits(false);
     }
   };
 
-  // Add College to Active University
-  const handleAddCollege = async (e: React.FormEvent) => {
+  // Add College or Educational Stage
+  const handleAddSubUnit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeInstitutionForColleges || !newCollegeName.trim()) return;
-    setIsAddingCollege(true);
-    setCollegeError(null);
+    if (!activeInstitution || !newUnitName.trim()) return;
+    setIsAddingUnit(true);
+    setUnitError(null);
 
     try {
       await api.post('/admin/colleges', {
-        institution_id: activeInstitutionForColleges.id,
-        name: newCollegeName.trim(),
-        code: newCollegeCode.trim() || undefined,
-        dean_name: newCollegeDean.trim() || undefined,
+        institution_id: activeInstitution.id,
+        name: newUnitName.trim(),
+        code: newUnitCode.trim() || undefined,
+        dean_name: newUnitHead.trim() || undefined,
       });
-      setNewCollegeName("");
-      setNewCollegeCode("");
-      setNewCollegeDean("");
-      // Reload colleges
-      const res = await api.get('/admin/colleges', { params: { institution_id: activeInstitutionForColleges.id } });
+      setNewUnitName("");
+      setNewUnitCode("");
+      setNewUnitHead("");
+      // Reload sub-units
+      const res = await api.get('/admin/colleges', { params: { institution_id: activeInstitution.id } });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-      setCollegesList(data);
+      setSubUnitsList(data);
       loadInstitutions();
     } catch (err: any) {
-      setCollegeError(getApiErrorMessage(err, isAr));
+      setUnitError(getApiErrorMessage(err, isAr));
     } finally {
-      setIsAddingCollege(false);
+      setIsAddingUnit(false);
     }
   };
 
-  // Delete a College
-  const handleDeleteCollege = async (collegeId: number | string) => {
-    if (!confirm(isAr ? "هل أنت متأكد من حذف هذه الكلية؟" : "Are you sure you want to delete this college?")) return;
+  // Delete a Sub-Unit
+  const handleDeleteSubUnit = async (unitId: number | string) => {
+    const isSchool = activeInstitution?.type === 'school';
+    const msg = isSchool
+      ? (isAr ? "هل أنت متأكد من حذف هذه المرحلة الدراسية؟" : "Are you sure you want to delete this school stage?")
+      : (isAr ? "هل أنت متأكد من حذف هذه الكلية الجامعية؟" : "Are you sure you want to delete this college?");
+    if (!confirm(msg)) return;
+
     try {
-      await api.delete(`/admin/colleges/${collegeId}`);
-      setCollegesList((prev) => prev.filter((c) => c.id !== collegeId));
+      await api.delete(`/admin/colleges/${unitId}`);
+      setSubUnitsList((prev) => prev.filter((c) => c.id !== unitId));
       loadInstitutions();
     } catch (err) {
       alert(getApiErrorMessage(err, isAr));
@@ -164,6 +185,8 @@ export default function InstitutionsPage() {
     (inst.address || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const isModalSchool = activeInstitution?.type === 'school';
+
   return (
     <div className="space-y-6 pb-10">
       {/* Page Header */}
@@ -171,12 +194,12 @@ export default function InstitutionsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Building className="h-8 w-8 text-primary" />
-            {isAr ? "إدارة المؤسسات التعليمية والكليات" : "Institution & College Hierarchy"}
+            {isAr ? "الهيكل الإداري للمؤسسات التعليمية" : "Educational Institutions Hierarchy"}
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "إنشاء وإدارة الجامعات والمدارس والتحكم في الكليات والأقسام الأكاديمية التابعة لها."
-              : "Configure universities, schools, and manage associated academic faculties and colleges in MySQL."}
+              ? "إدارة الجامعات والكليات الأكاديمية التابعة لها، وإدارة المدارس ومراحلها وصفوفها الدراسية."
+              : "Configure universities with academic colleges, and schools with educational stages and tracks."}
           </p>
         </div>
 
@@ -202,7 +225,7 @@ export default function InstitutionsPage() {
               <DialogHeader>
                 <DialogTitle>{isAr ? "إنشاء مؤسسة تعليمية جديدة" : "Create New Institution"}</DialogTitle>
                 <DialogDescription className="text-muted-foreground text-xs">
-                  {isAr ? "سيتم حفظ بيانات المؤسسة في قاعدة بيانات MySQL." : "Save a new educational organization into MySQL."}
+                  {isAr ? "حدد نوع المؤسسة (جامعة تحتوي على كليات أو مدرسة تحتوي على مراحل دراسية)." : "Select whether this is a university (with colleges) or a school (with stages)."}
                 </DialogDescription>
               </DialogHeader>
 
@@ -220,22 +243,22 @@ export default function InstitutionsPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder={isAr ? "مثال: جامعة الملك سعود" : "E.g. King Saud University"}
+                    placeholder={type === 'university' ? (isAr ? "مثال: جامعة الملك سعود" : "E.g. King Saud University") : (isAr ? "مثال: مدارس الرواد الأهلية" : "E.g. Al-Rowad International School")}
                     className="h-10 rounded-xl bg-secondary/60 border-border text-xs"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="inst-type" className="text-xs font-semibold">{isAr ? "نوع المؤسسة" : "Type"}</Label>
+                  <Label htmlFor="inst-type" className="text-xs font-semibold">{isAr ? "نوع الهيكل التعليمي" : "Structure Type"}</Label>
                   <Select value={type} onValueChange={(val: any) => setType(val)}>
                     <SelectTrigger className="h-10 rounded-xl bg-secondary/60 border-border text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border rounded-2xl">
                       <SelectItem value="university" className="text-xs font-semibold">
-                        🎓 {isAr ? "جامعة (تحتوي على كليات)" : "University (with colleges)"}
+                        🎓 {isAr ? "جامعة (تحتوي على كليات وأقسام أكاديمية)" : "University (with colleges & departments)"}
                       </SelectItem>
                       <SelectItem value="school" className="text-xs font-semibold">
-                        🏫 {isAr ? "مدرسة / مجمع تعليمي" : "School"}
+                        🏫 {isAr ? "مدرسة / مجمع تعليمي (يحتوي على مراحل وصفوف دراسية)" : "School (with educational stages & grade levels)"}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -270,7 +293,7 @@ export default function InstitutionsPage() {
       <div className="relative max-w-md">
         <Search className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground rtl:left-auto rtl:right-3.5" />
         <Input
-          placeholder={isAr ? "بحث في المؤسسات التعليمية..." : "Search institutions..."}
+          placeholder={isAr ? "بحث في الجامعات والمدارس..." : "Search universities or schools..."}
           className="pl-10 rtl:pl-3 rtl:pr-10 h-10 rounded-full bg-secondary/60 border-border text-xs"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -281,26 +304,30 @@ export default function InstitutionsPage() {
       {isLoading ? (
         <div className="py-24 text-center text-muted-foreground text-xs">
           <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
-          {isAr ? "جارٍ جلب المؤسسات والكليات من MySQL..." : "Loading institutions & colleges..."}
+          {isAr ? "جارٍ جلب المؤسسات التعليمية من MySQL..." : "Loading educational institutions..."}
         </div>
       ) : filteredInstitutions.length === 0 ? (
         <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-12 text-center text-muted-foreground text-xs">
           <Building className="w-10 h-10 text-primary/30 mx-auto mb-2" />
           <p className="font-bold text-foreground text-sm">{isAr ? "لا توجد مؤسسات تعليمية مطابقة" : "No institutions found"}</p>
-          <p className="mt-1">{isAr ? "أضف مؤسسة جديدة لبدء إدارة الكليات والمستخدمين." : "Create an institution to manage colleges and assign students."}</p>
+          <p className="mt-1">{isAr ? "أضف جامعة أو مدرسة جديدة لبدء إدارة الكليات والمراحل الدراسية." : "Create an institution to manage colleges, stages, and students."}</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredInstitutions.map((inst) => {
             const isUni = (inst.type || inst.mode) === 'university';
-            const collegesCount = inst.colleges_count || (inst.colleges ? inst.colleges.length : 0);
+            const subUnitsCount = inst.colleges_count || (inst.colleges ? inst.colleges.length : 0);
             const usersCount = inst.users_count || 0;
 
             return (
               <Card key={inst.id} className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:border-primary/40 transition-all group">
                 <CardHeader className="p-0 pb-4 space-y-2">
                   <div className="flex justify-between items-start">
-                    <div className="w-11 h-11 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold shadow-xs">
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold shadow-xs border ${
+                      isUni
+                        ? 'bg-primary/10 border-primary/20 text-primary'
+                        : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                    }`}>
                       {isUni ? <GraduationCap className="w-5 h-5" /> : <School className="w-5 h-5" />}
                     </div>
                     <Badge
@@ -311,7 +338,7 @@ export default function InstitutionsPage() {
                           : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                       }`}
                     >
-                      {isUni ? (isAr ? "جامعة" : "University") : (isAr ? "مدرسة" : "School")}
+                      {isUni ? (isAr ? "🎓 جامعة" : "University") : (isAr ? "🏫 مدرسة / مجمع" : "School")}
                     </Badge>
                   </div>
 
@@ -330,13 +357,17 @@ export default function InstitutionsPage() {
 
                 <CardContent className="p-0 py-3 border-y border-border/70 my-2 space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-muted-foreground">{isAr ? "الكليات / الأقسام:" : "Colleges / Faculties:"}</span>
+                    <span className="text-muted-foreground">
+                      {isUni
+                        ? (isAr ? "الكليات والأقسام الأكاديمية:" : "Colleges & Faculties:")
+                        : (isAr ? "المراحل والصفوف الدراسية:" : "Stages & Grade Tracks:")}
+                    </span>
                     <span className="font-bold text-foreground font-mono bg-secondary px-2 py-0.5 rounded-full border border-border">
-                      {collegesCount} {isAr ? "كلية" : "Colleges"}
+                      {subUnitsCount} {isUni ? (isAr ? "كلية" : "Colleges") : (isAr ? "مراحل" : "Stages")}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-muted-foreground">{isAr ? "الحسابات المرتبطة:" : "Enrolled Accounts:"}</span>
+                    <span className="text-muted-foreground">{isAr ? "الحسابات المقيدة بالمؤسسة:" : "Enrolled Accounts:"}</span>
                     <span className="font-bold text-foreground font-mono bg-secondary px-2 py-0.5 rounded-full border border-border">
                       {usersCount} {isAr ? "مستخدم" : "Users"}
                     </span>
@@ -344,15 +375,23 @@ export default function InstitutionsPage() {
                 </CardContent>
 
                 <CardFooter className="p-0 pt-4 flex justify-between items-center gap-2">
-                  {/* Manage Colleges Button (especially for universities) */}
+                  {/* Manage Button contextual to University vs School */}
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleOpenCollegesModal(inst)}
-                    className="rounded-full text-xs font-bold h-8 px-3 border-border bg-secondary/50 hover:bg-primary hover:text-primary-foreground hover:border-primary flex items-center gap-1.5 transition-all flex-1"
+                    onClick={() => handleOpenSubUnitsModal(inst)}
+                    className={`rounded-full text-xs font-bold h-8 px-3 border-border bg-secondary/50 flex items-center gap-1.5 transition-all flex-1 ${
+                      isUni
+                        ? "hover:bg-primary hover:text-primary-foreground hover:border-primary"
+                        : "hover:bg-emerald-600 hover:text-white hover:border-emerald-600"
+                    }`}
                   >
-                    <FolderPlus className="w-3.5 h-3.5" />
-                    <span>{isAr ? "إدارة الكليات" : "Manage Colleges"}</span>
+                    {isUni ? <GraduationCap className="w-3.5 h-3.5" /> : <Layers className="w-3.5 h-3.5" />}
+                    <span>
+                      {isUni
+                        ? (isAr ? "إدارة الكليات الجامعية" : "Manage Colleges")
+                        : (isAr ? "إدارة المراحل الدراسية" : "Manage School Stages")}
+                    </span>
                   </Button>
 
                   <Button
@@ -371,56 +410,173 @@ export default function InstitutionsPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* COLLEGES MANAGEMENT MODAL                                                 */}
+      {/* HIERARCHICAL MANAGEMENT MODAL (COLLEGES FOR UNIS, STAGES FOR SCHOOLS)    */}
       {/* ========================================================================= */}
-      <Dialog open={!!activeInstitutionForColleges} onOpenChange={(open) => !open && setActiveInstitutionForColleges(null)}>
-        <DialogContent className="sm:max-w-[560px] bg-card border-border text-foreground rounded-3xl max-h-[85vh] flex flex-col overflow-hidden">
+      <Dialog open={!!activeInstitution} onOpenChange={(open) => !open && setActiveInstitution(null)}>
+        <DialogContent className="sm:max-w-[580px] bg-card border-border text-foreground rounded-3xl max-h-[85vh] flex flex-col overflow-hidden">
           <DialogHeader className="shrink-0 pb-2 border-b border-border">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold">
-                <GraduationCap className="w-5 h-5" />
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold border ${
+                isModalSchool
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                  : "bg-primary/10 border-primary/20 text-primary"
+              }`}>
+                {isModalSchool ? <Layers className="w-5 h-5" /> : <GraduationCap className="w-5 h-5" />}
               </div>
               <div>
                 <DialogTitle className="text-base font-bold text-foreground">
-                  {isAr ? `الكليات التابعة لـ ${activeInstitutionForColleges?.name}` : `Colleges of ${activeInstitutionForColleges?.name}`}
+                  {isModalSchool
+                    ? (isAr ? `المراحل والصفوف الدراسية لـ ${activeInstitution?.name}` : `Educational Stages of ${activeInstitution?.name}`)
+                    : (isAr ? `الكليات الجامعية التابعة لـ ${activeInstitution?.name}` : `Colleges of ${activeInstitution?.name}`)}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground">
-                  {isAr ? "إضافة وحذف الكليات والأقسام الأكاديمية وربط الطلاب والأساتذة بها." : "Add and manage colleges & departments under this institution."}
+                  {isModalSchool
+                    ? (isAr ? "إدارة المراحل التعليمية (الابتدائية، المتوسطة، الثانوية) وتوزيع الفصول والمسارات." : "Configure school stages (Elementary, Middle, High School) and academic tracks.")
+                    : (isAr ? "إدارة الكليات والأقسام الأكاديمية وتعيين العمداء وتوزيع أعضاء التدريس والطلاب." : "Manage university faculties, dean assignments, and academic departments.")}
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
-          {collegeError && (
+          {unitError && (
             <div className="p-3 my-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs">
-              {collegeError}
+              {unitError}
             </div>
           )}
 
-          {/* Add College Form */}
-          <form onSubmit={handleAddCollege} className="p-4 bg-secondary/30 rounded-2xl border border-border my-2 space-y-3 shrink-0">
+          {/* Quick Preset Template Buttons */}
+          <div className="pt-2 px-1 space-y-1 shrink-0">
+            <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-primary" />
+              <span>{isAr ? "قوالب سريعة مقترحة:" : "Quick Templates:"}</span>
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {isModalSchool ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "المرحلة الابتدائية" : "Elementary Stage (Grades 1-6)");
+                      setNewUnitCode("PRI");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    🏫 {isAr ? "المرحلة الابتدائية" : "Elementary"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "المرحلة المتوسطة" : "Middle School (Grades 7-9)");
+                      setNewUnitCode("MID");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    🏫 {isAr ? "المرحلة المتوسطة" : "Middle School"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "المرحلة الثانوية - المسار العلمي" : "High School - Science Track");
+                      setNewUnitCode("SEC-SCI");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    🔬 {isAr ? "الثانوية (علمي)" : "High School (Science)"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "المرحلة الثانوية - المسار الإنساني" : "High School - Arts Track");
+                      setNewUnitCode("SEC-ART");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    📚 {isAr ? "الثانوية (إنساني/أدبي)" : "High School (Arts)"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "كلية علوم الحاسب والمعلومات" : "College of Computer Science");
+                      setNewUnitCode("CCIS");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    💻 {isAr ? "علوم الحاسب" : "Computer Science"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "كلية الهندسة" : "College of Engineering");
+                      setNewUnitCode("COE");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    ⚙️ {isAr ? "الهندسة" : "Engineering"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "كلية الطب البشري" : "College of Medicine");
+                      setNewUnitCode("MED");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    🩺 {isAr ? "الطب" : "Medicine"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUnitName(isAr ? "كلية إدارة الأعمال" : "College of Business Administration");
+                      setNewUnitCode("CBA");
+                    }}
+                    className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  >
+                    💼 {isAr ? "إدارة الأعمال" : "Business"}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Add Sub-Unit Form */}
+          <form onSubmit={handleAddSubUnit} className="p-4 bg-secondary/30 rounded-2xl border border-border my-2 space-y-3 shrink-0">
             <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
               <Plus className="w-3.5 h-3.5 text-primary" />
-              <span>{isAr ? "إضافة كلية / قسم جديد" : "Add New College / Faculty"}</span>
+              <span>
+                {isModalSchool
+                  ? (isAr ? "إضافة مرحلة / مسار دراسي جديد" : "Add Educational Stage / Track")
+                  : (isAr ? "إضافة كلية / قسم أكاديمي جديد" : "Add College / Faculty")}
+              </span>
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div className="sm:col-span-2 space-y-1">
-                <Label className="text-[11px] font-semibold">{isAr ? "اسم الكلية" : "College Name"}</Label>
+                <Label className="text-[11px] font-semibold">
+                  {isModalSchool
+                    ? (isAr ? "اسم المرحلة / المسار التعليمي" : "Stage / Track Name")
+                    : (isAr ? "اسم الكلية الجامعية" : "College Name")}
+                </Label>
                 <Input
                   required
-                  placeholder={isAr ? "مثال: كلية علوم الحاسب والمعلومات" : "E.g. College of Computer Science"}
-                  value={newCollegeName}
-                  onChange={(e) => setNewCollegeName(e.target.value)}
+                  placeholder={
+                    isModalSchool
+                      ? (isAr ? "مثال: المرحلة الثانوية - مسار علوم الحاسب" : "E.g. High School - STEM Track")
+                      : (isAr ? "مثال: كلية علوم الحاسب والمعلومات" : "E.g. College of Computer Science")
+                  }
+                  value={newUnitName}
+                  onChange={(e) => setNewUnitName(e.target.value)}
                   className="h-8 rounded-xl bg-card border-border text-xs"
                 />
               </div>
               <div className="space-y-1">
                 <Label className="text-[11px] font-semibold">{isAr ? "الرمز (Code)" : "Code"}</Label>
                 <Input
-                  placeholder="CS / ENG"
-                  value={newCollegeCode}
-                  onChange={(e) => setNewCollegeCode(e.target.value)}
+                  placeholder={isModalSchool ? "SEC / MID" : "CS / ENG"}
+                  value={newUnitCode}
+                  onChange={(e) => setNewUnitCode(e.target.value)}
                   className="h-8 rounded-xl bg-card border-border text-xs"
                 />
               </div>
@@ -429,74 +585,95 @@ export default function InstitutionsPage() {
             <div className="flex items-center gap-2">
               <div className="flex-1 space-y-1">
                 <Input
-                  placeholder={isAr ? "اسم العميد / المشرف (اختياري)" : "Dean / Head Name (Optional)"}
-                  value={newCollegeDean}
-                  onChange={(e) => setNewCollegeDean(e.target.value)}
+                  placeholder={
+                    isModalSchool
+                      ? (isAr ? "مشرف المرحلة / مدير القسم (اختياري)" : "Stage Supervisor / Principal (Optional)")
+                      : (isAr ? "اسم عميد الكلية (اختياري)" : "Dean / Head Name (Optional)")
+                  }
+                  value={newUnitHead}
+                  onChange={(e) => setNewUnitHead(e.target.value)}
                   className="h-8 rounded-xl bg-card border-border text-xs"
                 />
               </div>
               <Button
                 type="submit"
-                disabled={isAddingCollege || !newCollegeName.trim()}
+                disabled={isAddingUnit || !newUnitName.trim()}
                 className="h-8 rounded-xl bg-primary text-primary-foreground text-xs font-bold px-4"
               >
-                {isAddingCollege ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Plus className="w-3.5 h-3.5 mr-1" />}
+                {isAddingUnit ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Plus className="w-3.5 h-3.5 mr-1" />}
                 <span>{isAr ? "إضافة" : "Add"}</span>
               </Button>
             </div>
           </form>
 
-          {/* Colleges List */}
-          <div className="flex-1 min-h-0 flex flex-col pt-2">
-            <h4 className="text-xs font-bold text-foreground mb-2">
-              {isAr ? `الكليات المسجلة (${collegesList.length})` : `Registered Colleges (${collegesList.length})`}
+          {/* Sub-Units List */}
+          <div className="flex-1 min-h-0 flex flex-col pt-1">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 shrink-0">
+              {isModalSchool
+                ? (isAr ? "المراحل والصفوف المسجلة بالمدرسة:" : "Registered Stages:")
+                : (isAr ? "الكليات والأقسام المعتمدة بالجامعة:" : "Registered Colleges:")}
             </h4>
 
-            <div className="flex-1 overflow-y-auto pr-1 space-y-2 max-h-[220px]">
-              {isLoadingColleges ? (
-                <div className="py-10 text-center text-xs text-muted-foreground">
-                  <Loader2 className="w-5 h-5 animate-spin mx-auto mb-1 text-primary" />
-                  {isAr ? "جارٍ جلب الكليات..." : "Loading colleges..."}
-                </div>
-              ) : collegesList.length === 0 ? (
-                <div className="p-6 text-center text-xs text-muted-foreground border border-dashed border-border rounded-2xl bg-secondary/20">
-                  <GraduationCap className="w-7 h-7 text-primary/30 mx-auto mb-1" />
-                  <p>{isAr ? "لم تتم إضافة كليات لهذه المؤسسة بعد." : "No colleges added yet for this institution."}</p>
-                </div>
-              ) : (
-                collegesList.map((col) => (
+            {isLoadingSubUnits ? (
+              <div className="py-8 text-center text-muted-foreground text-xs">
+                <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
+                {isAr ? "جارٍ التحميل..." : "Loading..."}
+              </div>
+            ) : subUnitsList.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground text-xs border border-dashed border-border rounded-2xl bg-secondary/20">
+                {isModalSchool ? <School className="w-8 h-8 mx-auto mb-1.5 text-primary/30" /> : <GraduationCap className="w-8 h-8 mx-auto mb-1.5 text-primary/30" />}
+                <p className="font-bold text-foreground">
+                  {isModalSchool
+                    ? (isAr ? "لا توجد مراحل دراسية مضافة بعد" : "No school stages configured yet")
+                    : (isAr ? "لا توجد كليات مضافة بعد" : "No colleges added yet")}
+                </p>
+                <p className="mt-0.5 text-[11px]">
+                  {isModalSchool
+                    ? (isAr ? "استخدم القوالب أعلاه أو أدخل اسم المرحلة التعليمية." : "Use templates above to add elementary, middle, or high school stages.")
+                    : (isAr ? "أضف كليات هذه الجامعة لتوزيع الطلبة والأساتذة عليها." : "Add university colleges to assign faculty and students.")}
+                </p>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto pr-1 space-y-2">
+                {subUnitsList.map((unit) => (
                   <div
-                    key={col.id}
-                    className="p-3 rounded-2xl bg-secondary/40 border border-border flex justify-between items-center gap-3 hover:border-primary/30 transition-all"
+                    key={unit.id}
+                    className="p-3 bg-secondary/40 border border-border/80 rounded-2xl flex justify-between items-center hover:border-primary/30 transition-all"
                   >
-                    <div className="space-y-0.5 flex-1 min-w-0">
+                    <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-foreground truncate">{col.name}</span>
-                        {col.code && (
-                          <Badge variant="outline" className="text-[9px] font-mono rounded-md px-1.5 py-0 bg-secondary">
-                            {col.code}
+                        <span className="font-bold text-xs text-foreground">{unit.name}</span>
+                        {unit.code && (
+                          <Badge variant="outline" className="font-mono text-[10px] px-2 py-0 bg-background/80">
+                            {unit.code}
                           </Badge>
                         )}
                       </div>
-                      {col.dean_name && (
-                        <p className="text-[10px] text-muted-foreground">
-                          {isAr ? `العميد: ${col.dean_name}` : `Dean: ${col.dean_name}`}
+                      {(unit.dean_name || unit.supervisor_name) && (
+                        <p className="text-[11px] text-muted-foreground">
+                          {isModalSchool ? (isAr ? "المشرف: " : "Supervisor: ") : (isAr ? "العميد: " : "Dean: ")}
+                          <span className="font-medium text-foreground">{unit.dean_name || unit.supervisor_name}</span>
                         </p>
                       )}
                     </div>
 
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleDeleteCollege(col.id)}
-                      className="h-7 w-7 rounded-full text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 shrink-0"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-[10px] font-bold">
+                        {unit.users_count || 0} {isAr ? "مستخدم" : "users"}
+                      </Badge>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDeleteSubUnit(unit.id)}
+                        className="h-7 w-7 rounded-full text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
