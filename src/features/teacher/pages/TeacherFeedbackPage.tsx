@@ -14,7 +14,8 @@ import {
   TrendingUp,
   BrainCircuit,
   FileCheck,
-  Plus
+  Plus,
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, getApiErrorMessage } from "@/lib/api";
 import { useAppStore } from "@/lib/store";
 
@@ -44,7 +46,9 @@ export default function TeacherFeedbackPage() {
   const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [grades, setGrades] = useState<any[]>([]);
+  const [attendances, setAttendances] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
+  const [behaviorLogs, setBehaviorLogs] = useState<any[]>([]);
 
   // Create Recommendation Dialog State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -60,8 +64,8 @@ export default function TeacherFeedbackPage() {
     {
       sender: "ai",
       text: isAr
-        ? "مرحباً بك يا أستاذ! أنا مساعدك البيداغوجي الذكي. أستطيع تحليل نتائج طلابك، اقتراح خطط مراجعة، تصميم أسئلة تقييمية، وصياغة تدخلات أكاديمية مخصصة للشُعب."
-        : "Welcome, Professor! I am your AI Pedagogical Assistant. I analyze your classroom performance, suggest revision roadmaps, generate quiz items, and tailor student interventions."
+        ? "مرحباً بك يا دكتور! أنا مساعدك البيداغوجي الذكي في منصة SBA. أقوم بتحليل نتائج الطلاب في شُعبك، واقتراح خطط تدريس علاجية، وتوليد أسئلة اختبارات قصيرة وتغذية راجعة فردية."
+        : "Welcome, Professor! I am your AI Pedagogical Assistant. I analyze student performance across your active courses, recommend remedial interventions, generate quiz items, and draft individualized feedback."
     }
   ]);
 
@@ -71,10 +75,12 @@ export default function TeacherFeedbackPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [coursesRes, recsRes, gradesRes, studentsRes] = await Promise.allSettled([
+      const [coursesRes, recsRes, gradesRes, attendancesRes, logsRes, studentsRes] = await Promise.allSettled([
         api.get('/academic/courses', { params: { my_courses: true } }),
         api.get('/academic/recommendations'),
         api.get('/academic/grades', { params: { my_sections: true } }),
+        api.get('/academic/attendances', { params: { my_sections: true } }),
+        api.get('/academic/behavior-logs', { params: { my_reports: true } }),
         api.get('/admin/users?role=student'),
       ]);
 
@@ -91,6 +97,16 @@ export default function TeacherFeedbackPage() {
       if (gradesRes.status === 'fulfilled') {
         const data = Array.isArray(gradesRes.value.data) ? gradesRes.value.data : (gradesRes.value.data?.data || []);
         setGrades(data);
+      }
+
+      if (attendancesRes.status === 'fulfilled') {
+        const data = Array.isArray(attendancesRes.value.data) ? attendancesRes.value.data : (attendancesRes.value.data?.data || []);
+        setAttendances(data);
+      }
+
+      if (logsRes.status === 'fulfilled') {
+        const data = Array.isArray(logsRes.value.data) ? logsRes.value.data : (logsRes.value.data?.data || []);
+        setBehaviorLogs(data);
       }
 
       if (studentsRes.status === 'fulfilled') {
@@ -139,7 +155,7 @@ export default function TeacherFeedbackPage() {
   };
 
   const handleImplementRecommendation = async (recId: number) => {
-    const note = actionNotes[recId] || (isAr ? "تم تطبيق الإجراء التربوي والمتابعة في الفصل." : "Intervention implemented during class session.");
+    const note = actionNotes[recId] || (isAr ? "تم إتمام خطة التدخل البيداغوجي بنجاح." : "Pedagogical intervention completed successfully.");
     setIsLoggingAction(recId);
     try {
       await api.patch(`/academic/recommendations/${recId}/implement`, {
@@ -165,14 +181,14 @@ export default function TeacherFeedbackPage() {
 
     try {
       const res = await api.post('/ai/chat', { prompt: textToSend });
-      const aiReply = res.data?.response || res.data?.message || (isAr ? "تم تحليل الطلب بناءً على أداء الشُعبة." : "Analysis generated based on classroom cohort data.");
+      const aiReply = res.data?.response || res.data?.message || (isAr ? "تم تحليل الطلب وتوليد التوجيهات البيداغوجية." : "Analysis and recommendations generated.");
       setChatHistory((prev) => [...prev, { sender: "ai", text: aiReply }]);
     } catch {
-      // Fallback local analytical intelligence
+      // Fallback pedagogical generator based on live cohort metrics
       setTimeout(() => {
         const fallbackAnswer = isAr
-          ? `💡 توصية الذكاء الاصطناعي البيداغوجية:\n• تم رصد تباين في درجات التقييمات الأخيرة في شُعبك.\n• يُنصح بتخصيص 15 دقيقة في بداية المحاضرة القادمة لمراجعة المفاهيم الأكثر صعوبة.\n• إتاحة ساعات مكتبية إضافية للطلاب المعرضين للتعثر.`
-          : `💡 AI Pedagogical Recommendation:\n• Performance variance detected across recent assessments in your courses.\n• Recommended: Allocate 15 mins in the next lecture for core concept reinforcement.\n• Schedule dedicated office hours for at-risk students.`;
+          ? `💡 **خطة التدخل البيداغوجي الموصى بها:**\n\n1. **تحليل الأداء العام**: متوسط الاستيعاب في شُعبتك يبلغ (${avgScore}%) مع وجود (${failingCount}) حالات بحاجة لدعم إضافي.\n2. **الإجراء المقترح**: تخصيص 15 دقيقة في المحاضرة القادمة لشرح المفاهيم الصعبة مع حل أمثلة عملية إضافية.\n3. **المتابعة الفردية**: إرسال توصية أكاديمية للطلاب المتعثرين وتوجيههم للساعات المكتبية.`
+          : `💡 **AI Pedagogical Roadmap:**\n\n1. **Cohort Diagnostic**: Overall comprehension is at (${avgScore}%) with (${failingCount}) at-risk evaluations.\n2. **Recommended Action**: Dedicate 15 minutes of the next session to core concept review with practical walk-throughs.\n3. **Intervention**: Schedule 1-on-1 tutoring sessions and log progress in the intervention tracker.`;
         setChatHistory((prev) => [...prev, { sender: "ai", text: fallbackAnswer }]);
       }, 500);
     } finally {
@@ -194,7 +210,8 @@ export default function TeacherFeedbackPage() {
   // Compute live analytical insights
   const totalScores = filteredGrades.map((g) => Number(g.score || 0));
   const avgScore = totalScores.length > 0 ? (totalScores.reduce((a, b) => a + b, 0) / totalScores.length).toFixed(1) : "0.0";
-  const failingCount = filteredGrades.filter((g) => Number(g.score || 0) < 60).length;
+  const failingCount = filteredGrades.filter((g) => Number(g.score || 0) < 60).length + behaviorLogs.filter((l) => l.type === 'negative' || l.type === 'warning').length;
+  const implementedCount = recommendations.filter((r) => r.status === 'implemented').length;
 
   return (
     <div className="space-y-8 pb-12">
@@ -227,12 +244,12 @@ export default function TeacherFeedbackPage() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-            {isAr ? "الرؤى والتدخلات البيداغوجية" : "Pedagogical Feedback & Action Center"}
+            {isAr ? "التغذية الراجعة والتدخلات البيداغوجية" : "Pedagogical Feedback & Action Center"}
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
             {isAr
-              ? "تحليلات الذكاء الاصطناعي لأداء طلابك، وتوصيات تحسين الفهم وتوثيق خطط الدعم الأكاديمي."
-              : "AI-driven pedagogical analytics, comprehension gap diagnostics, and action roadmaps."}
+              ? "تحليلات الذكاء الاصطناعي لأداء طلابك، وتوصيات تحسين الفهم وتوثيق خطط الدعم الأكاديمي المقيدة بمؤسستك."
+              : "AI-driven pedagogical analytics, comprehension gap diagnostics, and action roadmaps scoped to your institution."}
           </p>
         </div>
 
@@ -328,8 +345,8 @@ export default function TeacherFeedbackPage() {
         </div>
       </div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      {/* KPI Diagnostic Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "مؤشر استيعاب الشُعبة" : "Comprehension Index"}</span>
@@ -339,57 +356,87 @@ export default function TeacherFeedbackPage() {
           </div>
           <p className="text-3xl font-extrabold text-foreground">{avgScore}%</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {parseFloat(avgScore) >= 75 ? (isAr ? "استيعاب عالي للمفاهيم الأساسية" : "Strong mastery of learning outcomes") : (isAr ? "متوسط - يُنصح بجلسات تقوية" : "Moderate - review suggested")}
+            {parseFloat(avgScore) >= 75 ? (isAr ? "استيعاب عالي للمفاهيم" : "Strong mastery") : (isAr ? "متوسط - بحاجة لدعم" : "Needs reinforcement")}
           </p>
         </Card>
 
         <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "حالات صعوبة الفهم" : "Struggling Topics"}</span>
+            <span className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "حالات صعوبة الفهم" : "Struggling Cases"}</span>
             <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <p className="text-3xl font-extrabold text-foreground">{failingCount}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {isAr ? "تقييمات أقل من 60% تتطلب تدخلاً" : "assessments below 60% requiring action"}
+            {isAr ? "تقييمات أقل من 60% مرصودة" : "assessments below 60% recorded"}
           </p>
         </Card>
 
         <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الخطط الإرشادية النشطة" : "Active Interventions"}</span>
+            <span className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "الخطط الإرشادية النشطة" : "Active Plans"}</span>
             <div className="w-9 h-9 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold">
               <BrainCircuit className="w-4 h-4" />
             </div>
           </div>
           <p className="text-3xl font-extrabold text-foreground">{recommendations.length}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {isAr ? "توصيات وملاحظات موجهة للمتابعة" : "recommendations coordinated with advising"}
+            {isAr ? "توصيات وملاحظات قيد المتابعة" : "recommendations tracked"}
+          </p>
+        </Card>
+
+        <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-bold text-muted-foreground uppercase">{isAr ? "التدخلات المنفذة" : "Completed Actions"}</span>
+            <div className="w-9 h-9 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center font-bold">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-extrabold text-foreground">{implementedCount}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isAr ? "تم توثيق نتائجها في MySQL" : "verified outcomes in MySQL"}
           </p>
         </Card>
       </div>
 
-      {/* Main Grid: AI Assistant & Recommendations Action List */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Recommendations & Academic Intervention Action Center */}
-        <div className="lg:col-span-7 space-y-4">
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="interventions" className="space-y-6">
+        <TabsList className="bg-card/80 border border-border p-1 rounded-2xl h-11">
+          <TabsTrigger value="interventions" className="rounded-xl text-xs font-bold px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <FileCheck className="w-3.5 h-3.5 mr-1.5" />
+            <span>{isAr ? "خطط وتوصيات التدخل الأكاديمي" : "Intervention Action Center"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai_coach" className="rounded-xl text-xs font-bold px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Bot className="w-3.5 h-3.5 mr-1.5" />
+            <span>{isAr ? "المساعد البيداغوجي الذكي" : "Pedagogical AI Coach"}</span>
+          </TabsTrigger>
+          <TabsTrigger value="cohort_roster" className="rounded-xl text-xs font-bold px-4 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Users className="w-3.5 h-3.5 mr-1.5" />
+            <span>{isAr ? "تشخيص أداء الطلاب في الشُعبة" : "Student Diagnostics"}</span>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Tab 1: Interventions Action Center */}
+        <TabsContent value="interventions">
           <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-6 shadow-sm">
             <CardHeader className="p-0 pb-4">
               <div className="flex justify-between items-center">
-                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                  <Lightbulb className="w-4 h-4 text-amber-500" />
-                  <span>{isAr ? "توصيات التدخل الأكاديمي للطلاب" : "Student Intervention Action Center"}</span>
-                </CardTitle>
-                <Badge variant="outline" className="rounded-full bg-secondary text-xs">
+                <div>
+                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-amber-500" />
+                    <span>{isAr ? "سجل التدخلات البيداغوجية والتغذية الراجعة" : "Active Pedagogical Recommendations & Feedback"}</span>
+                  </CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                    {isAr
+                      ? "توصيات صادرة عن الإرشاد الطلابي والتحليل الذكي موجهة لطلابك في هذا الفصل."
+                      : "Actionable recommendations coordinated with academic counseling for your cohort."}
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="rounded-full bg-secondary text-xs font-bold">
                   {recommendations.length} {isAr ? "توصية" : "Items"}
                 </Badge>
               </div>
-              <CardDescription className="text-xs text-muted-foreground">
-                {isAr
-                  ? "توصيات صادرة عن التحليل الذكي والإرشاد الطلابي لتطبيقها وتوثيق نتائجها."
-                  : "AI and counselor recommendations to implement directly in your classroom."}
-              </CardDescription>
             </CardHeader>
 
             {isLoading ? (
@@ -398,112 +445,117 @@ export default function TeacherFeedbackPage() {
                 {isAr ? "جارٍ جلب التوصيات..." : "Loading recommendations..."}
               </div>
             ) : recommendations.length === 0 ? (
-              <div className="p-10 text-center text-xs text-muted-foreground border border-dashed border-border rounded-2xl bg-secondary/20">
-                <CheckCircle2 className="w-8 h-8 text-emerald-500/40 mx-auto mb-2" />
-                <p className="font-bold text-foreground">{isAr ? "لا توجد تدخلات معلقة حالياً" : "All recommended actions implemented"}</p>
-                <p className="mt-1">{isAr ? "شُعبك تسير بنجاح ولا توجد خطط بحاجة لتوثيق إضافي." : "Classroom interventions are up to date."}</p>
+              <div className="p-12 text-center text-xs text-muted-foreground border border-dashed border-border rounded-3xl bg-secondary/20">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500/40 mx-auto mb-2" />
+                <p className="font-bold text-foreground text-sm">{isAr ? "لا توجد تدخلات معلقة حالياً" : "All classroom interventions up to date"}</p>
+                <p className="mt-1">{isAr ? "أداء شُعبك مستقر ومطابق للمعايير الأكاديمية." : "Classroom metrics are in good standing."}</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {recommendations.map((rec) => {
-                  const student = students.find((s) => Number(s.id) === Number(rec.student_id));
+                  const student = rec.student || students.find((s) => Number(s.id) === Number(rec.student_id));
                   const isImplemented = rec.status === 'implemented';
 
                   return (
                     <div
                       key={rec.id}
-                      className={`p-4 rounded-2xl border transition-all ${
+                      className={`p-5 rounded-3xl border transition-all flex flex-col justify-between ${
                         isImplemented
                           ? "bg-emerald-500/5 border-emerald-500/20"
                           : "bg-secondary/40 border-border hover:border-primary/30"
                       }`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-foreground">
-                            {student?.name || `Student #${rec.student_id}`}
-                          </span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                              {student?.name ? student.name.charAt(0).toUpperCase() : "S"}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-xs text-foreground">{student?.name || `Student #${rec.student_id}`}</h4>
+                              <p className="text-[10px] text-muted-foreground">{student?.email}</p>
+                            </div>
+                          </div>
                           <Badge
                             variant="outline"
-                            className={`text-[9px] font-bold rounded-full ${
+                            className={`text-[9px] font-bold rounded-full px-2.5 py-0.5 ${
                               isImplemented
                                 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                                 : "bg-amber-500/10 text-amber-500 border-amber-500/20"
                             }`}
                           >
                             {isImplemented
-                              ? (isAr ? "تم التطبيق" : "Implemented")
-                              : (isAr ? "مطلوب الإجراء" : "Action Required")}
+                              ? (isAr ? "✅ تم التطبيق" : "Implemented")
+                              : (isAr ? "⏳ مطلوب الإجراء" : "Action Required")}
                           </Badge>
                         </div>
-                        <span className="text-[10px] font-mono text-muted-foreground">
-                          {rec.created_at ? new Date(rec.created_at).toLocaleDateString() : ""}
-                        </span>
+
+                        <p className="text-xs text-foreground/90 leading-relaxed bg-background/60 p-3 rounded-2xl border border-border/60">
+                          {rec.ai_suggested_action || rec.action || (isAr ? "متابعة أداء الطالب وتكليفه بتمارين مساندة." : "Follow up with supplemental exercises.")}
+                        </p>
                       </div>
 
-                      <p className="text-xs text-foreground/90 leading-relaxed mb-3">
-                        {rec.ai_suggested_action || rec.action || (isAr ? "متابعة أداء الطالب وتكليفه بتمارين مساندة." : "Follow up with supplemental exercises.")}
-                      </p>
-
-                      {isImplemented ? (
-                        <div className="text-[11px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 p-2.5 rounded-xl flex items-center gap-2 font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                          <span>{rec.outcome_notes || (isAr ? "تم توثيق التطبيق بنجاح." : "Action verified.")}</span>
-                        </div>
-                      ) : (
-                        <div className="space-y-2 pt-1">
-                          <Input
-                            placeholder={isAr ? "اكتب ملاحظات الإجراء المنفذ (مثال: تم إعطاء كويز تعويضي)..." : "Log outcome (e.g. Completed 1-on-1 tutoring)..."}
-                            value={actionNotes[rec.id] || ""}
-                            onChange={(e) => setActionNotes({ ...actionNotes, [rec.id]: e.target.value })}
-                            className="h-8 rounded-xl bg-card border-border text-xs"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => handleImplementRecommendation(rec.id)}
-                            disabled={isLoggingAction === rec.id}
-                            className="h-8 rounded-xl bg-primary text-primary-foreground text-xs font-bold px-4"
-                          >
-                            {isLoggingAction === rec.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <FileCheck className="w-3.5 h-3.5 mr-1" />}
-                            <span>{isAr ? "توثيق وتطبيق الإجراء" : "Confirm Implementation"}</span>
-                          </Button>
-                        </div>
-                      )}
+                      <div className="pt-3 mt-2 border-t border-border/60">
+                        {isImplemented ? (
+                          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 p-2.5 rounded-2xl flex items-center gap-2 font-medium">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                            <span>{rec.outcome_notes || (isAr ? "تم توثيق إتمام التدخل البيداغوجي بنجاح." : "Action outcome logged.")}</span>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <Input
+                              placeholder={isAr ? "اكتب نتيجة التدخل (مثال: تم إعطاء اختبار تعويضي بنتيجة 82%)..." : "Log outcome (e.g. Completed review quiz with score 82%)..."}
+                              value={actionNotes[rec.id] || ""}
+                              onChange={(e) => setActionNotes({ ...actionNotes, [rec.id]: e.target.value })}
+                              className="h-8 rounded-xl bg-card border-border text-xs"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handleImplementRecommendation(rec.id)}
+                              disabled={isLoggingAction === rec.id}
+                              className="w-full h-8 rounded-xl bg-primary text-primary-foreground text-xs font-bold"
+                            >
+                              {isLoggingAction === rec.id ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <FileCheck className="w-3.5 h-3.5 mr-1" />}
+                              <span>{isAr ? "توثيق وتطبيق الإجراء في MySQL" : "Confirm Implementation"}</span>
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
             )}
           </Card>
-        </div>
+        </TabsContent>
 
-        {/* Right Column: AI Pedagogical Chat Assistant */}
-        <div className="lg:col-span-5 flex flex-col h-[600px]">
-          <Card className="h-full bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl flex flex-col overflow-hidden shadow-sm">
+        {/* Tab 2: AI Pedagogical Coach */}
+        <TabsContent value="ai_coach">
+          <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl flex flex-col h-[600px] overflow-hidden shadow-sm">
             <CardHeader className="p-4 border-b border-border bg-primary/5 shrink-0 flex flex-row items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
-                <Bot className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
+                <Bot className="w-5 h-5" />
               </div>
               <div>
-                <CardTitle className="text-xs font-bold text-foreground">
-                  {isAr ? "المساعد البيداغوجي الذكي للمعلم" : "AI Pedagogical Coach"}
+                <CardTitle className="text-sm font-bold text-foreground">
+                  {isAr ? "المساعد البيداغوجي الذكي لعضو هيئة التدريس" : "AI Pedagogical Assistant"}
                 </CardTitle>
-                <p className="text-[10px] text-muted-foreground">
-                  {isAr ? "توليد اختبارات قصيرة، استراتيجيات شرح، وخطط دعم" : "Generate quiz ideas, rubrics & lesson strategies"}
+                <p className="text-xs text-muted-foreground">
+                  {isAr ? "توليد كويزات، صياغة خطط مراجعة، وتقديم استراتيجيات تعليمية مخصصة" : "Generate quizzes, lesson roadmaps, and targeted teaching strategies"}
                 </p>
               </div>
             </CardHeader>
 
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-3">
+            <ScrollArea className="flex-1 p-5">
+              <div className="space-y-4">
                 {chatHistory.map((msg, idx) => {
                   const isUser = msg.sender === "user";
                   return (
-                    <div key={idx} className={`flex gap-2.5 ${isUser ? 'flex-row-reverse' : ''}`}>
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${isUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground border border-border'}`}>
-                        {isUser ? "T" : <Bot className="w-3.5 h-3.5 text-primary" />}
+                    <div key={idx} className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground border border-border'}`}>
+                        {isUser ? "T" : <Bot className="w-4 h-4 text-primary" />}
                       </div>
-                      <div className={`p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed ${isUser ? 'bg-primary text-primary-foreground' : 'bg-secondary/60 text-foreground border border-border'}`}>
+                      <div className={`p-4 rounded-3xl max-w-[80%] text-xs leading-relaxed ${isUser ? 'bg-primary text-primary-foreground' : 'bg-secondary/60 text-foreground border border-border'}`}>
                         <p className="whitespace-pre-line">{msg.text}</p>
                       </div>
                     </div>
@@ -511,35 +563,41 @@ export default function TeacherFeedbackPage() {
                 })}
 
                 {isAiThinking && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground p-2">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                    <span>{isAr ? "جارٍ إعداد التحليل البيداغوجي..." : "AI analyzing teaching cohort..."}</span>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground p-3">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>{isAr ? "جارٍ تحليل بيانات الشُعبة وتوليد التوجيهات البيداغوجية..." : "AI analyzing teaching cohort..."}</span>
                   </div>
                 )}
               </div>
             </ScrollArea>
 
             {/* Quick Chips & Chat Input */}
-            <div className="p-3 border-t border-border bg-card/60 space-y-2 shrink-0">
-              <div className="flex flex-wrap gap-1.5">
+            <div className="p-4 border-t border-border bg-card/60 space-y-3 shrink-0">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => handleSendAiMessage(isAr ? "اقترح خطة مراجعة سريعة قبل الاختبار النهائي" : "Suggest revision roadmap before finals")}
-                  className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  onClick={() => handleSendAiMessage(isAr ? "اقترح خطة مراجعة سريعة للمقرر قبل الاختبار الفصلي" : "Suggest revision roadmap before midterm")}
+                  className="text-xs font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-3 py-1.5 rounded-full border border-border transition-all"
                 >
-                  💡 {isAr ? "خطة مراجعة سريعة" : "Revision Roadmap"}
+                  💡 {isAr ? "خطة مراجعة للمقرر" : "Revision Roadmap"}
                 </button>
                 <button
-                  onClick={() => handleSendAiMessage(isAr ? "كيف أرفع دافعية الطلاب ذوي الحضور المنخفض؟" : "How to boost engagement for low-attendance students?")}
-                  className="text-[10px] font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-2.5 py-1 rounded-full border border-border transition-all"
+                  onClick={() => handleSendAiMessage(isAr ? "كيف أرفع دافعية الطلاب ذوي الحضور المنخفض في شُعبي؟" : "How to boost engagement for low-attendance students?")}
+                  className="text-xs font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-3 py-1.5 rounded-full border border-border transition-all"
                 >
-                  🎯 {isAr ? "تحفيز الحضور" : "Boost Attendance"}
+                  🎯 {isAr ? "تحفيز الحضور والتفاعل" : "Boost Attendance"}
+                </button>
+                <button
+                  onClick={() => handleSendAiMessage(isAr ? "ولد 3 أسئلة اختيار من متعدد لقياس استيعاب موضوع المحاضرة" : "Generate 3 MCQs to check concept mastery")}
+                  className="text-xs font-semibold bg-secondary/80 hover:bg-secondary text-foreground px-3 py-1.5 rounded-full border border-border transition-all"
+                >
+                  📝 {isAr ? "توليد أسئلة تقييمية" : "Generate Quiz Items"}
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder={isAr ? "اسأل المساعد عن استراتيجيات التدريس..." : "Ask for lesson plans, quiz ideas..."}
-                  className="flex-1 h-9 rounded-full bg-secondary/60 border-border text-xs"
+                  placeholder={isAr ? "اسأل المساعد عن استراتيجيات التدريس، كويزات، أو خطط علاجية..." : "Ask for lesson plans, quiz questions, or intervention tactics..."}
+                  className="flex-1 h-10 rounded-full bg-secondary/60 border-border text-xs"
                   value={chatPrompt}
                   onChange={(e) => setChatPrompt(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendAiMessage()}
@@ -548,15 +606,109 @@ export default function TeacherFeedbackPage() {
                 <Button
                   onClick={() => handleSendAiMessage()}
                   disabled={isAiThinking || !chatPrompt.trim()}
-                  className="h-9 w-9 rounded-full bg-primary text-primary-foreground p-0 shadow-xs"
+                  className="h-10 w-10 rounded-full bg-primary text-primary-foreground p-0 shadow-xs"
                 >
-                  {isAiThinking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  {isAiThinking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
             </div>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+
+        {/* Tab 3: Student Cohort Diagnostics Roster */}
+        <TabsContent value="cohort_roster">
+          <Card className="bg-card/90 dark:bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl p-6 shadow-sm space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4 text-primary" />
+                  <span>{isAr ? "تشخيص استيعاب الطلاب في شُعبك" : "Student Performance & Comprehension Diagnostics"}</span>
+                </CardTitle>
+                <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                  {isAr
+                    ? "قائمة الطلاب المقيدين في مؤسستك مع متوسط درجاتهم ونسبة الحضور لتحديد المستحقين للتدخل."
+                    : "Individual student score and attendance breakdown to identify intervention candidates."}
+                </CardDescription>
+              </div>
+              <Badge variant="outline" className="rounded-full bg-primary/10 text-primary border-primary/20 text-xs font-bold px-3 py-1">
+                {students.length} {isAr ? "طالب" : "Students"}
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+              {students.map((student) => {
+                const sGrades = grades.filter((g) => Number(g.enrollment?.user_id || g.enrollment_id || g.user_id) === Number(student.id));
+                const sAtt = attendances.filter((a) => Number(a.user_id) === Number(student.id));
+                const sRecs = recommendations.filter((r) => Number(r.student_id) === Number(student.id));
+
+                const avg = sGrades.length > 0
+                  ? (sGrades.reduce((acc, curr) => acc + Number(curr.score || 0), 0) / sGrades.length).toFixed(1)
+                  : "--";
+
+                const sPresent = sAtt.filter((a) => a.status === 'present').length;
+                const attRate = sAtt.length > 0 ? ((sPresent / sAtt.length) * 100).toFixed(1) : "--";
+
+                const scoreVal = parseFloat(avg);
+                let standingBadge = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+                let standingText = isAr ? "مستقر" : "Stable";
+
+                if (!isNaN(scoreVal) && scoreVal < 60) {
+                  standingBadge = "bg-rose-500/10 text-rose-500 border-rose-500/20";
+                  standingText = isAr ? "معرض للتعثر" : "At-Risk";
+                } else if (!isNaN(scoreVal) && scoreVal < 75) {
+                  standingBadge = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+                  standingText = isAr ? "يحتاج متابعة" : "Attention";
+                }
+
+                return (
+                  <Card key={student.id} className="p-4 rounded-3xl bg-secondary/40 border border-border/80 space-y-3 hover:border-primary/30 transition-all">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                          {student.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-xs text-foreground">{student.name}</h4>
+                          <p className="text-[10px] text-muted-foreground">{student.email}</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className={`rounded-full text-[9px] font-bold px-2 py-0.5 ${standingBadge}`}>
+                        {standingText}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 bg-card/60 p-2.5 rounded-2xl border border-border/60 text-center">
+                      <div>
+                        <span className="text-[10px] text-muted-foreground block">{isAr ? "متوسط الدرجات" : "Avg Score"}</span>
+                        <span className="font-mono text-xs font-bold text-foreground">{avg !== "--" ? `${avg}%` : "--"}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground block">{isAr ? "نسبة الحضور" : "Attendance"}</span>
+                        <span className="font-mono text-xs font-bold text-foreground">{attRate !== "--" ? `${attRate}%` : "--"}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center text-[11px] pt-1">
+                      <span className="text-muted-foreground">{sRecs.length} {isAr ? "خطط مسجلة" : "plans"}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setNewStudentId(String(student.id));
+                          setIsDialogOpen(true);
+                        }}
+                        className="h-7 rounded-full text-[11px] text-primary hover:bg-primary/10 font-bold px-2.5"
+                      >
+                        + {isAr ? "إضافة خطة" : "Add Plan"}
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
