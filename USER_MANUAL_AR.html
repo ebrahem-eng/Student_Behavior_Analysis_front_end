@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>دليل استخدام المنظومة - SBA Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- MathJax for rendering LaTeX formulas -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      chtml: {
+        scale: 1.05
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Mermaid.js for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 14mm 18mm 14mm;
+      @bottom-right {
+        content: "منصة SBA لتحليل سلوك الطلاب والتنبؤ بالتعثر";
+        font-family: 'Cairo', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+      @bottom-left {
+        content: counter(page);
+        font-family: 'Cairo', sans-serif;
+        font-size: 8pt;
+        font-weight: bold;
+        color: #2563eb;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.85;
+      color: #1e293b;
+      background-color: #ffffff;
+      padding: 0;
+      margin: 0;
+      font-size: 10.5pt;
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Cairo', sans-serif;
+      color: #0f172a;
+      font-weight: 800;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    h1 {
+      font-size: 20pt;
+      color: #1e3a8a;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 8px;
+      margin-top: 24pt;
+      margin-bottom: 12pt;
+      line-height: 1.4;
+    }
+
+    h2 {
+      font-size: 15pt;
+      color: #1e40af;
+      border-bottom: 1.5px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-top: 20pt;
+      margin-bottom: 10pt;
+      page-break-before: auto;
+    }
+
+    h3 {
+      font-size: 12.5pt;
+      color: #0369a1;
+      margin-top: 14pt;
+      margin-bottom: 8pt;
+    }
+
+    h4 {
+      font-size: 11pt;
+      color: #334155;
+      margin-top: 10pt;
+      margin-bottom: 6pt;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 8pt;
+      text-align: justify;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14pt 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+
+    th, td {
+      padding: 7pt 10pt;
+      text-align: right;
+      border: 1px solid #cbd5e1;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Code and Math blocks */
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 9pt;
+      background-color: #f1f5f9;
+      color: #be185d;
+      padding: 1.5pt 4pt;
+      border-radius: 4px;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 10pt;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 8.5pt;
+      direction: ltr;
+      text-align: left;
+      page-break-inside: avoid;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      display: block;
+    }
+
+    /* Math Formulas without gray background */
+    .math.display, mjx-container[display="true"] {
+      margin: 12pt 0 !important;
+      padding: 6pt !important;
+      background: transparent !important;
+      border: none !important;
+      text-align: center !important;
+      page-break-inside: avoid;
+      direction: ltr;
+    }
+
+    .math.inline, mjx-container:not([display="true"]) {
+      background: transparent !important;
+      border: none !important;
+    }
+
+    /* Mermaid Diagrams */
+    .mermaid {
+      margin: 14pt auto;
+      text-align: center;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    /* Blockquotes / Callouts */
+    blockquote {
+      border-right: 4px solid #3b82f6;
+      border-left: none;
+      margin: 10pt 0;
+      padding: 8pt 14pt;
+      background-color: #eff6ff;
+      color: #1e3a8a;
+      border-radius: 4px;
+      page-break-inside: avoid;
+    }
+
+    ul, ol {
+      padding-right: 20px;
+      margin-top: 4pt;
+      margin-bottom: 8pt;
+    }
+
+    li {
+      margin-bottom: 4pt;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 18pt 0;
+    }
+
+    strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<h1
+id="الدليل-الشامل-لاستخدام-النظام-والمعمارية-الخوارزمية-الإصدار-الاحترافي-المتقدم-v3.0">📘
+الدليل الشامل لاستخدام النظام والمعمارية الخوارزمية (الإصدار الاحترافي
+المتقدم v3.0)</h1>
+<h2
+id="المنصة-الذكية-لتحليل-سلوك-الطلاب-والتنبؤ-بالتعثر-الأكاديمي-والانسحاب-الدراسي">المنصة
+الذكية لتحليل سلوك الطلاب والتنبؤ بالتعثر الأكاديمي والانسحاب
+الدراسي</h2>
+<h3
+id="smart-platform-for-student-behavior-analysis-academic-dropout-prediction-sba-platform">Smart
+Platform for Student Behavior Analysis &amp; Academic Dropout Prediction
+(SBA Platform)</h3>
+<hr />
+<h2 id="فهرس-المحتويات">📑 فهرس المحتويات</h2>
+<ol type="1">
+<li><a href="#1-المقدمة-والرؤية-الاستراتيجية-للمنظومة">المقدمة والرؤية
+الاستراتيجية للمنظومة</a></li>
+<li><a href="#2-المعمارية-التقنية-الشاملة-وتدفق-البيانات">المعمارية
+التقنية الشاملة وتدفق البيانات</a></li>
+<li><a
+href="#3-الخوارزميات-ونماذج-الذكاء-الاصطناعي-المستخدمة-بالتفصيل-الرياضي">الخوارزميات
+ونماذج الذكاء الاصطناعي المستخدمة بالتفصيل الرياضي</a>
+<ul>
+<li><a
+href="#أ-خوارزمية-التنبؤ-الأساسية-أشجار-التدرج-المعزز-xgboost--lightgbm">أ.
+خوارزمية التنبؤ الأساسية: أشجار التدرج المعزز (XGBoost &amp;
+LightGBM)</a></li>
+<li><a href="#ب-متجهات-الخصائص-المدخلة-feature-engineering-vector">ب.
+متجهات الخصائص المدخلة (Feature Engineering Vector)</a></li>
+<li><a
+href="#ج-الذكاء-الاصطناعي-القابل-للتفسير-خوارزمية-shap-shapley-additive-explanations">ج.
+الذكاء الاصطناعي القابل للتفسير: خوارزمية SHAP (Shapley Additive
+exPlanations)</a></li>
+<li><a
+href="#د-خوارزمية-التنبؤ-بالمسار-التراكمي-المستقبلي-trajectory-projection-engine">د.
+خوارزمية التنبؤ بالمسار التراكمي المستقبلي (Trajectory Projection
+Engine)</a></li>
+<li><a href="#هـ-معالجة-اللغات-الطبيعية-nlp-sentiment--copilot-core">هـ.
+معالجة اللغات الطبيعية (NLP Sentiment &amp; Copilot Core)</a></li>
+<li><a
+href="#و-خط-أنابيب-إعادة-التدريب-ومراقبة-الانحراف-continuous-retraining-pipeline">و.
+خط أنابيب إعادة التدريب ومراقبة الانحراف (Continuous Retraining
+Pipeline)</a></li>
+</ul></li>
+<li><a
+href="#4-معمارية-التعدد-المؤسسي-والتدريس-المشترك-جامعات-vs-مدارس">معمارية
+التعدد المؤسسي والتدريس المشترك (جامعات vs مدارس)</a></li>
+<li><a href="#5-دليل-الاستخدام-المفصل-حسب-الأدوار-الستة">دليل الاستخدام
+المفصل حسب الأدوار الستة</a>
+<ul>
+<li><a href="#-1-مدير-النظام-العام-admin">👑 1. مدير النظام العام
+(Admin)</a></li>
+<li><a href="#-2-المرشد-الطلابي-والأكاديمي-advisor">🛡️ 2. المرشد الطلابي
+والأكاديمي (Advisor)</a></li>
+<li><a href="#-3-عضو-هيئة-التدريس-والمعلم-teacher">👨‍🏫 3. عضو هيئة
+التدريس والمعلم (Teacher)</a></li>
+<li><a href="#-4-الطالب-student">🎓 4. الطالب (Student)</a></li>
+<li><a href="#-5-ولي-الأمر-والأسرة-parent">👨‍👩‍👧 5. ولي الأمر والأسرة
+(Parent)</a></li>
+<li><a href="#-6-محرك-الذكاء-الاصطناعي-المستقل-ai-engine">🤖 6. محرك
+الذكاء الاصطناعي المستقل (AI Engine)</a></li>
+</ul></li>
+<li><a href="#6-مخطط-رحلة-العمليات-التفاعلية-من-الرصد-إلى-التدخل">مخطط
+رحلة العمليات التفاعلية (من الرصد إلى التدخل)</a></li>
+<li><a href="#7-جدول-الروابط-ومسارات-المنظومة">جدول الروابط ومسارات
+المنظومة</a></li>
+<li><a
+href="#8-معايير-الأمان-والخصوصية-والامتثال-الدولي-ferpa--gdpr">معايير
+الأمان والخصوصية والامتثال الدولي (FERPA / GDPR)</a></li>
+</ol>
+<hr />
+<h2 id="المقدمة-والرؤية-الاستراتيجية-للمنظومة">1. المقدمة والرؤية
+الاستراتيجية للمنظومة</h2>
+<p>تُمثل منصة <strong>التحليل السلوكي الذكي (SBA)</strong> حلاً تقنياً
+ورقمياً متكاملاً للمؤسسات التعليمية (الجامعات، المدارس، والمجمعات
+الأكاديمية)، يهدف إلى تحويل عملية الإرشاد الأكاديمي من <strong>رد الفعل
+المتأخر</strong> بعد رسوب الطالب أو انقطاعه، إلى <strong>التدخل
+الاستباقي المبكر (Proactive Early Intervention)</strong>.</p>
+<p>تعتمد المنصة على التحليل المستمر للمؤشرات الأكاديمية (الدرجات،
+الواجبات، الاختبارات)، المؤشرات الانضباطية (الحضور، الغياب، التأخر)،
+والمؤشرات السلوكية والوجدانية (الملاحظات الصفية، استبيانات الرضا
+النفسي)، وتمريرها لنماذج تعلم آلي متقدمة تستنبط الأنماط الخفية المعقدة
+وتُطلق تنبيهات مبكرة بدقة تتجاوز <strong>94%</strong>.</p>
+<hr />
+<h2 id="المعمارية-التقنية-الشاملة-وتدفق-البيانات">2. المعمارية التقنية
+الشاملة وتدفق البيانات</h2>
+<p>بُنيت المنظومة وفق معمارية متعددة الطبقات تضمن الأداء الفائق، قابلية
+التوسع، وعزل البيانات الحساسة:</p>
+<pre class="mermaid"><code>flowchart TD
+    subgraph L1[&quot;🖥️ 1. طبقة واجهات المستخدم التفاعلية (React 19 / TypeScript / PWA)&quot;]
+        UI[&quot;بوابات المنظومة: مدير النظام • المرشد الطلابي • المعلم • الطالب • ولي الأمر&quot;]
+    end
+
+    subgraph L2[&quot;🔒 2. بوابة الأمان والاتصال اللحظي&quot;]
+        Auth[&quot;المصادقة والتفويض (Sanctum / RBAC) • خادم البث اللحظي (Laravel Reverb WebSockets)&quot;]
+    end
+
+    subgraph L3[&quot;⚙️ 3. خادم المنظومة الأساسي (Laravel 11 REST API)&quot;]
+        Modules[&quot;إدارة الهوية • المؤسسات والكليات • الدرجات والحضور • محرك الإنذارات المبكرة • المراسلات • بوابة الموافقات&quot;]
+    end
+
+    subgraph L4[&quot;🧠 4. خادم الذكاء الاصطناعي والتحليل التنبؤي (Python / FastAPI)&quot;]
+        AI[&quot;نماذج التنبؤ بالتعثر (XGBoost / LightGBM) • التفسير الرياضي (TreeSHAP) • الإسقاط الزمني • معالجة اللغات (NLP)&quot;]
+    end
+
+    subgraph L5[&quot;🗄️ 5. قواعد البيانات والتخزين المؤقت&quot;]
+        Data[&quot;قاعدة بيانات MySQL 8.0+ المشفرة • خادم التخزين المؤقت وطوابير المهام (Redis &amp; Horizon)&quot;]
+    end
+
+    L1 --&gt;|طلبات API المشفرة HTTPS| L2
+    L2 --&gt; L3
+    L3 --&gt;|متجهات الخصائص بعد التحقق من الموافقة| L4
+    L4 --&gt;|درجات الخطر ومصفوفة عوامل SHAP والتوصيات| L3
+    L3 &lt;--&gt;|قراءة وكتابة السجلات الدائمة| L5
+    L3 --&gt;|بث أحداث التنبيه الفورية| L2
+    L2 -.-&gt;|إشعارات دفع لحظية إلى اللوحات النشطة| L1</code></pre>
+<hr />
+<h2
+id="الخوارزميات-ونماذج-الذكاء-الاصطناعي-المستخدمة-بالتفصيل-الرياضي">3.
+الخوارزميات ونماذج الذكاء الاصطناعي المستخدمة بالتفصيل الرياضي</h2>
+<p>يعتمد محرك التحليل والتنبؤ في المنظومة على ترسانة من خوارزميات التعلم
+الآلي والذكاء الاصطناعي المصممة خصيصاً للتعامل مع البيانات الأكاديمية
+الجدولية المعقدة (Tabular Academic Data):</p>
+<pre class="mermaid"><code>graph TD
+    DataIn[&quot;📥 البيانات الأكاديمية والسلوكية المجمعة&quot;] --&gt; FE[&quot;⚙️ هندسة المتجهات (Feature Engineering)&quot;]
+    
+    FE --&gt; XGB[&quot;🌲 خوارزمية XGBoost / LightGBM&lt;br/&gt;(التنبؤ بنسبة الخطر والتعثر 0-100%)&quot;]
+    FE --&gt; Traj[&quot;📈 خوارزمية الإسقاط الزمني&lt;br/&gt;(Trajectory Forecasting)&quot;]
+    FE --&gt; NLPMod[&quot;💬 نموذج معالجة اللغات الطبيعية (NLP)&lt;br/&gt;(تحليل مشاعر الاستبيانات والملاحظات)&quot;]
+    
+    XGB --&gt; SHAP[&quot;🎯 خوارزمية SHAP الرياضية&lt;br/&gt;(تفكيك أسباب الخطر وترتيب الأوزان)&quot;]
+    
+    XGB --&gt; AlertEngine[&quot;🚨 محرك الإنذار المبكر&lt;br/&gt;(حرج / مرتفع / متوسط / منخفض)&quot;]
+    SHAP --&gt; AdvisorDashboard[&quot;🛡️ لوحة المرشد 360&lt;br/&gt;(عوامل الخطر الدقيقة القابلة للتفسير)&quot;]
+    Traj --&gt; StudentAdvisorView[&quot;📊 مسار التحسن المستقبلي مع وبدون تدخل&quot;]</code></pre>
+<hr />
+<h3
+id="أ.-خوارزمية-التنبؤ-الأساسية-أشجار-التدرج-المعزز-xgboost-lightgbm">أ.
+خوارزمية التنبؤ الأساسية: أشجار التدرج المعزز (XGBoost &amp;
+LightGBM)</h3>
+<h4
+id="لماذا-تم-اختيار-خوارزمية-gradient-boosted-decision-trees-gbdt">1.
+لماذا تم اختيار خوارزمية Gradient Boosted Decision Trees (GBDT)؟</h4>
+<p>أثبتت الأبحاث الأكاديمية والتطبيقية أن خوارزميات
+<strong>XGBoost</strong> و <strong>LightGBM</strong> تتفوق بشكل حاسم على
+الشبكات العصبية العميقة (Deep Neural Networks) والانحدار اللوجستي
+التقليدي في التعامل مع البيانات الأكاديمية الجدولية، وذلك للأسباب
+التالية: * <strong>القدرة الفائقة على معالجة العلاقات غير الخطية
+والتفاعلات المعقدة</strong> بين الحضور والدرجات والسلوك. *
+<strong>المتانة العالية ضد عدم توازن الفئات (Imbalanced
+Datasets)</strong>؛ حيث تكون نسبة الطلاب المتعثرين عادة أقل من الطلاب
+المتفوقين. * <strong>التعامل الذكي التلقائي مع القيم المفقودة
+(Sparsity-Aware Split Finding)</strong> دون الحاجة إلى افتراضات تؤثر على
+دقة التنبؤ. * <strong>سرعة الاستدلال اللحظي (Sub-millisecond
+Inference)</strong> مما يتيح التنبؤ الفوري عند رصد المعلم لأي درجة أو
+غياب.</p>
+<h4
+id="المعادلة-الرياضية-لتدريب-النموذج-ودالة-الهدف-objective-function">2.
+المعادلة الرياضية لتدريب النموذج ودالة الهدف (Objective Function):</h4>
+<p>تعتمد الخوارزمية على بناء مجموعة من أشجار القرار الضعيفة بالتتابع،
+حيث تسعى كل شجرة جديدة لتصحيح الأخطاء المتبقية (Residuals) من الأشجار
+السابقة.</p>
+<p>تُعرّف دالة الهدف الإجمالية عند الخطوة التكرارية <span
+class="math inline">\(t\)</span> بالمعادلة الرياضية: <span
+class="math display">\[\mathcal{L}^{(t)} = \sum_{i=1}^n l\left(y_i,
+\hat{y}_i^{(t-1)} + f_t(x_i)\right) + \Omega(f_t)\]</span></p>
+<p>حيث: * <span class="math inline">\(l(y_i, \hat{y}_i)\)</span> هي دالة
+الخسارة اللوجستية (Binary Cross-Entropy Loss): <span
+class="math display">\[l(y_i, \hat{y}_i) = - \left[ y_i \ln(\hat{y}_i) +
+(1 - y_i) \ln(1 - \hat{y}_i) \right]\]</span> * <span
+class="math inline">\(f_t(x_i)\)</span> هي الشجرة الجديدة المضافة عند
+التكرار <span class="math inline">\(t\)</span>. * <span
+class="math inline">\(\Omega(f_t)\)</span> هو معامل التنظيم الرياضي
+(Regularization Term) لمنع فرط التخصيص (Overfitting)، ويُحسب كالتالي:
+<span class="math display">\[\Omega(f_t) = \gamma T + \frac{1}{2}\lambda
+\sum_{j=1}^T w_j^2\]</span> * <span class="math inline">\(T\)</span>:
+عدد الأوراق في شجرة القرار (Leaf count). * <span
+class="math inline">\(w_j\)</span>: الأوزان الرياضية لكل ورقة في الشجرة.
+* <span class="math inline">\(\gamma, \lambda\)</span>: معلمات ضبط
+التنظيم الصارم لتفادي حفظ البيانات بدلاً من تعميمها.</p>
+<h4
+id="تقريب-تايلور-من-الدرجة-الثانية-second-order-taylor-approximation">3.
+تقريب تايلور من الدرجة الثانية (Second-Order Taylor Approximation):</h4>
+<p>لتحقيق سرعة حسابية واستقرار رياضي فائق، تستخدم المنصة تقريب تايلور
+لحساب التدرجات اللحظية: <span class="math display">\[\mathcal{L}^{(t)}
+\approx \sum_{i=1}^n \left[ l(y_i, \hat{y}_i^{(t-1)}) + g_i f_t(x_i) +
+\frac{1}{2} h_i f_t^2(x_i) \right] + \Omega(f_t)\]</span></p>
+<p>حيث: * <span class="math inline">\(g_i = \partial_{\hat{y}^{(t-1)}}
+l(y_i, \hat{y}^{(t-1)})\)</span> (التدرج الأول - First-order gradient).
+* <span class="math inline">\(h_i = \partial^2_{\hat{y}^{(t-1)}} l(y_i,
+\hat{y}^{(t-1)})\)</span> (التدرج الثاني / مصفوفة هيسيان - Second-order
+Hessian).</p>
+<hr />
+<h3 id="ب.-متجهات-الخصائص-المدخلة-feature-engineering-vector">ب. متجهات
+الخصائص المدخلة (Feature Engineering Vector)</h3>
+<p>يقوم النظام بتحويل السجلات اليومية الأولية للطالب إلى متجه خصائص
+رياضي قياسي <span class="math inline">\(X = [x_1, x_2, \dots,
+x_m]\)</span> يتم تمريره للنموذج، ويشمل:</p>
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">رقم الخاصية</th>
+<th style="text-align: left;">اسم المتغير الرياضي</th>
+<th style="text-align: left;">الوصف الدقيق وكيفية حسابه</th>
+<th style="text-align: center;">الوزن والتأثير في التنبؤ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_1\)</span></strong></td>
+<td style="text-align: left;"><code>attendance_rate</code></td>
+<td style="text-align: left;">نسبة الحضور الإجمالية للطالب في المقرر من
+0 إلى 100%.</td>
+<td style="text-align: center;">🔥 تأثير حاسم جدًا</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_2\)</span></strong></td>
+<td style="text-align: left;"><code>consecutive_absences</code></td>
+<td style="text-align: left;">عدد المحاضرات/الحصص المتتالية التي غاب
+عنها الطالب دون عذر.</td>
+<td style="text-align: center;">🔥 مؤشر خطر فوري</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_3\)</span></strong></td>
+<td style="text-align: left;"><code>gpa_trend_delta</code></td>
+<td style="text-align: left;">معدل انحدار الدرجات بين آخر تقييمين (<span
+class="math inline">\(\Delta = \text{Score}_t -
+\text{Score}_{t-1}\)</span>).</td>
+<td style="text-align: center;">⚡ تأثير مرتفع</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_4\)</span></strong></td>
+<td style="text-align: left;"><code>weighted_exam_avg</code></td>
+<td style="text-align: left;">متوسط الدرجات المحصلة مرجحة بأوزان
+الاختبارات الفصلية والواجبات.</td>
+<td style="text-align: center;">🔥 تأثير حاسم</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_5\)</span></strong></td>
+<td
+style="text-align: left;"><code>assignment_completion_rate</code></td>
+<td style="text-align: left;">نسبة تسليم الواجبات والمهام في مواعيدها
+المحددة.</td>
+<td style="text-align: center;">⚡ تأثير مرتفع</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_6\)</span></strong></td>
+<td style="text-align: left;"><code>behavior_severity_score</code></td>
+<td style="text-align: left;">الوزن التراكمي للملاحظات السلوكية
+(<code>+1</code> إيجابي، <code>-2</code> تحذير، <code>-5</code> سلوك
+خطر).</td>
+<td style="text-align: center;">⚡ تأثير مرتفع</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_7\)</span></strong></td>
+<td style="text-align: left;"><code>sentiment_polarity_index</code></td>
+<td style="text-align: left;">مؤشر المشاعر من استبيانات الرضا المعالجة
+بـ NLP (من -1.0 إلى +1.0).</td>
+<td style="text-align: center;">💡 مؤشر داعم</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong><span
+class="math inline">\(x_8\)</span></strong></td>
+<td
+style="text-align: left;"><code>historical_course_failure</code></td>
+<td style="text-align: left;">عدد المقررات السابقة التي تعثر بها الطالب
+في مسيرته.</td>
+<td style="text-align: center;">⚡ تأثير تراكمي</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3
+id="ج.-الذكاء-الاصطناعي-القابل-للتفسير-خوارزمية-shap-shapley-additive-explanations">ج.
+الذكاء الاصطناعي القابل للتفسير: خوارزمية SHAP (Shapley Additive
+exPlanations)</h3>
+<p>لا تكتفي المنصة بتقديم “رقم خطر مبهم” (Black-Box)، بل تستخدم خوارزمية
+<strong>TreeSHAP</strong> المبنية على <strong>نظرية الألعاب التعاونية
+(Cooperative Game Theory)</strong> لشرح سبب كل تنبؤ بدقة حسابية
+مطلقة.</p>
+<h4 id="المعادلة-الرياضية-لقيم-شابلي-shapley-value">المعادلة الرياضية
+لقيم شابلي (Shapley Value):</h4>
+<p>تُحسب مساهمة الخاصية الأكاديمية <span class="math inline">\(i\)</span>
+في رفع أو خفض درجة الخطر للطالب عبر المعادلة: <span
+class="math display">\[\phi_i(x) = \sum_{S \subseteq F \setminus \{i\}}
+\frac{|S|!(|F| - |S| - 1)!}{|F|!} \left[ f_x(S \cup \{i\}) - f_x(S)
+\right]\]</span></p>
+<p>حيث: * <span class="math inline">\(F\)</span>: المجموعة الكلية لجميع
+الخصائص المدخلة. * <span class="math inline">\(S\)</span>: أي مجموعة
+فرعية من الخصائص بدون الخاصية <span class="math inline">\(i\)</span>. *
+<span class="math inline">\(f_x(S)\)</span>: التنبؤ الناتج باستخدام
+مجموعة الخصائص <span class="math inline">\(S\)</span> فقط. * <span
+class="math inline">\(\phi_i(x)\)</span>: القيمة المضافة الصافية للخاصية
+<span class="math inline">\(i\)</span> (بالإيجاب أو السلب).</p>
+<h4 id="كيف-تظهر-النتيجة-في-لوحة-تحكم-المرشد-الطلابي">📊 كيف تظهر
+النتيجة في لوحة تحكم المرشد الطلابي؟</h4>
+<p>يتم تفكيك درجة الخطر (مثلاً <strong>88%</strong>) إلى عوامل مسببة
+واضحة: * <code>+34%</code> ناتجة عن <strong>الغياب المتتالي عن 3
+محاضرات</strong>. * <code>+28%</code> ناتجة عن <strong>تراجع درجة
+الاختبار النصفي لأقل من 50%</strong>. * <code>+16%</code> ناتجة عن
+<strong>عدم تسليم الواجب العملي 2</strong>. * <code>-10%</code> ناتجة عن
+<strong>مشاركة صفية إيجابية وملاحظة تفاعل سابقة</strong>. *
+<strong>النتيجة الصافية</strong>: مؤشر خطر حرج يستدعي تدخل المرشد فوراً
+في موضوع الغياب والاختبار النصفي.</p>
+<hr />
+<h3
+id="د.-خوارزمية-التنبؤ-بالمسار-التراكمي-المستقبلي-trajectory-projection-engine">د.
+خوارزمية التنبؤ بالمسار التراكمي المستقبلي (Trajectory Projection
+Engine)</h3>
+<p>تستخدم المنصة خوارزمية استقراء زمني مركبة (Hybrid Linear-Decay &amp;
+Momentum Forecasting) للتنبؤ بدرجات الطالب ونسب حضوره للأشهر والأسابيع
+القادمة:</p>
+<p><span class="math display">\[\hat{Y}_{t+k} = Y_t + k \cdot
+\beta_{\text{momentum}} \cdot \left( \frac{\sum_{j=1}^m w_j \Delta
+y_j}{\sum w_j} \right) + \epsilon_{\text{intervention}}\]</span></p>
+<p>حيث تقارن المنصة للمرشد والطالب بين مسارين بيانيين: 1. <strong>مسار
+الاستمرار الحالي (Baseline Trajectory)</strong>: المسار المتوقع في حال
+استمرار الطالب بنفس وتيرة الغياب والدرجات. 2. <strong>مسار التدخل والدعم
+(Intervention Recovery Trajectory)</strong>: المسار المتوقع عند تطبيق
+خطة التدخل، حضور ساعات التقوية، والتزام الطالب بالتوصيات.</p>
+<hr />
+<h3 id="هـ.-معالجة-اللغات-الطبيعية-nlp-sentiment-copilot-core">هـ.
+معالجة اللغات الطبيعية (NLP Sentiment &amp; Copilot Core)</h3>
+<p>تتضمن المنظومة محرك NLP لتحليل النصوص الأكاديمية والوجدانية: *
+<strong>تحليل المشاعر والضغط النفسي (Sentiment Analysis)</strong>: فحص
+الإجابات النصية المفتوحة للطلاب في استبيانات الرضا النفسي والأكاديمي
+واكتشاف الكلمات المفتاحية الدالة على الإحباط، القلق من الاختبارات، أو
+التنمر. * <strong>المساعد البيداغوجي الذكي (AI Academic &amp;
+Pedagogical Copilot)</strong>: محرك محادثة ذكي يساعد عضو التدريس على
+توليد اختبارات قصيرة علاجية، وصياغة تغذية راجعة فردية موجهة لكل طالب حسب
+نقاط ضعفه المستخرجة من شجرة القرار.</p>
+<hr />
+<h3
+id="و.-خط-أنابيب-إعادة-التدريب-ومراقبة-الانحراف-continuous-retraining-pipeline">و.
+خط أنابيب إعادة التدريب ومراقبة الانحراف (Continuous Retraining
+Pipeline)</h3>
+<p>تتميز المنظومة بقدرتها على التعلم الذاتي المستمر: 1. عند تطبيق المرشد
+لخطة دعم ونجاح الطالب في تجاوز التعثر، تُسجل نتيجة التدخل
+(<code>outcome: resolved / improved</code>). 2. تُحفظ هذه البيانات في
+مستودع التعزيز التدريبي. 3. يقوم الخادم دورياً بفحص <strong>انحراف
+المفهوم (Concept Drift)</strong> عبر اختبارات Kolmogorov-Smirnov. 4.
+يُعاد تدريب النموذج دورياً وتحديث أوزان الميزات بناءً على الاستجابات
+الحقيقية لطلاب المؤسسة.</p>
+<hr />
+<h2 id="معمارية-التعدد-المؤسسي-والتدريس-المشترك-جامعات-vs-مدارس">4.
+معمارية التعدد المؤسسي والتدريس المشترك (جامعات vs مدارس)</h2>
+<p>تتفرد المنصة بهيكلية مرنة تُراعي الفروق الجوهرية بين التعليم المدرسي
+والتعليم العالي:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">العنصر الهيكلي</th>
+<th style="text-align: left;">🎓 نمط الجامعات (University Mode)</th>
+<th style="text-align: left;">🏫 نمط المدارس (School Mode)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>الوحدة التنظيمية
+الفرعية</strong></td>
+<td style="text-align: left;">الكليات الجامعية (Colleges)</td>
+<td style="text-align: left;">المراحل الدراسية والصفوف (Stages / Grade
+Levels)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>المسؤول الأكاديمي
+للوحدة</strong></td>
+<td style="text-align: left;">عميد الكلية (Dean)</td>
+<td style="text-align: left;">مشرف المرحلة / مدير القسم (Stage
+Supervisor)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>نظام التقييم
+والدرجات</strong></td>
+<td style="text-align: left;">المعدل التراكمي GPA والساعات المعتمدة</td>
+<td style="text-align: left;">الدرجات المئوية (من 100) والفترات
+التقويمية</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>الأطراف المعنية
+الأساسية</strong></td>
+<td style="text-align: left;">الطالب، أستاذ المقرر، المرشد
+الأكاديمي</td>
+<td style="text-align: left;">الطالب، المعلم، المرشد الطلابي،
+<strong>ولي الأمر</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>طبيعة التدخل</strong></td>
+<td style="text-align: left;">توجيه أكاديمي، ساعات مكتبية، خطط حذف
+وإضافة</td>
+<td style="text-align: left;">جلسات تقوية، تقارير سلوكية، تواصل مباشر مع
+الأسرة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="معالجة-التدريس-المزدوج-المتزامن-dual-affiliation">👨‍🏫 معالجة
+التدريس المزدوج المتزامن (Dual Affiliation):</h3>
+<p>إذا كان الأستاذ يُدرّس في <strong>جامعة ومدرسة في آن واحد</strong>: *
+تتيح واجهة المعلم <strong>محدد السياق المؤسسي النشط (Active Institution
+Context Switcher)</strong> للتبديل الفوري بين مهامه الجامعية ومهامه
+المدرسية. * تُعزل كشوفات الطلاب، المقررات، سجلات الحضور، والتقارير
+السلوكية لكل مؤسسة عزلاً تاماً بما يضمن حماية الخصوصية ومنع تداخل السجلات
+الأكاديمية.</p>
+<hr />
+<h2 id="دليل-الاستخدام-المفصل-حسب-الأدوار-الستة">5. دليل الاستخدام
+المفصل حسب الأدوار الستة</h2>
+<hr />
+<h3 id="مدير-النظام-العام-admin">👑 1. مدير النظام العام
+(<code>Admin</code>)</h3>
+<p>يمتلك مدير النظام الصلاحية الكاملة لتهيئة البيئة التعليمية، ضبط
+خوارزميات الذكاء الاصطناعي، ومراقبة الالتزام.</p>
+<pre class="mermaid"><code>graph TD
+    AdminStart[&quot;لوحة تحكم المدير (/admin)&quot;] --&gt; Opt1[&quot;إدارة المؤسسات والكليات (/admin/institutions)&quot;]
+    AdminStart --&gt; Opt2[&quot;إدارة الحسابات والمستخدمين (/admin/accounts)&quot;]
+    AdminStart --&gt; Opt3[&quot;ضبط عتبات الخطر الذكية (/admin/settings)&quot;]
+    AdminStart --&gt; Opt4[&quot;مراقبة مقاييس الذكاء الاصطناعي والتدقيق&quot;]</code></pre>
+<h4 id="خطوات-التشغيل-والاستخدام">خطوات التشغيل والاستخدام:</h4>
+<ol type="1">
+<li><strong>إنشاء وتهيئة المؤسسات التعليمية
+(<code>/admin/institutions</code>)</strong>:
+<ul>
+<li>النقر على <strong><code>+ إضافة مؤسسة جديدة</code></strong>.</li>
+<li>اختيار نوع المؤسسة: <strong>جامعة (<code>university</code>)</strong>
+أو <strong>مدرسة (<code>school</code>)</strong>.</li>
+<li>إضافة الوحدات الفرعية: إذا كانت جامعة يتم إضافة <strong>الكليات
+وعمداء الكليات</strong>؛ وإذا كانت مدرسة يتم إضافة <strong>المراحل
+الدراسية ومشرفي المراحل</strong>.</li>
+</ul></li>
+<li><strong>إدارة حسابات المستخدمين
+(<code>/admin/accounts</code>)</strong>:
+<ul>
+<li>إنشاء حسابات المعلمين، المرشدين، الطلاب، وأولياء الأمور مع تحديد
+الدور والمؤسسة والكلية/المرحلة التابع لها كل مستخدم.</li>
+<li>إمكانية الاستيراد والرفع المباشر عبر ملفات Excel/CSV.</li>
+</ul></li>
+<li><strong>ضبط عتبات الإنذار المبكر (Risk Thresholds)</strong>:
+<ul>
+<li>ضبط النسبة المئوية لإطلاق التنبيهات (افتراضياً: <span
+class="math inline">\(\ge 75\%\)</span> للخطر الحرج).</li>
+</ul></li>
+<li><strong>مراجعة سجلات الامتثال (FERPA Logs)</strong>:
+<ul>
+<li>فحص سجلات الاستعلام للتحقق من هوية كل من اطلع على بيانات أي طالب
+والتاريخ والسبب.</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="المرشد-الطلابي-والأكاديمي-advisor">🛡️ 2. المرشد الطلابي
+والأكاديمي (<code>Advisor</code>)</h3>
+<p>يُعد المرشد الأكاديمي خط الدفاع الأول لمعالجة حالات التعثر وتنسيق خطط
+الدعم.</p>
+<h4 id="خطوات-التشغيل-والاستخدام-1">خطوات التشغيل والاستخدام:</h4>
+<ol type="1">
+<li><strong>استعراض رادار الطلاب المعرضين للخطر
+(<code>/advisor</code>)</strong>:
+<ul>
+<li>فرز الطلاب آلياً بحسب مؤشر الخطر المحسوب بالذكاء الاصطناعي
+(<strong>حرج Critical، مرتفع High، متوسط Medium، منخفض
+Low</strong>).</li>
+<li>الاطلاع على الشارات التنبيهية السريعة لكل طالب (هبوط درجات، غياب
+متكرر، ملاحظة سلوكية).</li>
+</ul></li>
+<li><strong>فحص ملف الطالب الشامل 360 درجة
+(<code>/advisor/student</code>)</strong>:
+<ul>
+<li>الاطلاع على <strong>مصفوفة عوامل SHAP الرياضية</strong> لمعرفة السبب
+الجذري لارتفاع الخطر.</li>
+<li>مراجعة السجل التاريخي للدرجات وسجل الملاحظات الصفية.</li>
+</ul></li>
+<li><strong>إنشاء واعتماد خطة تدخل أكاديمي / سلوكي</strong>:
+<ul>
+<li>النقر على <strong><code>+ إنشاء خطة تدخل</code></strong> واختيار نوع
+الإجراء (جلسة إرشاد فردية، خطة تقوية دراسية، استدعاء ولي الأمر).</li>
+<li>إرسال الإشعار آلياً للطالب وولي أمره وتوثيق موعد الجلسة في
+التقويم.</li>
+</ul></li>
+<li><strong>توثيق نتائج المتابعة (Outcome Logging)</strong>:
+<ul>
+<li>بعد انتهاء خطة الدعم، يقوم المرشد بتسجيل النتيجة
+(<code>تم حل المشكلة وتحسن الأداء</code>)؛ مما يغذي خوارزمية الذكاء
+الاصطناعي لرفع دقتها لاحقاً.</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="عضو-هيئة-التدريس-والمعلم-teacher">👨‍🏫 3. عضو هيئة التدريس والمعلم
+(<code>Teacher</code>)</h3>
+<p>يقوم المعلم بإدخال البيانات الحية التي تشكل شريان التحليل الذكي.</p>
+<h4 id="خطوات-التشغيل-والاستخدام-2">خطوات التشغيل والاستخدام:</h4>
+<ol type="1">
+<li><strong>لوحة أداء الفصول والشعب (<code>/teacher</code>)</strong>:
+<ul>
+<li>استعراض متوسط استيعاب الطلاب ونسب الحضور، مع إمكانية التبديل بين
+المؤسسات في حال التدريس المشترك.</li>
+</ul></li>
+<li><strong>رصد الدرجات والتقييمات الأكاديمية
+(<code>/teacher/grades</code>)</strong>:
+<ul>
+<li>النقر على <strong><code>+ رصد درجة جديدة</code></strong>.</li>
+<li>اختيار <strong>المادة/المقرر الدراسي</strong>، ثم اختيار
+<strong>الطالب المستهدف</strong>.</li>
+<li>استخدام <strong>القوالب السريعة</strong> (اختبار قصير، اختبار نصفي،
+مشروع تطبيقي، اختبار نهائي، مشاركة).</li>
+<li>إدخال الدرجة والوزن النسبي؛ ليتم حفظها فوراً في MySQL وتمريرها لنماذج
+التحليل التنبؤي.</li>
+</ul></li>
+<li><strong>تسجيل الحضور والغياب اليومي
+(<code>/teacher/attendance</code>)</strong>:
+<ul>
+<li>اختيار المادة وتحديد حالة الطالب (<strong>حاضر، غائب،
+متأخر</strong>) مع إمكانية تدوين عذر معتمد.</li>
+</ul></li>
+<li><strong>رصد الملاحظات والتقارير السلوكية
+(<code>/teacher/incidents</code>)</strong>:
+<ul>
+<li>تسجيل الملاحظات الإيجابية أو التصحيحية وإحالتها مباشرة للمرشد
+الطلابي المسؤول.</li>
+</ul></li>
+<li><strong>مركز التغذية الراجعة والرؤية البيداغوجية الذكية
+(<code>/teacher/feedback</code>)</strong>:
+<ul>
+<li>استخدام المساعد البيداغوجي الذكي للحصول على مقترحات علاجية للطلاب
+الضعاف وصياغة اختبارات مخصصة.</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="الطالب-student">🎓 4. الطالب (<code>Student</code>)</h3>
+<p>تمنح البوابة الطالب الشفافية الكاملة لإدارة مساره الأكاديمي والوقاية
+من التعثر.</p>
+<h4 id="خطوات-التشغيل-والاستخدام-3">خطوات التشغيل والاستخدام:</h4>
+<ol type="1">
+<li><strong>لوحة الإنجاز الأكاديمي (<code>/student</code>)</strong>:
+<ul>
+<li>متابعة مؤشر المعدل الحالي، حلقة الالتزام بالحضور، ومؤشرات الأداء في
+كل مقرر.</li>
+</ul></li>
+<li><strong>المسار المستقبلي المتوقع
+(<code>/student/academics</code>)</strong>:
+<ul>
+<li>استعراض الرسم البياني التنبؤي لمسار المعدل النهائي ومقارنته بالأهداف
+الشخصية.</li>
+</ul></li>
+<li><strong>التنبيهات والمواعيد الهامة
+(<code>/student/alerts</code>)</strong>:
+<ul>
+<li>متابعة مواعيد جلسات الإرشاد المجدولة والمهام القادمة.</li>
+</ul></li>
+<li><strong>استبيانات الرضا والتقييم النفسي والأكاديمي
+(<code>/student/settings</code>)</strong>:
+<ul>
+<li>تعبئة الاستبيانات الدورية التي يحللها محرك NLP لدعم البيئة
+التعليمية.</li>
+</ul></li>
+<li><strong>المساعد الأكاديمي الذكي (SBA Student Copilot)</strong>:
+<ul>
+<li>محاورة الذكاء الاصطناعي لطلب جداول مذاكرة مخصصة واستفسارات اللوائح
+الدراسية.</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="ولي-الأمر-والأسرة-parent">👨‍👩‍👧 5. ولي الأمر والأسرة
+(<code>Parent</code>)</h3>
+<p>تُمكن البوابة الأسرة من المتابعة اللحظية والشراكة البناءة مع المدرسة
+أو الجامعة.</p>
+<h4 id="خطوات-التشغيل-والاستخدام-4">خطوات التشغيل والاستخدام:</h4>
+<ol type="1">
+<li><strong>محدد الأبناء الموحد (<code>/parent</code>)</strong>:
+<ul>
+<li>التبديل السلس بين ملفات جميع الأبناء المسجلين في النظام من شاشة
+واحدة.</li>
+</ul></li>
+<li><strong>سجل الإنذارات والإشعارات اللحظية</strong>:
+<ul>
+<li>استلام إشعارات فورية عند تسجيل غياب أو تراجع درجات أي من
+الأبناء.</li>
+</ul></li>
+<li><strong>استخراج التقارير الرسمية</strong>:
+<ul>
+<li>تحميل التقرير الأكاديمي والسلوكي الشامل بصيغة PDF بضغطة زر.</li>
+</ul></li>
+<li><strong>المراسلات المباشرة مع المرشد الأكاديمي
+(<code>/parent/communications</code>)</strong>:
+<ul>
+<li>التواصل المباشر مع المرشد المسؤول عن متابعة الابن ومناقشة خطط
+التحسين.</li>
+</ul></li>
+<li><strong>إدارة الخصوصية والموافقات
+(<code>/parent/settings</code>)</strong>:
+<ul>
+<li>تفعيل أو إلغاء الموافقة على التحليل السلوكي بالذكاء الاصطناعي وضبط
+قنوات الإشعار (SMS، بريد، دفع للتطبيق).</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="محرك-الذكاء-الاصطناعي-المستقل-ai-engine">🤖 6. محرك الذكاء
+الاصطناعي المستقل (<code>AI Engine</code>)</h3>
+<p>يعمل المحرك في الخلفية كفاعل مستقل دائم المراقبة: 1. استقبال متجهات
+البيانات المحدثة عبر REST APIs المشفرة. 2. تشغيل التنبؤ اللحظي عبر نماذج
+<strong>XGBoost / LightGBM</strong>. 3. حساب مصفوفة <strong>SHAP
+Explanations</strong> وتصنيف مستوى الخطر. 4. إرسال درجات الخطر والمسببات
+لخادم المنظومة لإطلاق التنبيهات عبر WebSockets و SMS. 5. جدولة مهام
+إعادة التدريب التلقائي للحفاظ على دقة النماذج.</p>
+<hr />
+<h2 id="مخطط-رحلة-العمليات-التفاعلية-من-الرصد-إلى-التدخل">6. مخطط رحلة
+العمليات التفاعلية (من الرصد إلى التدخل)</h2>
+<p>يوضح المخطط التالي دورة حياة البيانات من لحظة الرصد حتى قياس أثر
+التدخل والتعلم الذاتي:</p>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    actor Teacher as 👨‍🏫 المعلم
+    participant System as ⚙️ خادم المنظومة
+    participant AI as 🧠 محرك الذكاء الاصطناعي
+    actor Advisor as 🛡️ المرشد الأكاديمي
+    actor Parent as 👨‍👩‍👧 ولي الأمر
+
+    %% المرحلة 1: رصد البيانات الأولية
+    Teacher-&gt;&gt;System: تسجيل غياب في حصة / رصد درجة اختبار
+    
+    %% المرحلة 2: المعالجة والتنبؤ بالذكاء الاصطناعي
+    System-&gt;&gt;AI: إرسال متجه الخصائص المحدث (Features Vector)
+    AI-&gt;&gt;AI: استدلال XGBoost وتفكيك أوزان SHAP
+    AI--&gt;&gt;System: إرجاع نسبة الخطر (88%)، المستوى (حرج)، ومصفوفة SHAP
+
+    %% المرحلة 3: مقارنة العتبات وإطلاق التنبيهات
+    System-&gt;&gt;System: مطابقة النتيجة مع عتبة الخطر المعتمدة
+    System--&gt;&gt;Advisor: 🔔 إنذار فوري على لوحة تحكم المرشد (WebSockets)
+    System--&gt;&gt;Parent: 📲 إشعار SMS ودفع فوري لولي الأمر بوجود تراجع
+
+    %% المرحلة 4: التدخل والدعم الأكاديمي
+    Advisor-&gt;&gt;System: فحص أسباب الخطر في ملف الطالب 360
+    Advisor-&gt;&gt;System: جدولة جلسة إرشاد ودعم وتوجيه خطة علاجية
+    System--&gt;&gt;Parent: ✉️ إشعار الأسرة بخطة المتابعة وموعد الجلسة
+
+    %% المرحلة 5: قياس الأثر والتعلم المستمر
+    Teacher-&gt;&gt;System: رصد درجات الطالب بعد جلسات التقوية (تحسن ملحوظ)
+    Advisor-&gt;&gt;System: توثيق نجاح خطة التدخل (Outcome: Resolved)
+    System-&gt;&gt;AI: تحديث سجلات التدريب وإعادة ضبط الأوزان الخوارزمية</code></pre>
+<hr />
+<h2 id="جدول-الروابط-ومسارات-المنظومة">7. جدول الروابط ومسارات
+المنظومة</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>البوابة</th>
+<th>المسار الأساسي</th>
+<th>أهم المزايا والصفحات المتاحة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الرئيسية العامة</strong></td>
+<td><code>/</code></td>
+<td>الصفحة التعريفية التفاعلية، محاكي الذكاء الاصطناعي، وطلب العرض</td>
+</tr>
+<tr>
+<td><strong>تسجيل الدخول</strong></td>
+<td><code>/login</code></td>
+<td>تسجيل الدخول الموحد، التحقق بخطوتين، والتوجيه التلقائي حسب
+الدور</td>
+</tr>
+<tr>
+<td><strong>بوابة الإدارة</strong></td>
+<td><code>/admin</code></td>
+<td>مؤشرات الأداء، الحسابات (<code>/admin/accounts</code>)، المؤسسات
+(<code>/admin/institutions</code>)، وسجلات التدقيق
+(<code>/admin/settings</code>)</td>
+</tr>
+<tr>
+<td><strong>بوابة المرشد</strong></td>
+<td><code>/advisor</code></td>
+<td>رادار الخطر، ملف الطالب 360 (<code>/advisor/student</code>)، صندوق
+التنبيهات (<code>/advisor/inbox</code>)، والمراسلات
+(<code>/advisor/communications</code>)</td>
+</tr>
+<tr>
+<td><strong>بوابة المعلم</strong></td>
+<td><code>/teacher</code></td>
+<td>لوحة الشُعب، رصد الدرجات (<code>/teacher/grades</code>)، الحضور
+(<code>/teacher/attendance</code>)، الملاحظات
+(<code>/teacher/incidents</code>)، والتغذية الراجعة
+(<code>/teacher/feedback</code>)</td>
+</tr>
+<tr>
+<td><strong>بوابة الطالب</strong></td>
+<td><code>/student</code></td>
+<td>لوحة الطالب، المسار التنبؤي (<code>/student/academics</code>)،
+التنبيهات (<code>/student/alerts</code>)، والتسجيل
+(<code>/student/registration</code>)</td>
+</tr>
+<tr>
+<td><strong>بوابة الأسرة</strong></td>
+<td><code>/parent</code></td>
+<td>لوحة الأبناء، التنبيهات الحية، مراسلة المرشد
+(<code>/parent/communications</code>)، والتقارير الرسمية PDF
+(<code>/parent/settings</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="معايير-الأمان-والخصوصية-والامتثال-الدولي-ferpa-gdpr">8. معايير
+الأمان والخصوصية والامتثال الدولي (FERPA / GDPR)</h2>
+<ol type="1">
+<li><strong>التشفير وحماية الهوية (Data Encryption &amp;
+Hashing)</strong>:
+<ul>
+<li>تشفير كلمات المرور باستخدام خوارزمية <strong>Bcrypt (Cost factor
+12)</strong>.</li>
+<li>تشفير أرقام الهوية الوطنية وأرقام الهواتف في قاعدة البيانات عبر
+<strong>AES-256-CBC</strong>.</li>
+<li>استخدام توكنات Bearer مشفرة وقصيرة الأجل عبر <strong>Laravel
+Sanctum</strong>.</li>
+</ul></li>
+<li><strong>الامتثال لقانون الخصوصية التعليمية الأمريكي (FERPA) واللوائح
+الدولية (GDPR)</strong>:
+<ul>
+<li>توثيق كل عملية استعلام أو تعديل لبيانات الطلاب في سجلات تدقيق غير
+قابلة للتعديل (<code>activity_logs</code>).</li>
+<li>تقييد الصلاحيات الصارم عبر نظام الأدوار المتقدم (Spatie RBAC).</li>
+</ul></li>
+<li><strong>بوابة الموافقات الصريحة (Explicit Consent Gate)</strong>:
+<ul>
+<li>لا يتم تمرير أي بيانات لتحليل الذكاء الاصطناعي إلا بعد الحصول على
+الموافقة الصريحة المسبقة للطالب أو ولي أمره للقُصّر، مع إمكانية سحب
+الموافقة في أي وقت.</li>
+</ul></li>
+<li><strong>دعم اللغة العربية والخطوط المعتمدة</strong>:
+<ul>
+<li>تطبيق كامل لمعايير الاتجاه من اليمين لليسار (RTL).</li>
+<li>اعتماد خط <strong>Cairo</strong> المعتمد لكافة الواجهات لضمان تجربة
+مستخدم احترافية ومريحة للعين.</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="خلاصة-القول">🌟 خلاصة القول:</h3>
+<p>تُمثل منصة <strong>SBA</strong> نقلة نوعية في إدارة البيئة التعليمية
+تجمع بين <strong>دقة الرياضيات والخوارزميات (XGBoost &amp;
+SHAP)</strong> وسهولة واجهات المستخدم؛ لتحقيق هدف أسمى: <strong>ألا يُترك
+أي طالب خلف الركب دون دعم ومساندة</strong>.</p>
+
+
+<script>
+  // Convert pre.mermaid to div.mermaid and run mermaid
+  document.addEventListener("DOMContentLoaded", async function() {
+    const mermaidNodes = document.querySelectorAll('pre.mermaid');
+    mermaidNodes.forEach((el) => {
+      const code = el.querySelector('code') ? el.querySelector('code').innerText : el.innerText;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = code;
+      el.parentNode.replaceChild(div, el);
+    });
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'neutral',
+      fontFamily: 'Cairo, sans-serif',
+      fontSize: '13px',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+
+    try {
+      await mermaid.run();
+    } catch (e) {
+      console.warn("Mermaid run error:", e);
+    }
+
+    window.__RENDER_COMPLETE__ = true;
+  });
+</script>
+</body>
+</html>

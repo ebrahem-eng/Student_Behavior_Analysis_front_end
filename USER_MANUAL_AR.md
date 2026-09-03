@@ -42,53 +42,33 @@
 
 ```mermaid
 flowchart TD
-    subgraph Client_Layer["🖥️ طبقة واجهات المستخدم التفاعلية (React 19 / TypeScript / Tailwind CSS / PWA)"]
-        Landing["🌐 الصفحة التعريفية ومحاكي الذكاء الاصطناعي"]
-        AdminUI["👑 بوابة مدير النظام"]
-        AdvisorUI["🛡️ بوابة المرشد الأكاديمي"]
-        TeacherUI["👨‍🏫 بوابة عضو هيئة التدريس والمعلم"]
-        StudentUI["🎓 بوابة الطالب الأكاديمية"]
-        ParentUI["👨‍👩‍👧 بوابة أولياء الأمور والأسرة"]
+    subgraph L1["🖥️ 1. طبقة واجهات المستخدم التفاعلية (React 19 / TypeScript / PWA)"]
+        UI["بوابات المنظومة: مدير النظام • المرشد الطلابي • المعلم • الطالب • ولي الأمر"]
     end
 
-    subgraph Gateway_Layer["🔒 بوابة الأمان والاتصال اللحظي"]
-        AuthGuard["المصادقة والتفويض المشفر (Sanctum / Spatie RBAC)"]
-        ReverbWS["📡 خادم الاتصال اللحظي (Laravel Reverb WebSockets)"]
+    subgraph L2["🔒 2. بوابة الأمان والاتصال اللحظي"]
+        Auth["المصادقة والتفويض (Sanctum / RBAC) • خادم البث اللحظي (Laravel Reverb WebSockets)"]
     end
 
-    subgraph Backend_Core["⚙️ خادم المنظومة الأساسي (Laravel 11 REST API)"]
-        AuthModule["إدارة الهوية والوصول المتعدد"]
-        AdminModule["محرك المؤسسات، الكليات، والمراحل"]
-        AcademicModule["سجلات الدرجات، المقررات، الحضور والملاحظات"]
-        AlertModule["محرك توجيه الإنذارات متعدد المستويات"]
-        CommsModule["مركز المراسلات المشفر بين المرشد والأسرة"]
-        ConsentGate["🛡️ بوابة الامتثال والخصوصية والموافقات الصريحة"]
+    subgraph L3["⚙️ 3. خادم المنظومة الأساسي (Laravel 11 REST API)"]
+        Modules["إدارة الهوية • المؤسسات والكليات • الدرجات والحضور • محرك الإنذارات المبكرة • المراسلات • بوابة الموافقات"]
     end
 
-    subgraph ML_Microservice["🧠 خادم الذكاء الاصطناعي والتحليل التنبؤي (Python / FastAPI)"]
-        RiskModel["خوارزميات التنبؤ بالتعثر (XGBoost / LightGBM)"]
-        XAI["الذكاء الاصطناعي القابل للتفسير (عوامل SHAP الرياضية)"]
-        TrajectoryModel["نموذج الإسقاط الزمني للمعدل (Trajectory Forecasting)"]
-        NLP["تحليل مشاعر الاستبيانات والمساعد البيداغوجي الذكي"]
-        Drift["مراقبة انحراف النماذج وإعادة التدريب التلقائي (Concept Drift)"]
+    subgraph L4["🧠 4. خادم الذكاء الاصطناعي والتحليل التنبؤي (Python / FastAPI)"]
+        AI["نماذج التنبؤ بالتعثر (XGBoost / LightGBM) • التفسير الرياضي (TreeSHAP) • الإسقاط الزمني • معالجة اللغات (NLP)"]
     end
 
-    subgraph Data_Layer["🗄️ قواعد البيانات والتخزين المؤقت (MySQL 8.0+ & Redis)"]
-        MySQL[("🛢️ قاعدة بيانات MySQL 8.0+ التخزين الدائم المشفر")]
-        Redis[("⚡ الذاكرة المؤقتة وطوابير المهام (Redis & Laravel Horizon)")]
+    subgraph L5["🗄️ 5. قواعد البيانات والتخزين المؤقت"]
+        Data["قاعدة بيانات MySQL 8.0+ المشفرة • خادم التخزين المؤقت وطوابير المهام (Redis & Horizon)"]
     end
 
-    %% تدفق الطلبات
-    Landing & AdminUI & AdvisorUI & TeacherUI & StudentUI & ParentUI -->|طلبات API المشفرة HTTPS/JSON| AuthGuard
-    ReverbWS -->|بث الإشعارات الحية والإنذارات| AdminUI & AdvisorUI & TeacherUI & StudentUI & ParentUI
-
-    AuthGuard --> AuthModule & AdminModule & AcademicModule & AlertModule & CommsModule & ConsentGate
-    Backend_Core -->|العمليات وقراءة/كتابة البيانات| MySQL
-    Backend_Core -->|طوابير المعالجة والبث الفوري| Redis
-    Redis -->|توزيع التنبيهات اللحظية| ReverbWS
-
-    ConsentGate -->|متجهات الخصائص الأكاديمية بعد التحقق من الموافقة| ML_Microservice
-    RiskModel & XAI & TrajectoryModel & NLP -->|درجات الخطر، قيم SHAP، والتوصيات| Backend_Core
+    L1 -->|طلبات API المشفرة HTTPS| L2
+    L2 --> L3
+    L3 -->|متجهات الخصائص بعد التحقق من الموافقة| L4
+    L4 -->|درجات الخطر ومصفوفة عوامل SHAP والتوصيات| L3
+    L3 <-->|قراءة وكتابة السجلات الدائمة| L5
+    L3 -->|بث أحداث التنبيه الفورية| L2
+    L2 -.->|إشعارات دفع لحظية إلى اللوحات النشطة| L1
 ```
 
 ---
@@ -364,39 +344,34 @@ graph TD
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Teacher as 👨‍🏫 المعلم / عضو التدريس
-    actor Student as 🎓 الطالب
-    participant Laravel as ⚙️ خادم المنظومة (Laravel & MySQL)
-    participant AI as 🧠 محرك الذكاء الاصطناعي (FastAPI / XGBoost)
-    participant Reverb as 📡 البث اللحظي (WebSockets)
+    actor Teacher as 👨‍🏫 المعلم
+    participant System as ⚙️ خادم المنظومة
+    participant AI as 🧠 محرك الذكاء الاصطناعي
     actor Advisor as 🛡️ المرشد الأكاديمي
     actor Parent as 👨‍👩‍👧 ولي الأمر
 
     %% المرحلة 1: رصد البيانات الأولية
-    Teacher->>Laravel: تسجيل غياب في حصة / رصد درجة اختبار
-    Student->>Laravel: إرسال إجابات استبيان الرضا الأكاديمي
+    Teacher->>System: تسجيل غياب في حصة / رصد درجة اختبار
     
     %% المرحلة 2: المعالجة والتنبؤ بالذكاء الاصطناعي
-    Laravel->>AI: إرسال متجه الخصائص المحدث (Features Vector)
-    AI->>AI: تشغيل نموذج XGBoost وحساب أوزان SHAP
-    AI-->>Laravel: إرجاع نسبة الخطر (88%)، المستوى (حرج)، ومصفوفة SHAP
+    System->>AI: إرسال متجه الخصائص المحدث (Features Vector)
+    AI->>AI: استدلال XGBoost وتفكيك أوزان SHAP
+    AI-->>System: إرجاع نسبة الخطر (88%)، المستوى (حرج)، ومصفوفة SHAP
 
     %% المرحلة 3: مقارنة العتبات وإطلاق التنبيهات
-    Laravel->>Laravel: مطابقة النتيجة مع عتبة الخطر المعتمدة
-    Laravel->>Reverb: بث حدث الخطر اللحظي (AcademicRiskTriggered)
-    Reverb-->>Advisor: 🔔 إنذار فوري على لوحة تحكم المرشد
-    Reverb-->>Parent: 📲 إشعار SMS ودفع فوري لولي الأمر بوجود تراجع
+    System->>System: مطابقة النتيجة مع عتبة الخطر المعتمدة
+    System-->>Advisor: 🔔 إنذار فوري على لوحة تحكم المرشد (WebSockets)
+    System-->>Parent: 📲 إشعار SMS ودفع فوري لولي الأمر بوجود تراجع
 
     %% المرحلة 4: التدخل والدعم الأكاديمي
-    Advisor->>Laravel: فحص أسباب الخطر في ملف الطالب 360
-    Advisor->>Laravel: جدولة جلسة إرشاد ودعم أكاديمي
-    Laravel-->>Student: 📅 إضافة موعد الجلسة في جدول الطالب
-    Laravel-->>Parent: ✉️ إشعار الأسرة بخطة المتابعة
+    Advisor->>System: فحص أسباب الخطر في ملف الطالب 360
+    Advisor->>System: جدولة جلسة إرشاد ودعم وتوجيه خطة علاجية
+    System-->>Parent: ✉️ إشعار الأسرة بخطة المتابعة وموعد الجلسة
 
     %% المرحلة 5: قياس الأثر والتعلم المستمر
-    Teacher->>Laravel: رصد درجات الطالب بعد جلسات التقوية (تحسن ملحوظ)
-    Advisor->>Laravel: توثيق نجاح خطة التدخل (Outcome: Resolved)
-    Laravel->>AI: تحديث سجلات التدريب وإعادة ضبط الأوزان الخوارزمية
+    Teacher->>System: رصد درجات الطالب بعد جلسات التقوية (تحسن ملحوظ)
+    Advisor->>System: توثيق نجاح خطة التدخل (Outcome: Resolved)
+    System->>AI: تحديث سجلات التدريب وإعادة ضبط الأوزان الخوارزمية
 ```
 
 ---
