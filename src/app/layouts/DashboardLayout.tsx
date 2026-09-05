@@ -91,6 +91,7 @@ export function DashboardLayout() {
       { label: isAr ? "سجل الحضور والغياب" : "Attendance Logging", href: "/teacher/attendance", icon: UserCheck },
       { label: isAr ? "تقارير السلوك والملاحظات" : "Incident Reports", href: "/teacher/incidents", icon: AlertOctagon },
       { label: isAr ? "مركز الرؤى الذكية" : "AI Feedback Hub", href: "/teacher/feedback", icon: Sparkles },
+      { label: isAr ? "المحادثات والتواصل" : "Student Communications", href: "/teacher/communications", icon: MessageCircle },
     ],
     advisor: [
       { label: isAr ? "قائمة الطلاب تحت المتابعة" : "At-Risk Student Roster", href: "/advisor", icon: ShieldAlert },
