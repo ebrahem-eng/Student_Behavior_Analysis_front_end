@@ -27,7 +27,7 @@
   <style>
     @page {
       size: A4;
-      margin: 16mm 14mm 16mm 14mm;
+      margin: 18mm 14mm 18mm 14mm;
       @bottom-right {
         content: "منصة SBA لتحليل سلوك الطلاب والتنبؤ بالتعثر - سيناريو الاختبار التكاملي";
         font-family: 'Cairo', sans-serif;
@@ -51,7 +51,7 @@
 
     body {
       font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.8;
+      line-height: 1.85;
       color: #1e293b;
       background-color: #ffffff;
       padding: 0;
@@ -71,32 +71,32 @@
     }
 
     h1 {
-      font-size: 19pt;
+      font-size: 20pt;
       color: #1e3a8a;
-      border-bottom: 2.5px solid #3b82f6;
-      padding-bottom: 6px;
-      margin-top: 22pt;
-      margin-bottom: 10pt;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 8px;
+      margin-top: 24pt;
+      margin-bottom: 12pt;
     }
 
     h2 {
-      font-size: 14pt;
+      font-size: 15pt;
       color: #1e40af;
       border-bottom: 1.5px solid #cbd5e1;
-      padding-bottom: 4px;
-      margin-top: 18pt;
-      margin-bottom: 8pt;
+      padding-bottom: 5px;
+      margin-top: 20pt;
+      margin-bottom: 10pt;
     }
 
     h3 {
-      font-size: 12pt;
+      font-size: 12.5pt;
       color: #334155;
-      margin-top: 14pt;
+      margin-top: 16pt;
       margin-bottom: 6pt;
     }
 
     p {
-      margin: 0 0 9pt 0;
+      margin: 0 0 10pt 0;
       text-align: justify;
     }
 
@@ -104,23 +104,23 @@
     .header-box {
       background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
       color: white;
-      padding: 20px 24px;
+      padding: 24px 28px;
       border-radius: 12px;
-      margin-bottom: 20pt;
+      margin-bottom: 24pt;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     .header-box h1 {
       color: #ffffff !important;
       border-bottom: none;
-      margin: 0 0 6px 0;
+      margin: 0 0 8px 0;
       padding: 0;
-      font-size: 20pt;
+      font-size: 22pt;
     }
 
     .header-box p {
       color: #e2e8f0;
-      font-size: 10.5pt;
+      font-size: 11pt;
       margin: 0;
     }
 
@@ -128,14 +128,14 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 12pt 0;
-      font-size: 9pt;
+      margin: 14pt 0;
+      font-size: 9.5pt;
       page-break-inside: avoid;
       break-inside: avoid;
     }
 
     th, td {
-      padding: 6pt 8pt;
+      padding: 7pt 9pt;
       border: 1px solid #cbd5e1;
       text-align: right;
     }
@@ -153,15 +153,13 @@
 
     /* Blockquotes / Callouts */
     blockquote {
-      margin: 12pt 0;
-      padding: 9pt 13pt;
+      margin: 14pt 0;
+      padding: 10pt 14pt;
       background-color: #eff6ff;
       border-right: 4px solid #3b82f6;
       border-left: none;
       border-radius: 6px;
       color: #1e3a8a;
-      page-break-inside: avoid;
-      break-inside: avoid;
     }
 
     blockquote p {
@@ -172,9 +170,9 @@
     code {
       font-family: 'Fira Code', monospace;
       background-color: #f1f5f9;
-      padding: 2px 5px;
+      padding: 2px 6px;
       border-radius: 4px;
-      font-size: 8.5pt;
+      font-size: 9pt;
       color: #0f172a;
       direction: ltr;
       display: inline-block;
@@ -183,15 +181,15 @@
     pre {
       background-color: #0f172a;
       color: #f8fafc;
-      padding: 10pt;
+      padding: 12pt;
       border-radius: 8px;
       font-family: 'Fira Code', monospace;
-      font-size: 8pt;
+      font-size: 8.5pt;
       overflow-x: auto;
       direction: ltr;
       text-align: left;
-      margin: 10pt 0;
-      line-height: 1.45;
+      margin: 12pt 0;
+      line-height: 1.5;
     }
 
     pre code {
@@ -203,52 +201,42 @@
 
     /* Mermaid diagrams container */
     .mermaid {
-      margin: 14pt auto;
-      text-align: center;
-      background-color: #ffffff;
+      background-color: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 12pt;
-      page-break-inside: avoid;
-      break-inside: avoid;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-      direction: ltr !important;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .mermaid svg {
-      max-width: 100% !important;
-      height: auto !important;
-      display: block;
-      margin: 0 auto;
-      font-family: 'Cairo', sans-serif !important;
+      border-radius: 8px;
+      padding: 14pt;
+      margin: 14pt 0;
+      text-align: center;
+      direction: ltr;
     }
 
     /* Lists */
     ul, ol {
-      margin: 0 0 10pt 0;
-      padding-right: 20px;
+      margin: 0 0 12pt 0;
+      padding-right: 22px;
       padding-left: 0;
     }
 
     li {
-      margin-bottom: 3.5pt;
+      margin-bottom: 4pt;
     }
 
     .badge {
       display: inline-block;
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 9999px;
-      font-size: 7.5pt;
+      font-size: 8pt;
       font-weight: 700;
     }
+
+    .badge-high { background-color: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+    .badge-med { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+    .badge-low { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
 
     hr {
       border: none;
       border-top: 1px solid #e2e8f0;
-      margin: 16pt 0;
+      margin: 20pt 0;
     }
   </style>
 </head>
@@ -287,19 +275,52 @@ Playbook</h2>
 <hr />
 <h2 id="خريطة-التدفق-التكاملي-الشامل-the-interconnected-flow-map">🗺️
 خريطة التدفق التكاملي الشامل (The Interconnected Flow Map)</h2>
-<pre class="mermaid"><code>graph LR
-    P1[&quot;👨‍💼 1. مدير النظام&lt;br/&gt;(ضبط الحوكمة والعتبات)&quot;] --&gt; P2[&quot;👨‍🏫 2. المعلم المشترك&lt;br/&gt;(رصد الغياب والدرجات)&quot;]
-    P2 --&gt; P3[&quot;🧑‍💼 3. المرشد الأكاديمي&lt;br/&gt;(تنبيه الخطر وSHAP)&quot;]
-    P3 --&gt; P4[&quot;👨‍🎓 4. الطالب المستهدف&lt;br/&gt;(المساعد والتوجيه)&quot;]
-    P4 --&gt; P5[&quot;👨‍👩‍👦 5. ولي الأمر&lt;br/&gt;(التقارير والتواصل)&quot;]
-    P5 --&gt; P6[&quot;🔄 6. إغلاق الحلقة&lt;br/&gt;(التعافي والتوثيق)&quot;]
+<pre class="mermaid"><code>flowchart TD
+    subgraph Phase1 [&quot;المرحلة 1: مدير النظام (Admin)&quot;]
+        A1[&quot;تسجيل الدخول كمدير نظام&quot;] --&gt; A2[&quot;التحقق من الهيكلية (جامعة مع كليات vs مدرسة مع مراحل)&quot;]
+        A2 --&gt; A3[&quot;ضبط عتبات الإنذار المبكر (Risk Thresholds: High &gt;= 75%)&quot;]
+    end
 
-    style P1 fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
-    style P2 fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
-    style P3 fill:#fee2e2,stroke:#ef4444,stroke-width:2px
-    style P4 fill:#f0fdf4,stroke:#22c55e,stroke-width:2px
-    style P5 fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px
-    style P6 fill:#ecfdf5,stroke:#10b981,stroke-width:2px</code></pre>
+    subgraph Phase2 [&quot;المرحلة 2: المعلم (Teacher)&quot;]
+        T1[&quot;تسجيل الدخول كأستاذ مشترك (د. عمر فاروق)&quot;] --&gt; T2[&quot;التبديل بين سياق الجامعة والمدرسة (Context Switcher)&quot;]
+        T2 --&gt; T3[&quot;اختيار مقرر تراكيب البيانات CS201 واختيار الطالب أحمد&quot;]
+        T3 --&gt; T4[&quot;رصد غيابات متكررة غير مبررة (Absent)&quot;]
+        T4 --&gt; T5[&quot;رصد درجة منخفضة في الاختبار النصفي (45/100)&quot;]
+        T5 --&gt; T6[&quot;تسجيل تقرير ملاحظة سلوكية (تشتت وتراجع المشاركة)&quot;]
+    end
+
+    subgraph Phase3 [&quot;المرحلة 3: المرشد الأكاديمي (Advisor)&quot;]
+        ADV1[&quot;تسجيل الدخول كمرشدة (سارة المنصور)&quot;] --&gt; ADV2[&quot;استقبال إشعار الخطر الفوري في صندوق الوارد&quot;]
+        ADV2 --&gt; ADV3[&quot;رصد قفزة الخطر إلى High Risk في رادار الطلاب&quot;]
+        ADV3 --&gt; ADV4[&quot;فتح الملف الشامل 360° وفحص تفسير الذكاء الاصطناعي (TreeSHAP)&quot;]
+        ADV4 --&gt; ADV5[&quot;اعتماد خطة التدخل البيداغوجي (جلسات تقوية وإرشاد فردي)&quot;]
+    end
+
+    subgraph Phase4 [&quot;المرحلة 4: الطالب (Student)&quot;]
+        S1[&quot;تسجيل الدخول كطالب (أحمد الخطيب)&quot;] --&gt; S2[&quot;معاينة التنبيه الأكاديمي الداعم في لوحة التحكم&quot;]
+        S2 --&gt; S3[&quot;فحص المواد والمسار التوقعي في السجل الأكاديمي&quot;]
+        S3 --&gt; S4[&quot;استلام خطة التقوية في صفحة التنبيهات&quot;]
+        S4 --&gt; S5[&quot;استشارة المساعد الذكي 24/7 (AI Chatbot) لطلب نصائح مذاكرة&quot;]
+        S5 --&gt; S6[&quot;مراجعة شفافية معالجة البيانات والموافقة (GDPR/FERPA)&quot;]
+    end
+
+    subgraph Phase5 [&quot;المرحلة 5: ولي الأمر (Parent)&quot;]
+        P1[&quot;تسجيل الدخول كولي أمر (خالد الخطيب)&quot;] --&gt; P2[&quot;متابعة مؤشرات الأبناء وتنبيهات الخطر&quot;]
+        P2 --&gt; P3[&quot;تصدير وتحميل تقرير الخطر الأكاديمي الرسمي (PDF/CSV)&quot;]
+        P3 --&gt; P4[&quot;إرسال رسالة مباشرة للمرشدة لتأكيد الحضور للتقوية&quot;]
+    end
+
+    subgraph Phase6 [&quot;المرحلة 6: إغلاق الحلقة وإثبات الفعالية (Closed-Loop Resolution)&quot;]
+        T7[&quot;المعلم يرصد الحضور والدرجة التعويضية المرتفعة (88%)&quot;] --&gt; T8[&quot;توثيق أثر التدخل في صفحة التغذية الراجعة (Implemented)&quot;]
+        T8 --&gt; ADV6[&quot;المرشدة تعاين تحديث الحالة وتراجع مؤشر الخطر للمنطقة الآمنة&quot;]
+        ADV6 --&gt; STATS[&quot;تحديث مؤشرات نجاح التدخل في تحليلات الدفعة&quot;]
+    end
+
+    Phase1 ==&gt; Phase2
+    Phase2 ==&gt; Phase3
+    Phase3 ==&gt; Phase4
+    Phase4 ==&gt; Phase5
+    Phase5 ==&gt; Phase6</code></pre>
 <hr />
 <h2 id="دليل-بيانات-الدخول-وحسابات-الاختبار-test-accounts-matrix">👥
 دليل بيانات الدخول وحسابات الاختبار (Test Accounts Matrix)</h2>
@@ -402,15 +423,6 @@ Student)</strong></td>
 id="المرحلة-1-مدير-النظام-admin---ضبط-الحوكمة-ومعايرة-الذكاء-الاصطناعي">🏛️
 المرحلة 1: مدير النظام (Admin) - ضبط الحوكمة ومعايرة الذكاء
 الاصطناعي</h3>
-<pre class="mermaid"><code>graph TD
-    A1[&quot;تسجيل دخول المدير&lt;br/&gt;admin@sba.local&quot;] --&gt; A2[&quot;التحقق من الهيكلية المزدوجة&lt;br/&gt;جامعة وكليات vs مدرسة ومراحل&quot;]
-    A2 --&gt; A3[&quot;معايرة عتبات الإنذار المبكر&lt;br/&gt;منخفض &amp;lt;40% • متوسط 40-74% • مرتفع &amp;ge;75%&quot;]
-    A3 --&gt; A4[&quot;مراجعة نموذج التنبؤ وسجلات التدقيق&lt;br/&gt;XGBoost / LightGBM ROC-AUC&quot;]
-    
-    style A1 fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
-    style A2 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
-    style A3 fill:#fee2e2,stroke:#ef4444,stroke-width:2px
-    style A4 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px</code></pre>
 <blockquote>
 <p><strong>الهدف:</strong> التأكد من جاهزية النظام، ومعايرة عتبات الخطر
 (Risk Thresholds) وتفقد الهيكل الإداري المشترك.</p>
@@ -477,19 +489,6 @@ Thresholds)”</strong>:
 <hr />
 <h3 id="المرحلة-2-المعلم-teacher---الرصد-الأكاديمي-الغياب-والسلوك">👨‍🏫
 المرحلة 2: المعلم (Teacher) - الرصد الأكاديمي، الغياب، والسلوك</h3>
-<pre class="mermaid"><code>graph TD
-    T1[&quot;تسجيل دخول المعلم المشترك&lt;br/&gt;teacher@sba.local&quot;] --&gt; T2[&quot;التبديل بين سياق الجامعة والمدرسة&lt;br/&gt;عزل البيانات وتصفية المواد فورياً&quot;]
-    T2 --&gt; T3[&quot;اختيار مقرر تراكيب البيانات CS201&lt;br/&gt;وتحديد الطالب أحمد الخطيب&quot;]
-    T3 --&gt; T4[&quot;رصد غياب متكرر غير مبرر 🔴&lt;br/&gt;صفحة الحضور والغياب&quot;]
-    T4 --&gt; T5[&quot;رصد درجة نصفي متدنية 45/100 📑&lt;br/&gt;صفحة الدرجات والتقييم&quot;]
-    T5 --&gt; T6[&quot;تسجيل ملاحظة سلوكية وتشتت ⚠️&lt;br/&gt;تفعيل محرك الإنذار التلقائي&quot;]
-    
-    style T1 fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
-    style T2 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
-    style T3 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
-    style T4 fill:#fee2e2,stroke:#ef4444,stroke-width:1.5px
-    style T5 fill:#fee2e2,stroke:#ef4444,stroke-width:1.5px
-    style T6 fill:#fee2e2,stroke:#dc2626,stroke-width:2px</code></pre>
 <blockquote>
 <p><strong>الهدف:</strong> إثبات قدرة المعلم المشترك على التبديل بين
 الجامعة والمدرسة، وتوليد البيانات الأكاديمية والسلوكية السلبية التي
@@ -599,17 +598,6 @@ Logout”</strong>.</li>
 id="المرحلة-3-المرشد-الأكاديمي-advisor---استقبال-التنبيه-الذكي-وإطلاق-التدخل">🧑‍💼
 المرحلة 3: المرشد الأكاديمي (Advisor) - استقبال التنبيه الذكي وإطلاق
 التدخل</h3>
-<pre class="mermaid"><code>graph TD
-    ADV1[&quot;تسجيل دخول المرشدة&lt;br/&gt;advisor@sba.local&quot;] --&gt; ADV2[&quot;استقبال إشعار الخطر الفوري 🔔&lt;br/&gt;صندوق الوارد وجرس التنبيهات&quot;]
-    ADV2 --&gt; ADV3[&quot;رصد الخطر في رادار الطلاب&lt;br/&gt;أحمد الخطيب: High Risk &amp;gt; 80%&quot;]
-    ADV3 --&gt; ADV4[&quot;فتح الملف الشامل 360°&lt;br/&gt;فحص أثر TreeSHAP (الغياب +35% والدرجات +38%)&quot;]
-    ADV4 --&gt; ADV5[&quot;اعتماد خطة التدخل البيداغوجي ✍️&lt;br/&gt;جلسات تقوية مكثفة + إرشاد أكاديمي&quot;]
-    
-    style ADV1 fill:#fee2e2,stroke:#ef4444,stroke-width:2px
-    style ADV2 fill:#fff1f2,stroke:#f43f5e,stroke-width:1.5px
-    style ADV3 fill:#fee2e2,stroke:#dc2626,stroke-width:2px
-    style ADV4 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
-    style ADV5 fill:#f0fdf4,stroke:#16a34a,stroke-width:2px</code></pre>
 <blockquote>
 <p><strong>الهدف:</strong> استعراض قدرة محرك الذكاء الاصطناعي على التقاط
 التراجع الأكاديمي والغياب فوراً، وتحويله إلى بطاقة خطر فسرها TreeSHAP، ثم
@@ -697,19 +685,6 @@ Logout”</strong>.</li>
 id="المرحلة-4-الطالب-student---الشفافية-التنبيهات-والمساعد-الذكي-247">👨‍🎓
 المرحلة 4: الطالب (Student) - الشفافية، التنبيهات، والمساعد الذكي
 24/7</h3>
-<pre class="mermaid"><code>graph TD
-    S1[&quot;تسجيل دخول الطالب&lt;br/&gt;student@sba.local&quot;] --&gt; S2[&quot;معاينة التنبيه التوجيهي الداعم&lt;br/&gt;لوحة التحكم دون أي وصم نفسي&quot;]
-    S2 --&gt; S3[&quot;فحص المواد ومسار التوقع المستقبلي&lt;br/&gt;السجل الأكاديمي لمقرر CS201&quot;]
-    S3 --&gt; S4[&quot;استلام تفاصيل خطة التقوية المعتمدة&lt;br/&gt;صفحة التنبيهات&quot;]
-    S4 --&gt; S5[&quot;استشارة المساعد الذكي 24/7 💬&lt;br/&gt;طلب نصائح مذاكرة واستراتيجيات تعويض&quot;]
-    S5 --&gt; S6[&quot;مراجعة الخصوصية والموافقة&lt;br/&gt;سجلات الشفافية GDPR / FERPA&quot;]
-    
-    style S1 fill:#f0fdf4,stroke:#22c55e,stroke-width:2px
-    style S2 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
-    style S3 fill:#fef3c7,stroke:#f59e0b,stroke-width:1.5px
-    style S4 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px
-    style S5 fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
-    style S6 fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px</code></pre>
 <blockquote>
 <p><strong>الهدف:</strong> معاينة تجربة الطالب في رؤية مساره الأكاديمي،
 وتلقي الدعم دون وصم، واستخدام الشات الذكي لطلب خطة مذاكرة.</p>
@@ -784,15 +759,6 @@ Logout”</strong>.</li>
 id="المرحلة-5-ولي-الأمر-parent---الرقابة-المباشرة-التقارير-الرسمية-والتواصل">👨‍👩‍👦
 المرحلة 5: ولي الأمر (Parent) - الرقابة المباشرة، التقارير الرسمية،
 والتواصل</h3>
-<pre class="mermaid"><code>graph TD
-    P1[&quot;تسجيل دخول ولي الأمر&lt;br/&gt;parent@sba.local&quot;] --&gt; P2[&quot;متابعة بطاقة الابن وتنبيهات الخطر&lt;br/&gt;لوحة تحكم ولي الأمر&quot;]
-    P2 --&gt; P3[&quot;تصدير تقرير الأداء والمخاطر 📥&lt;br/&gt;تحميل تقرير رسمي موثق PDF / CSV&quot;]
-    P3 --&gt; P4[&quot;التواصل المباشر مع المرشدة ✉️&lt;br/&gt;تأكيد متابعة المنزل والالتزام بالتقوية&quot;]
-    
-    style P1 fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px
-    style P2 fill:#fee2e2,stroke:#ef4444,stroke-width:1.5px
-    style P3 fill:#eff6ff,stroke:#3b82f6,stroke-width:1.5px
-    style P4 fill:#f0fdf4,stroke:#16a34a,stroke-width:2px</code></pre>
 <blockquote>
 <p><strong>الهدف:</strong> إشراك الأسرة في متابعة الحالة الأكاديمية
 للابن، واستخراج التقرير الرسمي، والتواصل المباشر مع الجامعة.</p>
@@ -849,17 +815,6 @@ Communication):</strong>
 id="المرحلة-6-إغلاق-الحلقة-التدخلية-وإثبات-الفعالية-closing-the-loop-outcome-verification">🔄
 المرحلة 6: إغلاق الحلقة التدخلية وإثبات الفعالية (Closing the Loop &amp;
 Outcome Verification)</h3>
-<pre class="mermaid"><code>graph TD
-    CL1[&quot;المعلم يرصد حضور جلسة التقوية 🟢&lt;br/&gt;حاضر ومتفاعل في صفحة الحضور&quot;] --&gt; CL2[&quot;المعلم يرصد درجة الاختبار التعويضي 88/100 🌟&lt;br/&gt;تحسن حقيقي في صفحة الدرجات&quot;]
-    CL2 --&gt; CL3[&quot;المعلم يوثق نتيجة التدخل (Implemented) 📝&lt;br/&gt;تدوين ملاحظات الأثر وزوال التعثر&quot;]
-    CL3 --&gt; CL4[&quot;المرشدة تتحقق من اكتمال الخطة ✅&lt;br/&gt;تراجع مؤشر الخطر للمنطقة الآمنة الخضراء&quot;]
-    CL4 --&gt; CL5[&quot;تحديث تحليلات الدفعة التراكمية 📊&lt;br/&gt;ارتفاع معدل نجاح التدخلات الأكاديمية&quot;]
-    
-    style CL1 fill:#f0fdf4,stroke:#16a34a,stroke-width:1.5px
-    style CL2 fill:#f0fdf4,stroke:#16a34a,stroke-width:2px
-    style CL3 fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
-    style CL4 fill:#ecfdf5,stroke:#059669,stroke-width:2px
-    style CL5 fill:#f5f3ff,stroke:#8b5cf6,stroke-width:2px</code></pre>
 <blockquote>
 <p><strong>الهدف الأهم في العرض:</strong> إثبات أن النظام ليس مجرد لوحة
 مراقبة، بل منظومة أغلقت دائرة التدخل ووثقت نجاح الطالب وتعافيه
@@ -1046,29 +1001,25 @@ Analytics”</strong> (<code>/advisor/analytics</code>):
 
 
 <script>
-  // Convert pre.mermaid to div.mermaid and run mermaid
-  document.addEventListener("DOMContentLoaded", async function() {
-    const mermaidNodes = document.querySelectorAll('pre.mermaid, pre > code.language-mermaid');
-    mermaidNodes.forEach((el) => {
+  // Initialize Mermaid for flowcharts
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'neutral',
+    flowchart: {
+      curve: 'basis',
+      useMaxWidth: true,
+      htmlLabels: true
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    // Replace markdown mermaid pre blocks with actual mermaid divs
+    document.querySelectorAll('pre.mermaid, pre > code.language-mermaid').forEach(el => {
       const pre = el.tagName === 'CODE' ? el.parentElement : el;
-      const code = el.innerText || el.textContent;
       const div = document.createElement('div');
       div.className = 'mermaid';
-      div.textContent = code;
-      pre.parentNode.replaceChild(div, pre);
-    });
-
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'neutral',
-      fontFamily: 'Cairo, -apple-system, sans-serif',
-      fontSize: '12px',
-      securityLevel: 'loose',
-      flowchart: {
-        useMaxWidth: true,
-        htmlLabels: true,
-        curve: 'basis'
-      }
+      div.textContent = el.textContent;
+      pre.parentElement.replaceChild(div, pre);
     });
 
     try {
