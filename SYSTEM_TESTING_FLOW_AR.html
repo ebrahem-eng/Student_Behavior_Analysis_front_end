@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>دليل سيناريو التشغيل والاختبار التكاملي الشامل - SBA Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- MathJax for rendering LaTeX formulas -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      chtml: {
+        scale: 1.05
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Mermaid.js for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 14mm 18mm 14mm;
+      @bottom-right {
+        content: "منصة SBA لتحليل سلوك الطلاب والتنبؤ بالتعثر - سيناريو الاختبار التكاملي";
+        font-family: 'Cairo', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+      @bottom-left {
+        content: counter(page);
+        font-family: 'Cairo', sans-serif;
+        font-size: 8pt;
+        font-weight: bold;
+        color: #2563eb;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.85;
+      color: #1e293b;
+      background-color: #ffffff;
+      padding: 0;
+      margin: 0;
+      font-size: 10.5pt;
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Cairo', sans-serif;
+      color: #0f172a;
+      font-weight: 800;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    h1 {
+      font-size: 20pt;
+      color: #1e3a8a;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 8px;
+      margin-top: 24pt;
+      margin-bottom: 12pt;
+    }
+
+    h2 {
+      font-size: 15pt;
+      color: #1e40af;
+      border-bottom: 1.5px solid #cbd5e1;
+      padding-bottom: 5px;
+      margin-top: 20pt;
+      margin-bottom: 10pt;
+    }
+
+    h3 {
+      font-size: 12.5pt;
+      color: #334155;
+      margin-top: 16pt;
+      margin-bottom: 6pt;
+    }
+
+    p {
+      margin: 0 0 10pt 0;
+      text-align: justify;
+    }
+
+    /* Cover / Header section */
+    .header-box {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: white;
+      padding: 24px 28px;
+      border-radius: 12px;
+      margin-bottom: 24pt;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-box h1 {
+      color: #ffffff !important;
+      border-bottom: none;
+      margin: 0 0 8px 0;
+      padding: 0;
+      font-size: 22pt;
+    }
+
+    .header-box p {
+      color: #e2e8f0;
+      font-size: 11pt;
+      margin: 0;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14pt 0;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    th, td {
+      padding: 7pt 9pt;
+      border: 1px solid #cbd5e1;
+      text-align: right;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+      border-bottom: 2px solid #94a3b8;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* Blockquotes / Callouts */
+    blockquote {
+      margin: 14pt 0;
+      padding: 10pt 14pt;
+      background-color: #eff6ff;
+      border-right: 4px solid #3b82f6;
+      border-left: none;
+      border-radius: 6px;
+      color: #1e3a8a;
+    }
+
+    blockquote p {
+      margin: 0;
+    }
+
+    /* Code blocks */
+    code {
+      font-family: 'Fira Code', monospace;
+      background-color: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 9pt;
+      color: #0f172a;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 12pt;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 8.5pt;
+      overflow-x: auto;
+      direction: ltr;
+      text-align: left;
+      margin: 12pt 0;
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      display: block;
+    }
+
+    /* Mermaid diagrams container */
+    .mermaid {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14pt;
+      margin: 14pt 0;
+      text-align: center;
+      direction: ltr;
+    }
+
+    /* Lists */
+    ul, ol {
+      margin: 0 0 12pt 0;
+      padding-right: 22px;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 4pt;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 8pt;
+      font-weight: 700;
+    }
+
+    .badge-high { background-color: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }
+    .badge-med { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+    .badge-low { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 20pt 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header-box">
+  <h1>دليل سيناريو التشغيل والاختبار التكاملي الشامل (SBA Playbook)</h1>
+  <p>منظومة تحليل سلوك الطلاب والتنبؤ بالتعثر الأكاديمي باستخدام الذكاء الاصطناعي القابل للتفسير | إصدار الفحص والاعتماد 2026</p>
+</div>
+
+<h1
+id="دليل-سيناريو-التشغيل-والاختبار-التكاملي-الشامل-لمنصة-تحليل-سلوك-الطلاب-والتنبؤ-بالتعثر-sba">📘
+دليل سيناريو التشغيل والاختبار التكاملي الشامل لمنصة تحليل سلوك الطلاب
+والتنبؤ بالتعثر (SBA)</h1>
+<h2
+id="comprehensive-end-to-end-interconnected-system-testing-demonstration-playbook">Comprehensive
+End-to-End Interconnected System Testing &amp; Demonstration
+Playbook</h2>
+<hr />
+<h2 id="الغرض-من-هذا-الدليل-executive-summary">🎯 الغرض من هذا الدليل
+(Executive Summary)</h2>
+<p>يقدم هذا الدليل <strong>سيناريو تشغيلياً واختبارياً تكاملياً وشاملاً
+(End-to-End Interconnected Flow)</strong> يربط جميع أدوار النظام في مسار
+واقعي متسلسل يشبه أحجار الدومينو؛ حيث يؤدي كل إجراء يتخذه مستخدم معين
+(Actor) إلى تأثير مباشر وملموس يظهر في حساب المستخدم التالي.</p>
+<p>تم إعداد هذا الدليل لتمكين فرق الفحص، ولجان التحكيم، وأصحاب المصلحة
+(Stakeholders) من: 1. <strong>اختبار النظام بشكل حي ومباشر</strong> عبر
+واجهات المستخدم الأمامية (Front-End) وقاعدة البيانات والخلفية البرمجية
+(Back-End). 2. <strong>إثبات الفعالية العملية لنماذج الذكاء الاصطناعي
+(XGBoost / LightGBM)</strong> في التنبؤ المبكر بالتعثر قبل وقوعه وتفسير
+مسبباته (TreeSHAP). 3. <strong>التحقق من إغلاق الحلقة التدخلية
+(Closed-Loop Pedagogical Intervention)</strong> من مرحلة الرصد الأكاديمي
+وحتى تعافي الطالب وتقييم الأثر. 4. <strong>معاينة ميزة التدريس المشترك
+المزدوج (Dual-Institution Context)</strong> لأستاذ يدرّس في جامعة ومدرسة
+في آن واحد مع عزل تام وتلقائي للبيانات والصلاحيات.</p>
+<hr />
+<h2 id="خريطة-التدفق-التكاملي-الشامل-the-interconnected-flow-map">🗺️
+خريطة التدفق التكاملي الشامل (The Interconnected Flow Map)</h2>
+<pre class="mermaid"><code>flowchart TD
+    subgraph Phase1 [&quot;المرحلة 1: مدير النظام (Admin)&quot;]
+        A1[&quot;تسجيل الدخول كمدير نظام&quot;] --&gt; A2[&quot;التحقق من الهيكلية (جامعة مع كليات vs مدرسة مع مراحل)&quot;]
+        A2 --&gt; A3[&quot;ضبط عتبات الإنذار المبكر (Risk Thresholds: High &gt;= 75%)&quot;]
+    end
+
+    subgraph Phase2 [&quot;المرحلة 2: المعلم (Teacher)&quot;]
+        T1[&quot;تسجيل الدخول كأستاذ مشترك (د. عمر فاروق)&quot;] --&gt; T2[&quot;التبديل بين سياق الجامعة والمدرسة (Context Switcher)&quot;]
+        T2 --&gt; T3[&quot;اختيار مقرر تراكيب البيانات CS201 واختيار الطالب أحمد&quot;]
+        T3 --&gt; T4[&quot;رصد غيابات متكررة غير مبررة (Absent)&quot;]
+        T4 --&gt; T5[&quot;رصد درجة منخفضة في الاختبار النصفي (45/100)&quot;]
+        T5 --&gt; T6[&quot;تسجيل تقرير ملاحظة سلوكية (تشتت وتراجع المشاركة)&quot;]
+    end
+
+    subgraph Phase3 [&quot;المرحلة 3: المرشد الأكاديمي (Advisor)&quot;]
+        ADV1[&quot;تسجيل الدخول كمرشدة (سارة المنصور)&quot;] --&gt; ADV2[&quot;استقبال إشعار الخطر الفوري في صندوق الوارد&quot;]
+        ADV2 --&gt; ADV3[&quot;رصد قفزة الخطر إلى High Risk في رادار الطلاب&quot;]
+        ADV3 --&gt; ADV4[&quot;فتح الملف الشامل 360° وفحص تفسير الذكاء الاصطناعي (TreeSHAP)&quot;]
+        ADV4 --&gt; ADV5[&quot;اعتماد خطة التدخل البيداغوجي (جلسات تقوية وإرشاد فردي)&quot;]
+    end
+
+    subgraph Phase4 [&quot;المرحلة 4: الطالب (Student)&quot;]
+        S1[&quot;تسجيل الدخول كطالب (أحمد الخطيب)&quot;] --&gt; S2[&quot;معاينة التنبيه الأكاديمي الداعم في لوحة التحكم&quot;]
+        S2 --&gt; S3[&quot;فحص المواد والمسار التوقعي في السجل الأكاديمي&quot;]
+        S3 --&gt; S4[&quot;استلام خطة التقوية في صفحة التنبيهات&quot;]
+        S4 --&gt; S5[&quot;استشارة المساعد الذكي 24/7 (AI Chatbot) لطلب نصائح مذاكرة&quot;]
+        S5 --&gt; S6[&quot;مراجعة شفافية معالجة البيانات والموافقة (GDPR/FERPA)&quot;]
+    end
+
+    subgraph Phase5 [&quot;المرحلة 5: ولي الأمر (Parent)&quot;]
+        P1[&quot;تسجيل الدخول كولي أمر (خالد الخطيب)&quot;] --&gt; P2[&quot;متابعة مؤشرات الأبناء وتنبيهات الخطر&quot;]
+        P2 --&gt; P3[&quot;تصدير وتحميل تقرير الخطر الأكاديمي الرسمي (PDF/CSV)&quot;]
+        P3 --&gt; P4[&quot;إرسال رسالة مباشرة للمرشدة لتأكيد الحضور للتقوية&quot;]
+    end
+
+    subgraph Phase6 [&quot;المرحلة 6: إغلاق الحلقة وإثبات الفعالية (Closed-Loop Resolution)&quot;]
+        T7[&quot;المعلم يرصد الحضور والدرجة التعويضية المرتفعة (88%)&quot;] --&gt; T8[&quot;توثيق أثر التدخل في صفحة التغذية الراجعة (Implemented)&quot;]
+        T8 --&gt; ADV6[&quot;المرشدة تعاين تحديث الحالة وتراجع مؤشر الخطر للمنطقة الآمنة&quot;]
+        ADV6 --&gt; STATS[&quot;تحديث مؤشرات نجاح التدخل في تحليلات الدفعة&quot;]
+    end
+
+    Phase1 ==&gt; Phase2
+    Phase2 ==&gt; Phase3
+    Phase3 ==&gt; Phase4
+    Phase4 ==&gt; Phase5
+    Phase5 ==&gt; Phase6</code></pre>
+<hr />
+<h2 id="دليل-بيانات-الدخول-وحسابات-الاختبار-test-accounts-matrix">👥
+دليل بيانات الدخول وحسابات الاختبار (Test Accounts Matrix)</h2>
+<blockquote>
+<p>[!IMPORTANT] <strong>رابط تسجيل الدخول الموحد لجميع
+الحسابات:</strong> <a
+href="http://localhost:5173/login">http://localhost:5173/login</a><br />
+<strong>كلمة المرور الموحدة لجميع الحسابات التجريبية:</strong>
+<code>password</code></p>
+</blockquote>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">الدور (Role)</th>
+<th style="text-align: left;">اسم المستخدم</th>
+<th style="text-align: left;">البريد الإلكتروني (Email)</th>
+<th style="text-align: left;">المؤسسة التابع لها</th>
+<th style="text-align: left;">طبيعة الحساب وسياق الاختبار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">👨‍💼 <strong>مدير النظام
+(Admin)</strong></td>
+<td style="text-align: left;">System Administrator</td>
+<td style="text-align: left;"><code>admin@sba.local</code></td>
+<td style="text-align: left;">جامعة الحكمة الدولية ومدرسة الأمل</td>
+<td style="text-align: left;">إدارة الهيكلية، عتبات الخطر، مفاتيح الربط
+وسجلات التدقيق</td>
+</tr>
+<tr>
+<td style="text-align: left;">👨‍🏫 <strong>المعلم المشترك
+(Teacher)</strong></td>
+<td style="text-align: left;">Dr. Omar Farooq</td>
+<td style="text-align: left;"><code>teacher@sba.local</code></td>
+<td style="text-align: left;"><strong>مشترك:</strong> جامعة الحكمة
+الدولية + مدرسة الأمل الثانوية</td>
+<td style="text-align: left;">تدريس مقررات جامعية ومدرسية، رصد الدرجات
+والغياب والسلوك وتوثيق التدخل</td>
+</tr>
+<tr>
+<td style="text-align: left;">🧑‍💼 <strong>المرشد الأكاديمي
+(Advisor)</strong></td>
+<td style="text-align: left;">Sarah Al-Mansoor</td>
+<td style="text-align: left;"><code>advisor@sba.local</code></td>
+<td style="text-align: left;">جامعة الحكمة الدولية</td>
+<td style="text-align: left;">مراقبة رادار الخطر، تحليل SHAP، اعتماد خطط
+التدخل والتواصل</td>
+</tr>
+<tr>
+<td style="text-align: left;">👨‍🎓 <strong>الطالب المستهدف
+(Student)</strong></td>
+<td style="text-align: left;">Ahmad Al-Khatib</td>
+<td style="text-align: left;"><code>student@sba.local</code></td>
+<td style="text-align: left;">جامعة الحكمة الدولية</td>
+<td style="text-align: left;">الطالب قيد المراقبة والتحسين (مقرر CS201 و
+CS301)، التفاعل مع المساعد الذكي</td>
+</tr>
+<tr>
+<td style="text-align: left;">👨‍👩‍👦 <strong>ولي الأمر
+(Parent)</strong></td>
+<td style="text-align: left;">Khaled Al-Khatib</td>
+<td style="text-align: left;"><code>parent@sba.local</code></td>
+<td style="text-align: left;">جامعة الحكمة الدولية</td>
+<td style="text-align: left;">والد الطالب أحمد الخطيب، متابعة التقارير
+والتواصل مع المرشد</td>
+</tr>
+<tr>
+<td style="text-align: left;">🌟 <strong>طالب متفوق (Control
+Student)</strong></td>
+<td style="text-align: left;">Lina Haddad</td>
+<td style="text-align: left;"><code>student2@sba.local</code></td>
+<td style="text-align: left;">جامعة الحكمة الدولية</td>
+<td style="text-align: left;">عينة للمقارنة الإحصائية (أداء مرتفع وخطر
+منخفض)</td>
+</tr>
+<tr>
+<td style="text-align: left;">👨‍🏫 <strong>أستاذ مستقل
+(Standalone)</strong></td>
+<td style="text-align: left;">Standalone Teacher</td>
+<td style="text-align: left;"><code>newteacher@sba.local</code></td>
+<td style="text-align: left;">غير مسكن (No School)</td>
+<td style="text-align: left;">لاختبار مرونة النظام مع المعلمين المستقلين
+والتحذيرات الذكية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="سيناريو-الاختبار-التكاملي-خطوة-بخطوة-step-by-step-scenario">🚀
+سيناريو الاختبار التكاملي خطوة بخطوة (Step-by-Step Scenario)</h2>
+<hr />
+<h3
+id="المرحلة-1-مدير-النظام-admin---ضبط-الحوكمة-ومعايرة-الذكاء-الاصطناعي">🏛️
+المرحلة 1: مدير النظام (Admin) - ضبط الحوكمة ومعايرة الذكاء
+الاصطناعي</h3>
+<blockquote>
+<p><strong>الهدف:</strong> التأكد من جاهزية النظام، ومعايرة عتبات الخطر
+(Risk Thresholds) وتفقد الهيكل الإداري المشترك.</p>
+</blockquote>
+<ol type="1">
+<li><strong>تسجيل الدخول:</strong>
+<ul>
+<li>توجه إلى الرابط: <a
+href="http://localhost:5173/login">http://localhost:5173/login</a>.</li>
+<li>أدخل البريد: <code>admin@sba.local</code> وكلمة المرور:
+<code>password</code>.</li>
+<li>اضغط على <strong>“تسجيل الدخول / Sign In”</strong>.</li>
+<li>سيتم توجيهك تلقائياً إلى لوحة تحكم المدير: <code>/admin</code>.</li>
+</ul></li>
+<li><strong>معاينة الإحصائيات الشاملة (Admin Dashboard):</strong>
+<ul>
+<li>راقب العدادات في أعلى الشاشة: إجمالي الطلاب المسجلين، عدد الحالات
+قيد المراقبة، ومعدل دقة نموذج الذكاء الاصطناعي (XGBoost ROC-AUC =
+0.94).</li>
+</ul></li>
+<li><strong>التحقق من الهيكلية المزدوجة (Institutions
+Architecture):</strong>
+<ul>
+<li>اضغط على تبويب <strong>“المؤسسات التعليمية / Institutions”</strong>
+في القائمة الجانبية (<code>/admin/institutions</code>).</li>
+<li>لاحظ وجود مؤسستين مختلفتين:
+<ul>
+<li>🎓 <strong>جامعة الحكمة الدولية (Al-Hikma International
+University)</strong>: بنمط <code>university</code> (تضم كليات وأقسام
+وعمداء).</li>
+<li>🏫 <strong>مدرسة الأمل الثانوية (Al-Amal Secondary School)</strong>:
+بنمط <code>school</code> (تضم مراحل دراسية ومشرفين تربويين).</li>
+</ul></li>
+<li>هذا التقسيم يضمن توافق النظام مع مختلف البيئات الأكاديمية
+والمدرسية.</li>
+</ul></li>
+<li><strong>معايرة عتبات الإنذار المبكر (Risk Thresholds
+Configuration):</strong>
+<ul>
+<li>اضغط على تبويب <strong>“إعدادات النظام / Settings”</strong>
+(<code>/admin/settings</code>).</li>
+<li>توجه إلى قسم <strong>“عتبات المخاطر (Risk Engine
+Thresholds)”</strong>:
+<ul>
+<li>تأكد من المستويات المعتمدة:
+<ul>
+<li>🟢 <strong>منخفض (Low Risk):</strong> من 0.00% إلى 39.99% (لا يتطلب
+تدخلاً عاجلاً).</li>
+<li>🟡 <strong>متوسط (Medium Risk):</strong> من 40.00% إلى 74.99%
+(مراقبة وقائية دورية).</li>
+<li>🔴 <strong>مرتفع (High Risk):</strong> من 75.00% إلى 100.00%
+(<strong>يطلق إشعاراً فورياً ويفرض خطة تدخل إجبارية</strong>).</li>
+</ul></li>
+</ul></li>
+<li>تحقق من وجود مفاتيح الربط مع أنظمة التعلم الإلكتروني (LMS API Keys)
+وسجلات التدقيق المالي والأكاديمي (Audit Logs).</li>
+</ul></li>
+<li><strong>تسجيل الخروج:</strong>
+<ul>
+<li>اضغط على صورة الحساب الشخصي في أعلى الشاشة ثم اختر <strong>“تسجيل
+الخروج / Logout”</strong>.</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="المرحلة-2-المعلم-teacher---الرصد-الأكاديمي-الغياب-والسلوك">👨‍🏫
+المرحلة 2: المعلم (Teacher) - الرصد الأكاديمي، الغياب، والسلوك</h3>
+<blockquote>
+<p><strong>الهدف:</strong> إثبات قدرة المعلم المشترك على التبديل بين
+الجامعة والمدرسة، وتوليد البيانات الأكاديمية والسلوكية السلبية التي
+ستشعل مؤشر الخطر للطالب “أحمد الخطيب”.</p>
+</blockquote>
+<ol type="1">
+<li><strong>تسجيل الدخول كمعلم مشترك:</strong>
+<ul>
+<li>توجه إلى <a
+href="http://localhost:5173/login">http://localhost:5173/login</a>.</li>
+<li>أدخل البريد: <code>teacher@sba.local</code> وكلمة المرور:
+<code>password</code>.</li>
+<li>سيتم توجيهك إلى لوحة المعلم: <code>/teacher</code>.</li>
+</ul></li>
+<li><strong>اختبار محدد السياق المزدوج (Multi-Institution Context
+Switcher):</strong>
+<ul>
+<li>في الشريط العلوي الأيمن من صفحة المعلم، ستجد القائمة المنسدلة
+للمؤسسة النشطة:
+<ul>
+<li>افتح القائمة واختر <strong>“مدرسة الأمل الثانوية (Al-Amal Secondary
+School)”</strong>:
+<ul>
+<li>لاحظ كيف يتم تحديث المقررات فورياً لتظهر مادة الرياضيات المدرسية
+(<code>MATH-10</code>).</li>
+</ul></li>
+<li>أعد اختيار <strong>“جامعة الحكمة الدولية (Al-Hikma International
+University)”</strong>:
+<ul>
+<li>لاحظ ظهور المقررات الجامعية (<code>CS201 Data Structures</code>,
+<code>CS301 Databases</code>, <code>CS401 AI</code>).</li>
+</ul></li>
+<li>هذا يثبت نجاح الفصل المنطقي والتنقل السلس للمدرس المشترك دون تداخل
+البيانات.</li>
+</ul></li>
+</ul></li>
+<li><strong>تسجيل الغياب المتكرر للطالب (Log Attendance):</strong>
+<ul>
+<li>انتقل إلى صفحة <strong>“الحضور والغياب / Attendance”</strong> من
+القائمة الجانبية (<code>/teacher/attendance</code>).</li>
+<li>اضغط على الزر العلوي: <strong>“تسجيل حالة حضور / Log
+Attendance”</strong>.</li>
+<li>املأ الحقول التالية في النافذة المنبثقة:
+<ul>
+<li><strong>المقرر الدراسي:</strong> اختر
+<code>CS201 - Data Structures &amp; Algorithms</code>.</li>
+<li><strong>الطالب المستهدف:</strong> اختر
+<code>Ahmad Al-Khatib (student@sba.local)</code>.</li>
+<li><strong>حالة الحضور:</strong> اختر <strong>🔴 غائب
+(Absent)</strong>.</li>
+<li><strong>التاريخ:</strong> تاريخ اليوم أو تاريخ الأسبوع الحالي.</li>
+<li><strong>ملاحظات وتبريرات:</strong> اكتب: <em>“غياب غير مبرر للمرة
+الثالثة على التوالي وعدم تسليم الواجب”</em>.</li>
+</ul></li>
+<li>اضغط على زر <strong>“حفظ حالة الحضور في MySQL”</strong>.</li>
+<li>ستظهر رسالة نجاح خضراء ويضاف السجل فوراً إلى جدول الحضور.</li>
+</ul></li>
+<li><strong>رصد درجة متدنية في الاختبار النصفي (Log Low Midterm
+Grade):</strong>
+<ul>
+<li>انتقل إلى صفحة <strong>“الدرجات والتقييم / Grades &amp;
+Evaluation”</strong> (<code>/teacher/grades</code>).</li>
+<li>اضغط على الزر الأزرق: <strong>“رصد درجة تقييم / Add Grade
+Record”</strong>.</li>
+<li>املأ النموذج بالبيانات التالية:
+<ul>
+<li><strong>المقرر:</strong> اختر
+<code>CS201 - Data Structures &amp; Algorithms</code>.</li>
+<li><strong>الطالب:</strong> اختر
+<code>Ahmad Al-Khatib (student@sba.local)</code>.</li>
+<li><strong>نوع التقييم:</strong> اضغط على القالب السريع
+<code>📑 اختبار نصفي (Midterm)</code>، وسيتم تلقائياً ملء الاسم بـ
+<code>Midterm Exam</code> والوزن النسبي بـ <code>30%</code>.</li>
+<li><strong>الدرجة المحصلة (من 100):</strong> أدخل درجة رسوب/تعثر:
+<code>45</code>.</li>
+</ul></li>
+<li>اضغط على زر <strong>“حفظ الدرجة في MySQL”</strong>.</li>
+<li>لاحظ إضافة الدرجة في الجدول فورياً مع إبرازها باللون الأحمر كدرجة
+حرجة تحت خط النجاح.</li>
+</ul></li>
+<li><strong>تسجيل تقرير ملاحظة سلوكية (Report Behavioral
+Incident):</strong>
+<ul>
+<li>انتقل إلى صفحة <strong>“التقارير السلوكية والملاحظات / Incidents
+&amp; Observations”</strong> (<code>/teacher/incidents</code>).</li>
+<li>اضغط على زر <strong>“تسجيل ملاحظة سلوكية / Report
+Observation”</strong>.</li>
+<li>املأ النافذة المنبثقة:
+<ul>
+<li><strong>الطالب:</strong> اختر <code>Ahmad Al-Khatib</code>.</li>
+<li><strong>نوع الملاحظة:</strong> اختر <strong>تحذير أكاديمي / إنذار
+(Warning / Negative)</strong>.</li>
+<li><strong>التاريخ:</strong> اليوم.</li>
+<li><strong>الوصف التفصيلي:</strong> اكتب: <em>“لوحظ تشتت ذهني متكرر لدى
+الطالب خلال المحاضرات وتأخر تسليم التكاليف البرمجية العملية”</em>.</li>
+</ul></li>
+<li>اضغط على <strong>“حفظ التقرير السلوكي في MySQL”</strong>.</li>
+</ul></li>
+<li><strong>تسجيل الخروج:</strong>
+<ul>
+<li>اضغط على صورة الملف الشخصي ثم <strong>“تسجيل الخروج /
+Logout”</strong>.</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="المرحلة-3-المرشد-الأكاديمي-advisor---استقبال-التنبيه-الذكي-وإطلاق-التدخل">🧑‍💼
+المرحلة 3: المرشد الأكاديمي (Advisor) - استقبال التنبيه الذكي وإطلاق
+التدخل</h3>
+<blockquote>
+<p><strong>الهدف:</strong> استعراض قدرة محرك الذكاء الاصطناعي على التقاط
+التراجع الأكاديمي والغياب فوراً، وتحويله إلى بطاقة خطر فسرها TreeSHAP، ثم
+اعتماد خطة تدخل علاجية.</p>
+</blockquote>
+<ol type="1">
+<li><strong>تسجيل الدخول كمرشد أكاديمي:</strong>
+<ul>
+<li>توجه إلى <a
+href="http://localhost:5173/login">http://localhost:5173/login</a>.</li>
+<li>أدخل البريد: <code>advisor@sba.local</code> وكلمة المرور:
+<code>password</code>.</li>
+<li>ستفتح لوحة تحكم المرشد: <code>/advisor</code>.</li>
+</ul></li>
+<li><strong>معاينة رادار الإنذار المبكر (Early-Warning At-Risk
+Radar):</strong>
+<ul>
+<li>لاحظ المؤشرات العلوية: يظهر الطالب <strong>“أحمد الخطيب”</strong>
+متصدراً قائمة الطلاب الأكثر عرضة للخطر بمؤشر <strong>خطر مرتفع (High
+Risk)</strong> يتجاوز 80%.</li>
+<li>انظر إلى أيقونة جرس الإشعارات في أعلى اليسار: يظهر تنبيه أحمر جديد
+يفيد برصد هبوط حاد في أداء الطالب أحمد في مقرر <code>CS201</code>.</li>
+</ul></li>
+<li><strong>فحص صندوق الوارد (Inbox &amp; Alerts):</strong>
+<ul>
+<li>اضغط على <strong>“صندوق التنبيهات / Inbox”</strong>
+(<code>/advisor/inbox</code>).</li>
+<li>في تبويب <strong>“التنبيهات الواردة (Incoming Alerts)”</strong>
+ستشاهد الإشعار الصادر عن محرك الخطر: &gt; <em>“High risk detected for
+student Ahmad Al-Khatib (CS201). Factors: low attendance, declining
+midterm scores.”</em></li>
+<li>اضغط على <strong>“تحديد كمقروء”</strong> لتأكيد المتابعة.</li>
+</ul></li>
+<li><strong>استعراض الملف الشامل للطالب 360° (Student 360 Profile &amp;
+TreeSHAP):</strong>
+<ul>
+<li>عد إلى لوحة المرشد (<code>/advisor</code>) واضغط على زر <strong>“عرض
+الملف الشامل / View Profile”</strong> بجانب اسم الطالب أحمد الخطيب، أو
+توجه مباشرة للرابط: <a
+href="http://localhost:5173/advisor/student?id=5">http://localhost:5173/advisor/student?id=5</a>.</li>
+<li>استعرض مكونات الملف الشامل:
+<ul>
+<li><strong>البطاقة الشخصية:</strong> الاسم، الرقم الأكاديمي
+<code>STU-005</code>، التخصص، والمعدل التراكمي.</li>
+<li><strong>شريط إنجاز الخطة الدراسية:</strong> نسبة الساعات المكتملة
+(62%).</li>
+<li><strong>المقررات المسجلة:</strong> قائمة المواد والعبء الدراسي
+الفصلي.</li>
+<li><strong>مخطط مساهمة العوامل التفسيرية (TreeSHAP Feature
+Attribution):</strong>
+<ul>
+<li>تراجع الحضور والغياب الأخير يساهم بنسبة <code>+35%</code> في رفع
+احتمالية الخطر.</li>
+<li>نتيجة الاختبار النصفي (45%) تساهم بنسبة <code>+38%</code> في رفع
+الخطر.</li>
+<li>الملاحظة السلوكية تساهم بنسبة <code>+12%</code>.</li>
+<li>هذا يوضح للجنة التحكيم أن الذكاء الاصطناعي في المنصة ليس “صندوقاً
+أسود” (Black Box) بل نموذج قابل للتفسير والمساءلة.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><strong>اعتماد خطة التدخل البيداغوجي (Approve Intervention
+Plan):</strong>
+<ul>
+<li>ارجع إلى صفحة <strong>“صندوق التنبيهات وخطط التدخل”</strong>
+(<code>/advisor/inbox</code>).</li>
+<li>اختر التبويب الثاني: <strong>“خطط وتوصيات التدخل / Intervention
+Review”</strong>.</li>
+<li>ستجد التوصية المولدة بالذكاء الاصطناعي للطالب أحمد: &gt;
+<em>“الإجراء المقترح: جدولة جلسات تقوية مكثفة 1-on-1 في مادة تراكيب
+البيانات وتنسيق جلسة استماع وإرشاد أكاديمي ونفسي أسبوعية.”</em></li>
+<li>اضغط على الزر الأخضر: <strong>“اعتماد الخطة / Approve
+Plan”</strong>.</li>
+<li>ستتغير حالة الخطة فوراً إلى <strong>“معتمد / Approved”</strong> مع
+توثيق اسم المرشدة سارة في النظام.</li>
+</ul></li>
+<li><strong>تسجيل الخروج:</strong>
+<ul>
+<li>اضغط على صورة الحساب ثم <strong>“تسجيل الخروج /
+Logout”</strong>.</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="المرحلة-4-الطالب-student---الشفافية-التنبيهات-والمساعد-الذكي-247">👨‍🎓
+المرحلة 4: الطالب (Student) - الشفافية، التنبيهات، والمساعد الذكي
+24/7</h3>
+<blockquote>
+<p><strong>الهدف:</strong> معاينة تجربة الطالب في رؤية مساره الأكاديمي،
+وتلقي الدعم دون وصم، واستخدام الشات الذكي لطلب خطة مذاكرة.</p>
+</blockquote>
+<ol type="1">
+<li><strong>تسجيل الدخول كطالب:</strong>
+<ul>
+<li>توجه إلى <a
+href="http://localhost:5173/login">http://localhost:5173/login</a>.</li>
+<li>أدخل البريد: <code>student@sba.local</code> وكلمة المرور:
+<code>password</code>.</li>
+<li>سيتم توجيهك إلى لوحة تحكم الطالب: <code>/student</code>.</li>
+</ul></li>
+<li><strong>معاينة لوحة تحكم الطالب وتوجيهات النظام:</strong>
+<ul>
+<li>لاحظ البطاقة الإرشادية الإيجابية في الصفحة: رسالة تشجيعية توضح أن
+النظام رصد تراجعاً مؤقتاً في مادة <code>CS201</code> ويدعوه للالتحاق
+بجلسات الدعم المجدولة.</li>
+</ul></li>
+<li><strong>السجل الأكاديمي ومسار التوقع (Academics &amp;
+Trajectory):</strong>
+<ul>
+<li>انتقل إلى صفحة <strong>“السجل الأكاديمي / Academics”</strong>
+(<code>/student/academics</code>).</li>
+<li>راجع قائمة المواد المسجلة: مادة <code>CS201</code> عليها علامة تحذير
+صفراء مع عرض درجة النصفي (45) ومعدل الحضور المنخفض.</li>
+<li>اطلع على مخطط التنبؤ المستقبلي (Projected Trajectory) الذي يوضح أن
+الالتزام بجلسات التقوية سيرفع التوقع النهائي من 52% إلى 78%.</li>
+</ul></li>
+<li><strong>صندوق التنبيهات وتفاصيل خطة التقوية (Student
+Alerts):</strong>
+<ul>
+<li>انتقل إلى صفحة <strong>“التنبيهات والإشعارات / Alerts”</strong>
+(<code>/student/alerts</code>).</li>
+<li>شاهد التوصية المعتمدة من المرشدة الأكاديمية وتفاصيل جلسات الدعم
+الفردي مع أستاذ المادة د. عمر فاروق.</li>
+</ul></li>
+<li><strong>استشارة المساعد البيداغوجي الذكي (AI Chatbot
+Widget):</strong>
+<ul>
+<li>في الزاوية السفلية من الشاشة، اضغط على أيقونة المساعد الذكي العائمة
+💬.</li>
+<li>ستفتح نافذة الدردشة الذكية المدمجة.</li>
+<li>اكتب في مربع الرسالة السؤال التالي واضغط إرسال: &gt; <em>“كيف يمكنني
+تعويض درجاتي المتراجعة في مادة تراكيب البيانات وتجاوز خطر
+التعثر؟”</em></li>
+<li>لاحظ إجابة المساعد الذكي الفورية:
+<ul>
+<li>تقديم نصائح عملية في مواضيع الأشجار والمصفوفات (Trees &amp;
+Arrays).</li>
+<li>توجيه الطالب لمراجعة أستاذ المقرر د. عمر في الساعات المكتبية.</li>
+<li>تشجيعه على حل المسائل العملية البرمجية السابقة.</li>
+</ul></li>
+</ul></li>
+<li><strong>فحص إعدادات الخصوصية وموافقة الذكاء الاصطناعي (GDPR /
+FERPA):</strong>
+<ul>
+<li>انتقل إلى صفحة <strong>“الإعدادات والخصوصية / Settings”</strong>
+(<code>/student/settings</code>).</li>
+<li>تحقق من تفعيل خيار <strong>“معالجة البيانات بالذكاء الاصطناعي (AI
+Data Processing Consent)”</strong> مع توثيق تاريخ وساعة الموافقة وعنوان
+الـ IP لحماية حقوق وخصوصية الطالب القانونية.</li>
+</ul></li>
+<li><strong>تسجيل الخروج:</strong>
+<ul>
+<li>اضغط على صورة الحساب الشخصي ثم <strong>“تسجيل الخروج /
+Logout”</strong>.</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="المرحلة-5-ولي-الأمر-parent---الرقابة-المباشرة-التقارير-الرسمية-والتواصل">👨‍👩‍👦
+المرحلة 5: ولي الأمر (Parent) - الرقابة المباشرة، التقارير الرسمية،
+والتواصل</h3>
+<blockquote>
+<p><strong>الهدف:</strong> إشراك الأسرة في متابعة الحالة الأكاديمية
+للابن، واستخراج التقرير الرسمي، والتواصل المباشر مع الجامعة.</p>
+</blockquote>
+<ol type="1">
+<li><strong>تسجيل الدخول كولي أمر:</strong>
+<ul>
+<li>توجه إلى <a
+href="http://localhost:5173/login">http://localhost:5173/login</a>.</li>
+<li>أدخل البريد: <code>parent@sba.local</code> وكلمة المرور:
+<code>password</code>.</li>
+<li>ستفتح لوحة تحكم ولي الأمر: <code>/parent</code>.</li>
+</ul></li>
+<li><strong>معاينة بطاقة الابن وتنبيهات الخطر:</strong>
+<ul>
+<li>في أعلى الصفحة ستجد محدد الأبناء: الطالب <strong>“أحمد الخطيب (Ahmad
+Al-Khatib)”</strong>.</li>
+<li>لاحظ ظهور بطاقة ملخص الأداء:
+<ul>
+<li>نسبة الحضور الإجمالية.</li>
+<li>شارة الخطر الفصلي (High Risk Alert) الصادرة عن الذكاء
+الاصطناعي.</li>
+<li>تنبيه بخصوص تراجع الأداء في مادة تراكيب البيانات والغياب
+الأخير.</li>
+</ul></li>
+</ul></li>
+<li><strong>تصدير تقرير الخطر الأكاديمي الرسمي (Export Official PDF
+Report):</strong>
+<ul>
+<li>اضغط على زر <strong>“تصدير تقرير الأداء والمخاطر / Export Risk
+Profile”</strong>.</li>
+<li>يقوم النظام بتوليد وتنزيل التقرير الرسمي الموثق الخاص بالطالب بصيغة
+PDF / CSV، والمتضمن تفاصيل الحضور ودرجات الاختبارات والعوامل الحرجة التي
+استوجبت التدخل.</li>
+</ul></li>
+<li><strong>التواصل المباشر مع المرشد الأكاديمي (Direct
+Communication):</strong>
+<ul>
+<li>انتقل إلى صفحة <strong>“التواصل والرسائل / Communications”</strong>
+(<code>/parent/communications</code>).</li>
+<li>اكتب رسالة موجهة إلى المرشدة سارة المنصور: &gt; <em>“تحية طيبة، لقد
+اطلعت على تنبيه تراجع درجات أحمد في مادة تراكيب البيانات وخطة التدخل
+المعتمدة. نؤكد لكم متابعتنا المنزلية والتزامه التام بحضور جلسات
+التقوية.”</em></li>
+<li>اضغط على <strong>“إرسال الرسالة / Send Message”</strong>.</li>
+</ul></li>
+<li><strong>تسجيل الخروج:</strong>
+<ul>
+<li>اضغط على زر <strong>“تسجيل الخروج / Logout”</strong>.</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="المرحلة-6-إغلاق-الحلقة-التدخلية-وإثبات-الفعالية-closing-the-loop-outcome-verification">🔄
+المرحلة 6: إغلاق الحلقة التدخلية وإثبات الفعالية (Closing the Loop &amp;
+Outcome Verification)</h3>
+<blockquote>
+<p><strong>الهدف الأهم في العرض:</strong> إثبات أن النظام ليس مجرد لوحة
+مراقبة، بل منظومة أغلقت دائرة التدخل ووثقت نجاح الطالب وتعافيه
+الأكاديمي.</p>
+</blockquote>
+<ol type="1">
+<li><strong>تسجيل الدخول كأستاذ المادة (Teacher):</strong>
+<ul>
+<li>بريد الدخول: <code>teacher@sba.local</code> وكلمة المرور:
+<code>password</code>.</li>
+</ul></li>
+<li><strong>رصد الحضور الإيجابي لجلسة الدعم (Attendance
+Recovery):</strong>
+<ul>
+<li>توجه إلى صفحة <strong>“الحضور والغياب”</strong>
+(<code>/teacher/attendance</code>).</li>
+<li>اضغط <strong>“تسجيل حالة حضور”</strong>:
+<ul>
+<li>المقرر: <code>CS201</code>.</li>
+<li>الطالب: <code>Ahmad Al-Khatib</code>.</li>
+<li>الحالة: <strong>🟢 حاضر (Present)</strong>.</li>
+<li>ملاحظة: <em>“حضر جلسة التقوية والمراجعة العملية وكان متفاعلاً
+ومتميزاً”</em>.</li>
+</ul></li>
+<li>اضغط <strong>حفظ</strong>.</li>
+</ul></li>
+<li><strong>رصد درجة الاختبار التعويضي المرتفعة (Grade
+Improvement):</strong>
+<ul>
+<li>توجه إلى صفحة <strong>“الدرجات والتقييم”</strong>
+(<code>/teacher/grades</code>).</li>
+<li>اضغط <strong>“رصد درجة تقييم”</strong>:
+<ul>
+<li>المقرر: <code>CS201</code>.</li>
+<li>الطالب: <code>Ahmad Al-Khatib</code>.</li>
+<li>نوع التقييم: اضغط على القالب <code>📊 مشروع / واجب</code> أو اختر
+اختباراً قصيراً تعويضياً.</li>
+<li>أدخل الدرجة: <strong>88</strong> من 100.</li>
+<li>الوزن النسبي: <code>0.20</code>.</li>
+</ul></li>
+<li>اضغط <strong>“حفظ الدرجة في MySQL”</strong>.</li>
+</ul></li>
+<li><strong>توثيق أثر التدخل في صفحة التغذية الراجعة (Log Intervention
+Outcome):</strong>
+<ul>
+<li>توجه إلى صفحة <strong>“التغذية الراجعة والتدخلات / Remedial
+Feedback”</strong> (<code>/teacher/feedback</code>).</li>
+<li>في جدول خطط التدخل المعتمدة، حدد خطة الطالب <strong>أحمد
+الخطيب</strong>.</li>
+<li>في خانة <strong>“ملاحظات الأثر والنتيجة (Outcome Notes)”</strong>،
+اكتب: &gt; <em>“أتم الطالب 4 ساعات تدريبية مكثفة في مواضيع الخوارزميات،
+واجتاز الاختبار التعويضي بنتيجة 88% وزالت حالة التعثر.”</em></li>
+<li>اضغط على الزر الأخضر: <strong>“توثيق اكتمال التنفيذ / Log
+Implementation”</strong>.</li>
+<li>ستتغير حالة الخطة في النظام وقاعدة البيانات إلى <strong>“منفذ /
+Implemented”</strong>.</li>
+</ul></li>
+<li><strong>التحقق النهائي بحساب المرشدة الأكاديمية (Advisor Final
+Check):</strong>
+<ul>
+<li>سجّل الخروج من المعلم وادخل بحساب المرشدة:
+<code>advisor@sba.local</code> / <code>password</code>.</li>
+<li>ادخل على <strong>“صندوق التنبيهات وخطط التدخل”</strong>
+(<code>/advisor/inbox</code>):
+<ul>
+<li>في تبويب <strong>“خطط التدخل”</strong>: تحقق من تحول حالة خطة أحمد
+الخطيب إلى <strong>Implemented</strong> مع ظهور ملاحظات المعلم
+الميدانية.</li>
+</ul></li>
+<li>ادخل على لوحة تحكم المرشد (<code>/advisor</code>):
+<ul>
+<li>لاحظ تراجع درجة خطر الطالب أحمد الخطيب من High Risk وانتقاله للمنطقة
+الآمنة (Low / Safe Risk).</li>
+</ul></li>
+<li>ادخل على صفحة <strong>“التحليلات المتقدمة / Advanced
+Analytics”</strong> (<code>/advisor/analytics</code>):
+<ul>
+<li>شاهد ارتفاع مؤشر <strong>“معدل نجاح التدخلات الأكاديمية
+(Intervention Success Rate)”</strong> ومسار التعافي في الرسوم
+البيانية.</li>
+</ul></li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="جدول-التقديم-السريع-للعروض-الحية-quick-10-minute-demo-script">⏱️
+جدول التقديم السريع للعروض الحية (Quick 10-Minute Demo Script)</h2>
+<p>إذا كنت تقدم عرضاً حياً أمام لجنة أو عمداء في غضون 10 دقائق، اتبع هذا
+الجدول الزمني الدقيق:</p>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">الدقيقة</th>
+<th style="text-align: left;">الحساب المستخدم</th>
+<th style="text-align: left;">الإجراء والشاشات المعروضة</th>
+<th style="text-align: left;">الرسالة الجوهرية للجنة (Key Takeaway)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>00 - 02</strong></td>
+<td style="text-align: left;">👨‍💼 <strong>Admin</strong>
+(<code>admin@sba.local</code>)</td>
+<td style="text-align: left;">عرض لوحة الإدارة ومؤسستي الجامعة والمدرسة،
+وضبط عتبات الخطر (Thresholds).</td>
+<td style="text-align: left;">المنصة مرنة وتدعم الجامعات والمدارس ومجهزة
+بحوكمة صارمة.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>02 - 04</strong></td>
+<td style="text-align: left;">👨‍🏫 <strong>Teacher</strong>
+(<code>teacher@sba.local</code>)</td>
+<td style="text-align: left;">إثبات التبديل بين سياق الجامعة والمدرسة،
+ورصد غياب ودرجة متدنية (45) للطالب أحمد.</td>
+<td style="text-align: left;">المعلم يمارس مهامه بسهولة، والبيانات تحفظ
+آنياً في MySQL.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>04 - 06</strong></td>
+<td style="text-align: left;">🧑‍💼 <strong>Advisor</strong>
+(<code>advisor@sba.local</code>)</td>
+<td style="text-align: left;">استعراض إشعار الخطر، فحص ملف الطالب 360°
+وتفسير الذكاء الاصطناعي (TreeSHAP)، واعتماد خطة التقوية.</td>
+<td style="text-align: left;">الذكاء الاصطناعي يكتشف الخطر مبكراً ويفسر
+أسبابه بشفافية كاملة.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>06 - 08</strong></td>
+<td style="text-align: left;">👨‍🎓 <strong>Student</strong>
+(<code>student@sba.local</code>) &amp; 👨‍👩‍👦 <strong>Parent</strong>
+(<code>parent@sba.local</code>)</td>
+<td style="text-align: left;">استعراض التنبيه الإيجابي للطالب، وسؤال
+المساعد الذكي (Chatbot)، وتصدير تقرير الولي.</td>
+<td style="text-align: left;">تجربة مستخدم شاملة تدمج الطالب والأسرة في
+الحل العلاجي.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>08 - 10</strong></td>
+<td style="text-align: left;">👨‍🏫 <strong>Teacher</strong> ثم 🧑‍💼
+<strong>Advisor</strong></td>
+<td style="text-align: left;">رصد الدرجة التعويضية (88) وتوثيق تنفيذ
+الخطة (Implemented) وملاحظة تعافي المؤشر.</td>
+<td style="text-align: left;">إثبات إغلاق الحلقة التدخلية (Closed-Loop)
+وقياس أثر الذكاء الاصطناعي.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="الأسئلة-الشائعة-أثناء-الاختبار-والعرض-faq-edge-cases">💡 الأسئلة
+الشائعة أثناء الاختبار والعرض (FAQ &amp; Edge Cases)</h2>
+<ol type="1">
+<li><strong>ماذا لو ظهر تحذير لمعلم لا يملك مؤسسة؟</strong>
+<ul>
+<li>جرب تسجيل الدخول بحساب <code>newteacher@sba.local</code> /
+<code>password</code>. ستلاحظ ظهور تنبيه ذكي يرشد المعلم لمراجعة الإدارة
+لربطه بجدوله، دون انهيار الواجهة.</li>
+</ul></li>
+<li><strong>هل يؤثر التبديل بين الجامعة والمدرسة على درجات
+الطلاب؟</strong>
+<ul>
+<li>إطلاقاً؛ كل استعلام في الخلفية البرمجية (Back-End) يتضمن قيد
+<code>institution_id</code> و <code>course_id</code> لضمان عزل البيانات
+بين المؤسسات ومنع التداخل.</li>
+</ul></li>
+<li><strong>هل الخوارزمية المستخدمة تعتمد على تخمينات عشوائية؟</strong>
+<ul>
+<li>كلا؛ محرك التنبؤ يعتمد على تدريب مزدوج (XGBoost / LightGBM) على أكثر
+من 15 متغيراً أكاديمياً وسلوكياً، مع تفسير فوري بواسطة TreeSHAP يحسب الأثر
+الرياضي لكل متغير بدقة تامة.</li>
+</ul></li>
+</ol>
+<hr />
+<blockquote>
+<p>[!TIP] <strong>جاهزية النظام للتشغيل الحي:</strong> الواجهة الأمامية
+تعمل على المنفذ <code>http://localhost:5173</code>، والواجهة الخلفية
+تعمل على <code>http://127.0.0.1:8000</code>. جميع الخطوات الواردة أعلاه
+جاهزة للتنفيذ المباشر وفحصها بنسبة 100%.</p>
+</blockquote>
+
+
+<script>
+  // Initialize Mermaid for flowcharts
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'neutral',
+    flowchart: {
+      curve: 'basis',
+      useMaxWidth: true,
+      htmlLabels: true
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    // Replace markdown mermaid pre blocks with actual mermaid divs
+    document.querySelectorAll('pre.mermaid, pre > code.language-mermaid').forEach(el => {
+      const pre = el.tagName === 'CODE' ? el.parentElement : el;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = el.textContent;
+      pre.parentElement.replaceChild(div, pre);
+    });
+
+    try {
+      await mermaid.run();
+    } catch (e) {
+      console.warn("Mermaid run error:", e);
+    }
+
+    window.__RENDER_COMPLETE__ = true;
+  });
+</script>
+</body>
+</html>
