@@ -19,7 +19,7 @@ if result.returncode != 0:
 
 body_html = result.stdout
 
-# 2. Build full HTML document with styling, KaTeX/MathJax, and Mermaid
+# 2. Build full HTML document with styling, MathJax, and Mermaid
 html_content = f"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -49,7 +49,7 @@ html_content = f"""<!DOCTYPE html>
   <style>
     @page {{
       size: A4;
-      margin: 18mm 14mm 18mm 14mm;
+      margin: 16mm 14mm 16mm 14mm;
       @bottom-right {{
         content: "منصة SBA لتحليل سلوك الطلاب والتنبؤ بالتعثر - سيناريو الاختبار التكاملي";
         font-family: 'Cairo', sans-serif;
@@ -73,7 +73,7 @@ html_content = f"""<!DOCTYPE html>
 
     body {{
       font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.85;
+      line-height: 1.8;
       color: #1e293b;
       background-color: #ffffff;
       padding: 0;
@@ -93,32 +93,32 @@ html_content = f"""<!DOCTYPE html>
     }}
 
     h1 {{
-      font-size: 20pt;
+      font-size: 19pt;
       color: #1e3a8a;
-      border-bottom: 3px solid #3b82f6;
-      padding-bottom: 8px;
-      margin-top: 24pt;
-      margin-bottom: 12pt;
-    }}
-
-    h2 {{
-      font-size: 15pt;
-      color: #1e40af;
-      border-bottom: 1.5px solid #cbd5e1;
-      padding-bottom: 5px;
-      margin-top: 20pt;
+      border-bottom: 2.5px solid #3b82f6;
+      padding-bottom: 6px;
+      margin-top: 22pt;
       margin-bottom: 10pt;
     }}
 
+    h2 {{
+      font-size: 14pt;
+      color: #1e40af;
+      border-bottom: 1.5px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-top: 18pt;
+      margin-bottom: 8pt;
+    }}
+
     h3 {{
-      font-size: 12.5pt;
+      font-size: 12pt;
       color: #334155;
-      margin-top: 16pt;
+      margin-top: 14pt;
       margin-bottom: 6pt;
     }}
 
     p {{
-      margin: 0 0 10pt 0;
+      margin: 0 0 9pt 0;
       text-align: justify;
     }}
 
@@ -126,23 +126,23 @@ html_content = f"""<!DOCTYPE html>
     .header-box {{
       background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
       color: white;
-      padding: 24px 28px;
+      padding: 20px 24px;
       border-radius: 12px;
-      margin-bottom: 24pt;
+      margin-bottom: 20pt;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }}
 
     .header-box h1 {{
       color: #ffffff !important;
       border-bottom: none;
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
       padding: 0;
-      font-size: 22pt;
+      font-size: 20pt;
     }}
 
     .header-box p {{
       color: #e2e8f0;
-      font-size: 11pt;
+      font-size: 10.5pt;
       margin: 0;
     }}
 
@@ -150,14 +150,14 @@ html_content = f"""<!DOCTYPE html>
     table {{
       width: 100%;
       border-collapse: collapse;
-      margin: 14pt 0;
-      font-size: 9.5pt;
+      margin: 12pt 0;
+      font-size: 9pt;
       page-break-inside: avoid;
       break-inside: avoid;
     }}
 
     th, td {{
-      padding: 7pt 9pt;
+      padding: 6pt 8pt;
       border: 1px solid #cbd5e1;
       text-align: right;
     }}
@@ -175,13 +175,15 @@ html_content = f"""<!DOCTYPE html>
 
     /* Blockquotes / Callouts */
     blockquote {{
-      margin: 14pt 0;
-      padding: 10pt 14pt;
+      margin: 12pt 0;
+      padding: 9pt 13pt;
       background-color: #eff6ff;
       border-right: 4px solid #3b82f6;
       border-left: none;
       border-radius: 6px;
       color: #1e3a8a;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }}
 
     blockquote p {{
@@ -192,9 +194,9 @@ html_content = f"""<!DOCTYPE html>
     code {{
       font-family: 'Fira Code', monospace;
       background-color: #f1f5f9;
-      padding: 2px 6px;
+      padding: 2px 5px;
       border-radius: 4px;
-      font-size: 9pt;
+      font-size: 8.5pt;
       color: #0f172a;
       direction: ltr;
       display: inline-block;
@@ -203,15 +205,15 @@ html_content = f"""<!DOCTYPE html>
     pre {{
       background-color: #0f172a;
       color: #f8fafc;
-      padding: 12pt;
+      padding: 10pt;
       border-radius: 8px;
       font-family: 'Fira Code', monospace;
-      font-size: 8.5pt;
+      font-size: 8pt;
       overflow-x: auto;
       direction: ltr;
       text-align: left;
-      margin: 12pt 0;
-      line-height: 1.5;
+      margin: 10pt 0;
+      line-height: 1.45;
     }}
 
     pre code {{
@@ -223,42 +225,52 @@ html_content = f"""<!DOCTYPE html>
 
     /* Mermaid diagrams container */
     .mermaid {{
-      background-color: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 14pt;
-      margin: 14pt 0;
+      margin: 14pt auto;
       text-align: center;
-      direction: ltr;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      direction: ltr !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }}
+
+    .mermaid svg {{
+      max-width: 100% !important;
+      height: auto !important;
+      display: block;
+      margin: 0 auto;
+      font-family: 'Cairo', sans-serif !important;
     }}
 
     /* Lists */
     ul, ol {{
-      margin: 0 0 12pt 0;
-      padding-right: 22px;
+      margin: 0 0 10pt 0;
+      padding-right: 20px;
       padding-left: 0;
     }}
 
     li {{
-      margin-bottom: 4pt;
+      margin-bottom: 3.5pt;
     }}
 
     .badge {{
       display: inline-block;
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 9999px;
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 700;
     }}
-
-    .badge-high {{ background-color: #fee2e2; color: #b91c1c; border: 1px solid #f87171; }}
-    .badge-med {{ background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }}
-    .badge-low {{ background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }}
 
     hr {{
       border: none;
       border-top: 1px solid #e2e8f0;
-      margin: 20pt 0;
+      margin: 16pt 0;
     }}
   </style>
 </head>
@@ -272,25 +284,29 @@ html_content = f"""<!DOCTYPE html>
 {body_html}
 
 <script>
-  // Initialize Mermaid for flowcharts
-  mermaid.initialize({{
-    startOnLoad: false,
-    theme: 'neutral',
-    flowchart: {{
-      curve: 'basis',
-      useMaxWidth: true,
-      htmlLabels: true
-    }}
-  }});
-
-  window.addEventListener('DOMContentLoaded', async () => {{
-    // Replace markdown mermaid pre blocks with actual mermaid divs
-    document.querySelectorAll('pre.mermaid, pre > code.language-mermaid').forEach(el => {{
+  // Convert pre.mermaid to div.mermaid and run mermaid
+  document.addEventListener("DOMContentLoaded", async function() {{
+    const mermaidNodes = document.querySelectorAll('pre.mermaid, pre > code.language-mermaid');
+    mermaidNodes.forEach((el) => {{
       const pre = el.tagName === 'CODE' ? el.parentElement : el;
+      const code = el.innerText || el.textContent;
       const div = document.createElement('div');
       div.className = 'mermaid';
-      div.textContent = el.textContent;
-      pre.parentElement.replaceChild(div, pre);
+      div.textContent = code;
+      pre.parentNode.replaceChild(div, pre);
+    }});
+
+    mermaid.initialize({{
+      startOnLoad: false,
+      theme: 'neutral',
+      fontFamily: 'Cairo, -apple-system, sans-serif',
+      fontSize: '12px',
+      securityLevel: 'loose',
+      flowchart: {{
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }}
     }});
 
     try {{
@@ -324,7 +340,7 @@ cmd_chrome = [
     "--disable-gpu",
     "--no-pdf-header-footer",
     "--run-all-compositor-stages-before-draw",
-    "--virtual-time-budget=10000",
+    "--virtual-time-budget=12000",
     f"--print-to-pdf={pdf_file}",
     os.path.abspath(html_file)
 ]
