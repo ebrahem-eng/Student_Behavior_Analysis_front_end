@@ -104,6 +104,7 @@ export function DashboardLayout() {
       { label: isAr ? "التنبيهات والتوجيهات" : "Alerts & Guidance", href: "/student/alerts", icon: Bell },
       { label: isAr ? "المسار الأكاديمي والذكاء" : "Academics & AI Guide", href: "/student/academics", icon: BookOpen },
       { label: isAr ? "التسجيل ومعدل الإنجاز" : "Registration & Progress", href: "/student/registration", icon: CalendarDays },
+      { label: isAr ? "المحادثات والإرشاد" : "Advisor Messages", href: "/student/communications", icon: MessageCircle },
       { label: isAr ? "الإعدادات وجودة التعلم" : "Settings & Well-being", href: "/student/settings", icon: Settings },
     ],
     parent: [

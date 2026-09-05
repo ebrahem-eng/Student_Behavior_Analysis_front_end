@@ -22,6 +22,7 @@ import StudentAlertsPage from "@/features/student/pages/StudentAlertsPage";
 import StudentAcademicsPage from "@/features/student/pages/StudentAcademicsPage";
 import StudentSettingsPage from "@/features/student/pages/StudentSettingsPage";
 import StudentRegistrationPage from "@/features/student/pages/StudentRegistrationPage";
+import StudentCommunicationsPage from "@/features/student/pages/StudentCommunicationsPage";
 import ParentDashboardPage from "@/features/parent/pages/ParentDashboardPage";
 import ParentCommunicationsPage from "@/features/parent/pages/ParentCommunicationsPage";
 import ParentSettingsPage from "@/features/parent/pages/ParentSettingsPage";
@@ -123,6 +124,10 @@ export const router = createBrowserRouter([
           {
             path: "/student/registration",
             element: <StudentRegistrationPage />,
+          },
+          {
+            path: "/student/communications",
+            element: <StudentCommunicationsPage />,
           },
         ],
       },
