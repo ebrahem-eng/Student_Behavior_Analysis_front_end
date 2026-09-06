@@ -1,0 +1,456 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SBA - Student Behavioral Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "inverse-primary": "#b4c5ff",
+                "primary-fixed-dim": "#b4c5ff",
+                "surface-bright": "#f8f9ff",
+                "on-tertiary-fixed": "#131b2e",
+                "surface-dim": "#cbdbf6",
+                "on-primary-fixed": "#00174b",
+                "on-tertiary": "#ffffff",
+                "secondary-fixed": "#dfe3e6",
+                "secondary-container": "#dce0e4",
+                "on-surface-variant": "#444652",
+                "on-secondary-fixed": "#171c1f",
+                "on-tertiary-container": "#a0a8c1",
+                "surface-container-high": "#dde9ff",
+                "on-error": "#ffffff",
+                "on-primary-fixed-variant": "#15409e",
+                "on-surface": "#0b1c30",
+                "secondary-fixed-dim": "#c3c7ca",
+                "inverse-on-surface": "#ebf1ff",
+                "surface-container-highest": "#e1e2e8",
+                "surface": "#f8f9ff",
+                "on-secondary-container": "#5e6366",
+                "outline-variant": "#c4c6d4",
+                "on-tertiary-fixed-variant": "#3e465c",
+                "on-error-container": "#93000a",
+                "on-primary": "#ffffff",
+                "surface-container": "#eceef3",
+                "secondary": "#5a5f62",
+                "on-secondary": "#ffffff",
+                "background": "#f8f9ff",
+                "error": "#ba1a1a",
+                "primary-container": "#003594",
+                "primary": "#002265",
+                "surface-variant": "#e1e2e8",
+                "tertiary-fixed": "#dae2fd",
+                "tertiary-container": "#353d52",
+                "outline": "#737686",
+                "error-container": "#ffdad6",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-container": "#87a4ff",
+                "on-background": "#191c20",
+                "tertiary-fixed-dim": "#bec6e0",
+                "tertiary": "#1f273b",
+                "surface-tint": "#3559b7",
+                "surface-container-low": "#eff4ff",
+                "on-secondary-fixed-variant": "#42474a",
+                "primary-fixed": "#dbe1ff",
+                "inverse-surface": "#213146"
+        },
+        "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin": "24px",
+                "lg": "24px",
+                "xs": "4px",
+                "base": "4px",
+                "md": "16px",
+                "gutter": "16px",
+                "2xl": "48px",
+                "sm": "8px",
+                "xl": "32px"
+        },
+        "fontFamily": {
+                "label-md": [
+                        "Geist"
+                ],
+                "headline-lg": [
+                        "Geist"
+                ],
+                "headline-md": [
+                        "Geist"
+                ],
+                "display": [
+                        "Geist"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "title-lg": [
+                        "Inter"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Geist"
+                ],
+                "code": [
+                        "Geist"
+                ]
+        },
+        "fontSize": {
+                "label-md": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "title-lg": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "code": [
+                        "13px",
+                        {
+                                "lineHeight": "18px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-lg min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full sticky top-0 z-50 dark:bg-background border-outline-variant dark:border-on-surface-variant transition-colors duration-200">
+<div class="flex justify-between items-center h-20 px-margin max-w-[1280px] mx-auto bg-surface/70 backdrop-blur-md border border-outline-variant rounded-full mt-4 px-xl shadow-lg">
+<div class="text-headline-md font-display font-bold text-primary dark:text-primary-fixed-dim tracking-wider">
+                SBA
+            </div>
+<nav class="hidden md:flex gap-lg items-center"><a class="font-label-md text-label-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300 cursor-pointer active:scale-95 px-2 py-1" href="#features">Features</a><a class="font-label-md text-label-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300 cursor-pointer active:scale-95 px-2 py-1" href="#impact">Impact</a></nav>
+<div class="flex items-center gap-md"><button class="hidden md:inline-flex font-label-md text-label-md text-primary hover:bg-surface-container px-md py-2 transition-colors duration-200 rounded-full">Login</button><button class="bg-primary text-on-primary font-title-lg hover:opacity-90 transition-all shadow-md hover:shadow-lg rounded-full active:scale-95 px-lg h-10 text-label-md">Get Started</button></div>
+</div>
+</header>
+<main class="flex-grow">
+<!-- Hero Section -->
+<section class="relative pt-2xl pb-xl px-margin max-w-[1280px] mx-auto overflow-hidden">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl items-center relative z-10">
+<div class="flex flex-col gap-lg">
+<h1 class="font-display text-display text-on-surface leading-tight">
+                        Transform Classroom Data into <span class="text-primary">Predictive Insights.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                        Ensure no student is left behind with SBA's intelligent early-warning platform. Real-time collaboration for educators and families.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-md pt-sm">
+<button class="bg-primary text-on-primary px-xl py-3 font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors shadow-sm rounded-full">
+                            Request a Demo
+                        </button>
+<button class="border border-primary text-primary px-xl py-3 font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center justify-center gap-sm rounded-full">
+<span class="material-symbols-outlined" style="font-size: 20px;">play_circle</span>
+                            Watch How It Works
+                        </button>
+</div>
+<div class="pt-lg flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">verified</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Trusted by K-12 Districts nationwide</span>
+</div>
+</div>
+<div class="relative w-full h-[500px] overflow-hidden shadow-lg border border-outline-variant bg-surface-container-lowest rounded-xl"><!-- Dashboard Preview Mockup -->
+<div class="absolute inset-0 bg-surface flex flex-col">
+<!-- Browser Header -->
+<div class="h-12 border-b border-outline-variant flex items-center px-md gap-sm bg-surface-container-lowest">
+<div class="flex gap-xs">
+<div class="w-3 h-3 rounded-full bg-error/40"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+<div class="w-3 h-3 rounded-full bg-outline-variant"></div>
+</div>
+<div class="mx-auto bg-surface-container px-xl py-1 rounded-full text-[10px] text-outline">sba-platform.edu/dashboard</div>
+</div>
+<div class="p-xl flex-grow flex flex-col gap-xl overflow-hidden items-center">
+    <!-- Centered Student Progress Chart -->
+    <div class="bg-surface-container-lowest border border-outline-variant p-lg h-64 w-full max-w-2xl flex flex-col rounded-xl shadow-sm">
+        <div class="flex justify-between items-center mb-md">
+            <div class="font-title-lg text-on-surface">Student Progress</div>
+            <div class="flex gap-sm">
+                <div class="flex items-center gap-xs"><div class="w-2 h-2 rounded-full bg-primary"></div><span class="text-[10px] text-on-surface-variant">Active</span></div>
+                <div class="flex items-center gap-xs"><div class="w-2 h-2 rounded-full bg-primary-fixed-dim"></div><span class="text-[10px] text-on-surface-variant">Target</span></div>
+            </div>
+        </div>
+        <div class="flex-grow flex items-end gap-md px-sm">
+            <div class="flex-grow flex flex-col justify-end gap-xs h-full">
+                <div class="w-full bg-primary/10 rounded-full h-[60%] relative overflow-hidden">
+                    <div class="absolute bottom-0 w-full bg-primary rounded-full" style="height: 75%"></div>
+                </div>
+                <div class="text-[8px] text-center text-outline">Mon</div>
+            </div>
+            <div class="flex-grow flex flex-col justify-end gap-xs h-full">
+                <div class="w-full bg-primary/10 rounded-full h-[80%] relative overflow-hidden">
+                    <div class="absolute bottom-0 w-full bg-primary rounded-full" style="height: 45%"></div>
+                </div>
+                <div class="text-[8px] text-center text-outline">Tue</div>
+            </div>
+            <div class="flex-grow flex flex-col justify-end gap-xs h-full">
+                <div class="w-full bg-primary/10 rounded-full h-[100%] relative overflow-hidden">
+                    <div class="absolute bottom-0 w-full bg-primary rounded-full" style="height: 90%"></div>
+                </div>
+                <div class="text-[8px] text-center text-outline">Wed</div>
+            </div>
+            <div class="flex-grow flex flex-col justify-end gap-xs h-full">
+                <div class="w-full bg-primary/10 rounded-full h-[70%] relative overflow-hidden">
+                    <div class="absolute bottom-0 w-full bg-primary rounded-full" style="height: 65%"></div>
+                </div>
+                <div class="text-[8px] text-center text-outline">Thu</div>
+            </div>
+            <div class="flex-grow flex flex-col justify-end gap-xs h-full">
+                <div class="w-full bg-primary/10 rounded-full h-[85%] relative overflow-hidden">
+                    <div class="absolute bottom-0 w-full bg-primary rounded-full" style="height: 80%"></div>
+                </div>
+                <div class="text-[8px] text-center text-outline">Fri</div>
+            </div>
+        </div>
+    </div>
+    <!-- High-Impact Metric Cards -->
+    <div class="grid grid-cols-2 gap-lg w-full max-w-2xl">
+        <div class="bg-surface-container-lowest border border-outline-variant p-lg flex items-center gap-md rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-error-container text-error flex items-center justify-center rounded-full">
+                <span class="material-symbols-outlined">priority_high</span>
+            </div>
+            <div>
+                <div class="text-headline-md font-bold text-on-surface">03</div>
+                <div class="font-label-md text-on-surface-variant">At Risk Today</div>
+            </div>
+        </div>
+        <div class="bg-surface-container-lowest border border-outline-variant p-lg flex items-center gap-md rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-primary-container/20 text-primary flex items-center justify-center rounded-full">
+                <span class="material-symbols-outlined">auto_graph</span>
+            </div>
+            <div>
+                <div class="text-headline-md font-bold text-on-surface">89%</div>
+                <div class="font-label-md text-on-surface-variant">Success Rate</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div></div>
+</div>
+<!-- Abstract Background Element -->
+<div class="absolute top-0 right-0 -z-10 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+<div class="absolute -top-[20%] -right-[10%] w-[60%] h-[80%] rounded-full bg-surface-container-highest blur-[100px]"></div>
+<div class="absolute bottom-[10%] -left-[10%] w-[40%] h-[60%] rounded-full bg-surface-container blur-[80px]"></div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="py-2xl px-margin max-w-[1280px] mx-auto" id="features">
+<div class="text-center mb-xl max-w-2xl mx-auto">
+<h2 class="font-headline-lg text-headline-lg md:text-display text-on-surface mb-sm">Intelligent Support Systems</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Proactive tools designed to identify needs early and coordinate care effectively across the entire educational ecosystem.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md md:grid-rows-2">
+<!-- Feature 1 -->
+<div class="col-span-1 md:col-span-2 md:row-span-2 bg-surface-container-lowest border border-outline-variant p-lg flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow duration-300 rounded-xl">
+<div class="absolute top-0 right-0 p-md opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[120px]">insights</span>
+</div>
+<div class="w-12 h-12 bg-primary-container text-on-primary-container flex items-center justify-center mb-md z-10 rounded-xl">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm z-10">Early-Warning Signals</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md z-10">Detect academic and behavioral shifts before they become crises. Our algorithm analyzes multi-dimensional data points daily to flag subtle changes in engagement or performance.</p>
+<!-- Decorative Graphic -->
+<div class="mt-auto pt-lg z-10">
+<div class="h-32 w-full border border-outline-variant bg-surface flex items-end p-md gap-2 relative overflow-hidden rounded-xl">
+<div class="absolute inset-0 flex flex-col justify-between p-2 pointer-events-none opacity-20">
+<div class="w-full h-px bg-outline"></div>
+<div class="w-full h-px bg-outline"></div>
+<div class="w-full h-px bg-outline"></div>
+</div>
+<div class="w-full bg-outline-variant h-[30%] rounded-t-xl"></div>
+<div class="w-full bg-outline-variant h-[45%] rounded-t-xl"></div>
+<div class="w-full bg-primary h-[85%] shadow-[0_0_15px_rgba(37,99,235,0.4)] rounded-t-xl"></div>
+<div class="w-full bg-outline-variant h-[60%] rounded-t-xl"></div>
+</div>
+</div>
+</div>
+<!-- Feature 2 -->
+<div class="col-span-1 bg-surface-container-lowest border border-outline-variant p-lg flex flex-col hover:shadow-md transition-shadow duration-300 rounded-xl">
+<div class="w-12 h-12 bg-surface-container-highest text-on-surface flex items-center justify-center mb-md rounded-xl">
+<span class="material-symbols-outlined">diversity_3</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface mb-sm">Collaborative Care</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Bridges the gap between classroom data and family intervention. Securely share actionable insights with parents and specialists in real-time.</p>
+</div>
+<!-- Feature 3 -->
+<div class="col-span-1 bg-surface-container-lowest border border-outline-variant p-lg flex flex-col hover:shadow-md transition-shadow duration-300 rounded-xl">
+<div class="w-12 h-12 bg-surface-container-highest text-on-surface flex items-center justify-center mb-md rounded-xl">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface mb-sm">Predictive Intelligence</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">AI-driven insights that simplify student support. Move from reactive discipline to proactive, data-informed intervention strategies.</p>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-2xl px-margin max-w-[1280px] mx-auto" id="partners">
+<div class="text-center mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-sm">Trusted by Leading Institutions</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-lg"><div class="flex flex-col items-center gap-md p-lg bg-surface-container-low rounded-full border border-outline-variant hover:shadow-md transition-shadow">
+<div class="w-20 h-20 flex items-center justify-center">
+<img alt="Universitas Academica" class="max-h-full max-w-full object-contain opacity-70 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBio8rBWw3ggT223OnqEvHIhPQEHDmlAjTXr1P_fetsDhybUuwuGcso-dofuSxXjvC08wlvwoCDFFxc3PWsla4XHGs5eqCgJNqvbPbl5Q0PpZNnh6PoaG-m-fb7uAuK9Dzw9yyQQkEz91ixy1xF64svi-2_u1bVyVnTdiHGVdopLKwu2Tt-RjuhpP_9j367J1y3aYKoopLVZ647aIMhEvNtf41eWyggcbQZC4w7s8lHGiLyRgWFNGnE">
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant text-center">Universitas Academica</span>
+</div>
+<div class="flex flex-col items-center gap-md p-lg bg-surface-container-low rounded-full border border-outline-variant hover:shadow-md transition-shadow"><div class="w-20 h-20 flex items-center justify-center">
+<img alt="Aethelred College" class="max-h-full max-w-full object-contain opacity-70 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida/AP1WRLuEgqcUYimJFy-_EHH_MzNvlKzGWeI93xjebDDDtFUp_8pbIAS-I7TZbOyyzU8R9ysqI3yxG-yKz-iypkpwIBoEZXnlFrqA01OYcygiz4SRnDzUGYiOKXeNjZ9ZzoxmegnDU1AxRXXdxXkdXCAwM49kDYPazjqb63slQi3E_yRXiBfQY8zX-GgMTYoqJXrU5FcrZb4LWyC9cOO9gHRSS8Muf6HHWrInSeXcMm_N1y6Hc-eB5bfu-UO2rw">
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant text-center">Aethelred College</span></div>
+<div class="flex flex-col items-center gap-md p-lg bg-surface-container-low rounded-full border border-outline-variant hover:shadow-md transition-shadow">
+<div class="w-20 h-20 flex items-center justify-center">
+<img alt="Global Technological Institute" class="max-h-full max-w-full object-contain opacity-70 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIvnn2lZifLmPXTg9_R1fFqHXiXxI68n03WGiNgpNQ-QyJ6DbRO3JwceP5f4a8PcmMD-SxXreuf_nSuj6ECLuQwLcioB39qSRy0tFzNo1cBCHTdquaLu4HZFdNHLgUgJXKqHOkLicxi4NJzTDE8Noi8QhWfkkE3rlBeLovEjwunJC4XBdXbsdRzA0Di9mwmSJrDttqzx0_KAXxg4oOpjcmNrNDmE58kdooqeo0GAA2TkFNZ9gCZ02F">
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant text-center">Global Technological Institute</span>
+</div>
+<div class="flex flex-col items-center gap-md p-lg bg-surface-container-low rounded-full border border-outline-variant hover:shadow-md transition-shadow">
+<div class="w-20 h-20 flex items-center justify-center">
+<img alt="Unity School District" class="max-h-full max-w-full object-contain opacity-70 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGUFHwOQIGrNY5-3VEj3leKVT5E5OlPWlv-2r3vW1wEZOGi2-AcNiyJl73DJPoSrhMyZkZWT8Ql8qVs7JDmgNLFipQA7D5dZhDU8Uybn6PIKSR7SI1z5DabZiwPYWFc0YVe9xPoGLyxYQguy8uvhHQ6FXSBLgR0Q4_6OkRekXIUGPtzD554t02EmhYYqG2wmdMHwWjFQdJkg7gc8hKp8BeTYbUW9s0y_vyTdaBg8dJtt_I5jII4p7w">
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant text-center">Unity School District</span>
+</div></div>
+</section><section class="py-2xl px-margin">
+<div class="max-w-[1280px] mx-auto bg-surface-container border border-outline-variant p-xl md:p-2xl text-center relative overflow-hidden rounded-xl">
+<div class="relative z-10 flex flex-col items-center">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-md">Ready to support every student?</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-lg">
+                        Join hundreds of forward-thinking districts using SBA to create safer, more supportive learning environments.
+                    </p>
+<button class="bg-primary text-on-primary px-xl py-3 font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors shadow-sm rounded-full">
+                        Get Started for Free
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container dark:bg-inverse-surface border-t border-outline-variant dark:border-on-surface-variant w-full py-xl transition-colors duration-200 mt-auto"><div class="max-w-[1280px] mx-auto px-margin">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-xl mb-xl">
+<div class="col-span-1 md:col-span-1">
+<div class="text-headline-md font-display font-bold text-on-surface dark:text-inverse-on-surface mb-md">
+                SBA
+            </div>
+<p class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant mb-lg">
+                Empowering educators with predictive insights to ensure every student succeeds.
+            </p>
+<div class="flex gap-md">
+<a class="w-10 h-10 rounded-full bg-surface-container-highest dark:bg-surface-container flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300" href="#">
+<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-highest dark:bg-surface-container flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300" href="#">
+<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>
+</a>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<h4 class="font-title-lg text-on-surface dark:text-inverse-on-surface mb-sm">Product</h4>
+<nav class="flex flex-col gap-xs">
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Features</a>
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Impact Analysis</a>
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Case Studies</a>
+</nav>
+</div>
+<div class="flex flex-col gap-sm">
+<h4 class="font-title-lg text-on-surface dark:text-inverse-on-surface mb-sm">Resources</h4>
+<nav class="flex flex-col gap-xs">
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Documentation</a>
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Help Center</a>
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Contact Support</a>
+</nav>
+</div>
+<div class="flex flex-col gap-sm">
+<h4 class="font-title-lg text-on-surface dark:text-inverse-on-surface mb-sm">Legal</h4>
+<nav class="flex flex-col gap-xs">
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Privacy Policy</a>
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Terms of Service</a>
+<a class="text-body-md text-on-surface-variant dark:text-on-secondary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Cookie Policy</a>
+</nav>
+</div>
+</div>
+<div class="pt-lg border-t border-outline-variant dark:border-on-surface-variant flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="text-label-md text-on-surface-variant dark:text-on-secondary-fixed-variant">
+            © 2024 SBA Early-Warning Platform. All rights reserved.
+        </div>
+<div class="flex gap-lg">
+<span class="text-label-md text-on-surface-variant dark:text-on-secondary-fixed-variant">Built for K-12 Excellence</span>
+</div>
+</div>
+</div></footer>
+
+
+</body></html>

@@ -5,7 +5,8 @@
 
 The frontend is a **React SPA/PWA** serving five human actors, each with a distinct portal behind role-based routing: **System Admin, Teacher/Faculty, Academic Advisor/Program Coordinator, Student, Parent/Guardian**. The sixth actor (System/AI Engine) is backend-only — the frontend simply consumes its output (risk scores, explanations, recommendations, chatbot answers) via the Laravel API.
 
-Two requirements shape the architecture from day one:
+Three requirements shape the architecture from day one:
+- **Premium, Stunning & Modern UI** (utilizing modern typography, harmonious color palettes, micro-animations, and dynamic interactions to create a visually fantastic and highly engaging experience).
 - **Bilingual RTL/LTR support** (the source requirements are in Arabic; the platform must support multiple languages including Arabic) — Student #10.
 - **Multi-device responsiveness** (desktop, tablet, mobile) and a **PWA** for parents/students who need push notifications without repeated logins — Parent #6, Student #10, General #3.
 

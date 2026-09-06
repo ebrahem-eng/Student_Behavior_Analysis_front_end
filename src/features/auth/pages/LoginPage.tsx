@@ -1,0 +1,37 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoginForm } from "../components/LoginForm";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandLogo } from "@/components/shared/BrandLogo";
+
+export default function LoginPage() {
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-slate-50 to-white dark:from-indigo-950 dark:via-background dark:to-black p-4 relative overflow-hidden">
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+      {/* Decorative background blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] bg-indigo-600/20 rounded-full blur-3xl animate-pulse delay-1000" />
+      
+      <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-500">
+        <Card className="glass border-0">
+          <CardHeader className="space-y-3 text-center pb-8">
+            <div className="flex justify-center mb-2">
+              <BrandLogo size="lg" showSubtitle={true} to="/" />
+            </div>
+            <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
+              Welcome Back
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Sign in to your portal to continue
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <LoginForm />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
