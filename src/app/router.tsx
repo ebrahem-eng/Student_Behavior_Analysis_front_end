@@ -12,6 +12,7 @@ import TeacherAttendancePage from "@/features/teacher/pages/TeacherAttendancePag
 import TeacherDashboardPage from "@/features/teacher/pages/TeacherDashboardPage";
 import TeacherIncidentsPage from "@/features/teacher/pages/TeacherIncidentsPage";
 import TeacherFeedbackPage from "@/features/teacher/pages/TeacherFeedbackPage";
+import TeacherCommunicationsPage from "@/features/teacher/pages/TeacherCommunicationsPage";
 import AdvisorDashboardPage from "@/features/advisor/pages/AdvisorDashboardPage";
 import AdvisorInboxPage from "@/features/advisor/pages/AdvisorInboxPage";
 import AdvisorCommunicationsPage from "@/features/advisor/pages/AdvisorCommunicationsPage";
@@ -22,6 +23,7 @@ import StudentAlertsPage from "@/features/student/pages/StudentAlertsPage";
 import StudentAcademicsPage from "@/features/student/pages/StudentAcademicsPage";
 import StudentSettingsPage from "@/features/student/pages/StudentSettingsPage";
 import StudentRegistrationPage from "@/features/student/pages/StudentRegistrationPage";
+import StudentCommunicationsPage from "@/features/student/pages/StudentCommunicationsPage";
 import ParentDashboardPage from "@/features/parent/pages/ParentDashboardPage";
 import ParentCommunicationsPage from "@/features/parent/pages/ParentCommunicationsPage";
 import ParentSettingsPage from "@/features/parent/pages/ParentSettingsPage";
@@ -95,6 +97,10 @@ export const router = createBrowserRouter([
             path: "/teacher/feedback",
             element: <TeacherFeedbackPage />,
           },
+          {
+            path: "/teacher/communications",
+            element: <TeacherCommunicationsPage />,
+          },
         ],
       },
       {
@@ -123,6 +129,10 @@ export const router = createBrowserRouter([
           {
             path: "/student/registration",
             element: <StudentRegistrationPage />,
+          },
+          {
+            path: "/student/communications",
+            element: <StudentCommunicationsPage />,
           },
         ],
       },
