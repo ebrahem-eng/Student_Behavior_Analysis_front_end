@@ -258,14 +258,21 @@ export function DashboardLayout() {
                     <div className="flex flex-col space-y-1">
                       <p className="text-xs font-bold leading-none text-foreground">{user?.name || `${userRole || 'User'} Portal`}</p>
                       <p className="text-[11px] leading-none text-muted-foreground truncate">{user?.email || `${userRole || 'user'}@sba-platform.edu`}</p>
-                      {(user?.institution?.name || user?.college?.name) && (
+                      {(user?.managed_institutions?.length || user?.institution?.name || user?.college?.name) && (
                         <div className="pt-1.5 flex flex-col gap-0.5 border-t border-border/60 mt-1">
-                          {user.institution?.name && (
+                          {user?.managed_institutions && user.managed_institutions.length > 0 ? (
+                            user.managed_institutions.map((inst) => (
+                              <span key={inst.id} className="text-[10px] font-semibold text-primary truncate flex items-center gap-1">
+                                <Building className="w-2.5 h-2.5 shrink-0" />
+                                <span className="truncate">{inst.name}</span>
+                              </span>
+                            ))
+                          ) : user?.institution?.name ? (
                             <span className="text-[10px] font-semibold text-primary truncate flex items-center gap-1">
                               <Building className="w-2.5 h-2.5 shrink-0" />
                               <span className="truncate">{user.institution.name}</span>
                             </span>
-                          )}
+                          ) : null}
                           {user.college?.name && (
                             <span className={`text-[10px] font-bold truncate flex items-center gap-1 ${
                               user.institution?.type === 'school' ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground/80'

@@ -27,6 +27,8 @@ export interface User {
   avatar_url?: string;
   phone?: string;
   national_id?: string;
+  managed_institutions?: Institution[];
+  institution_ids?: Array<number | string>;
   created_at?: string;
 }
 
