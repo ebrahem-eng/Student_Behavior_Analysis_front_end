@@ -57,6 +57,23 @@ export function normalizeUserResponse(payload: any, fallbackRole?: UserRole | nu
     roles: roles.length > 0 ? roles : [finalRole],
     institution_id: raw.institution_id,
     institution_name: raw.institution?.name || raw.institution_name,
+    institution: raw.institution
+      ? {
+          id: raw.institution.id,
+          name: raw.institution.name,
+          type: raw.institution.type,
+          address: raw.institution.address,
+        }
+      : undefined,
+    managed_institutions: Array.isArray(raw.managed_institutions)
+      ? raw.managed_institutions.map((inst: any) => ({
+          id: inst.id,
+          name: inst.name,
+          type: inst.type,
+          address: inst.address,
+        }))
+      : undefined,
+    institution_ids: Array.isArray(raw.institution_ids) ? raw.institution_ids : undefined,
     avatar_url: raw.avatar_url,
     phone: raw.phone,
     created_at: raw.created_at,

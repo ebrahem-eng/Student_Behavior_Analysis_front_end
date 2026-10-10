@@ -23,6 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api, getApiErrorMessage } from "@/lib/api";
 import type { User, Institution, College } from "@/types/api";
@@ -49,6 +50,7 @@ export default function AccountsPage() {
   const [password, setPassword] = useState("password");
   const [selectedRole, setSelectedRole] = useState("student");
   const [selectedInstitutionId, setSelectedInstitutionId] = useState<string>("");
+  const [selectedAdminInstitutionIds, setSelectedAdminInstitutionIds] = useState<string[]>([]);
   const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
 
   const loadData = async () => {
@@ -98,7 +100,17 @@ export default function AccountsPage() {
         role: selectedRole,
       };
 
-      if (selectedInstitutionId && selectedInstitutionId !== "none") {
+      if (selectedRole === "admin") {
+        if (selectedAdminInstitutionIds.length === 0) {
+          setFormError(isAr
+            ? "حدّد مؤسسة واحدة على الأقل ليتولى هذا المدير إدارتها."
+            : "Select at least one institution this administrator will manage.");
+          setIsSubmitting(false);
+          return;
+        }
+        payload.institution_ids = selectedAdminInstitutionIds.map((id) => Number(id));
+        payload.institution_id = Number(selectedAdminInstitutionIds[0]);
+      } else if (selectedInstitutionId && selectedInstitutionId !== "none") {
         payload.institution_id = Number(selectedInstitutionId);
       }
 
@@ -112,6 +124,7 @@ export default function AccountsPage() {
       setEmail("");
       setPassword("password");
       setSelectedInstitutionId("");
+      setSelectedAdminInstitutionIds([]);
       setSelectedCollegeId("");
       loadData();
     } catch (err: any) {
@@ -143,6 +156,7 @@ export default function AccountsPage() {
       (user.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.institution?.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.managed_institutions || []).some((inst) => (inst.name || "").toLowerCase().includes(searchQuery.toLowerCase())) ||
       (user.college?.name || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchesRole && matchesSearch;
   });
@@ -158,8 +172,8 @@ export default function AccountsPage() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "إنشاء وإدارة حسابات الطلاب، المعلمين، والمرشدين وتعيين انتمائهم للمؤسسة التعليمية والكلية التابعة لها."
-              : "Manage user accounts live from MySQL and assign each actor to their respective institution and college."}
+              ? "إنشاء حسابات الطلاب والمعلمين والمرشدين داخل مؤسساتك فقط، وتعيين كل مدير لمجموعة محددة من تلك المؤسسات."
+              : "Create students, teachers, and advisors inside your institutions, and assign each admin to a specific subset of them."}
           </p>
         </div>
 
@@ -211,7 +225,15 @@ export default function AccountsPage() {
 
                   <div className="space-y-1">
                     <Label htmlFor="role" className="text-xs font-semibold">{isAr ? "الدور / الصلاحية" : "Role"}</Label>
-                    <Select value={selectedRole} onValueChange={setSelectedRole}>
+                    <Select
+                      value={selectedRole}
+                      onValueChange={(value) => {
+                        setSelectedRole(value);
+                        if (value === "admin") {
+                          setSelectedCollegeId("");
+                        }
+                      }}
+                    >
                       <SelectTrigger className="h-9 rounded-xl bg-secondary/60 border-border text-xs">
                         <SelectValue />
                       </SelectTrigger>
@@ -254,7 +276,53 @@ export default function AccountsPage() {
                   </div>
                 </div>
 
-                {/* Educational Institution Selector */}
+                {selectedRole === "admin" ? (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold flex items-center gap-1.5">
+                      <Building className="w-3.5 h-3.5 text-primary" />
+                      <span>{isAr ? "المؤسسات التي سيديرها هذا المدير" : "Institutions this admin will manage"}</span>
+                    </Label>
+                    <p className="text-[11px] text-muted-foreground">
+                      {isAr
+                        ? "لا يمكن منح المدير إلا مؤسسات ضمن نطاقك. ولن يتمكن من إدارة أي مؤسسة خارج هذه القائمة."
+                        : "You can only delegate institutions inside your own scope. This admin will be unable to manage anything else."}
+                    </p>
+                    <div className="max-h-40 overflow-y-auto space-y-1.5 rounded-2xl border border-border bg-secondary/40 p-2">
+                      {institutions.length === 0 ? (
+                        <p className="text-[11px] text-muted-foreground px-1 py-2">
+                          {isAr ? "لا توجد مؤسسات ضمن نطاقك." : "No institutions are assigned to your account."}
+                        </p>
+                      ) : institutions.map((inst) => {
+                        const checked = selectedAdminInstitutionIds.includes(String(inst.id));
+                        return (
+                          <label
+                            key={inst.id}
+                            className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-secondary cursor-pointer"
+                          >
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={(value) => {
+                                const id = String(inst.id);
+                                setSelectedAdminInstitutionIds((current) =>
+                                  value
+                                    ? Array.from(new Set([...current, id]))
+                                    : current.filter((item) => item !== id)
+                                );
+                              }}
+                            />
+                            <span className="text-xs font-semibold text-foreground">
+                              {inst.name}
+                              <span className="text-muted-foreground font-medium">
+                                {" "}({inst.type === "university" ? (isAr ? "جامعة" : "University") : (isAr ? "مدرسة" : "School")})
+                              </span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                <>
                 <div className="space-y-1">
                   <Label htmlFor="inst-select" className="text-xs font-semibold flex items-center gap-1.5">
                     <Building className="w-3.5 h-3.5 text-primary" />
@@ -320,6 +388,8 @@ export default function AccountsPage() {
                     </div>
                   );
                 })()}
+                </>
+                )}
 
                 <div className="pt-2 flex justify-end gap-2">
                   <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-full text-xs font-semibold">
@@ -402,7 +472,12 @@ export default function AccountsPage() {
                 if (userRole === "advisor") badgeClass = "bg-indigo-500/10 text-indigo-500 border-indigo-500/20";
                 if (userRole === "parent") badgeClass = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
 
-                const instName = user.institution?.name || (user as any).institution_name;
+                const managedNames = (user.managed_institutions || [])
+                  .map((inst) => inst.name)
+                  .filter(Boolean);
+                const instName = managedNames.length > 0
+                  ? managedNames.join(isAr ? "، " : ", ")
+                  : (user.institution?.name || (user as any).institution_name);
                 const colName = user.college?.name;
 
                 return (
