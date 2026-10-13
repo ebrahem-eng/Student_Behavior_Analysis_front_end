@@ -198,8 +198,8 @@ export default function InstitutionsPage() {
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {isAr
-              ? "إدارة الجامعات والكليات الأكاديمية التابعة لها، وإدارة المدارس ومراحلها وصفوفها الدراسية."
-              : "Configure universities with academic colleges, and schools with educational stages and tracks."}
+              ? "تظهر هنا المؤسسات المسندة إلى حسابك فقط. أي مؤسسة تنشئها تُضاف إلى نطاقك، ولا يمكنك عرض أو تعديل أو حذف مؤسسة خارج هذا النطاق."
+              : "Only the institutions assigned to your account are listed here. A new institution is added to your scope, and you cannot view, edit, or delete anything outside it."}
           </p>
         </div>
 
@@ -309,8 +309,8 @@ export default function InstitutionsPage() {
       ) : filteredInstitutions.length === 0 ? (
         <Card className="bg-card/85 backdrop-blur-xl border border-border rounded-3xl p-12 text-center text-muted-foreground text-xs">
           <Building className="w-10 h-10 text-primary/30 mx-auto mb-2" />
-          <p className="font-bold text-foreground text-sm">{isAr ? "لا توجد مؤسسات تعليمية مطابقة" : "No institutions found"}</p>
-          <p className="mt-1">{isAr ? "أضف جامعة أو مدرسة جديدة لبدء إدارة الكليات والمراحل الدراسية." : "Create an institution to manage colleges, stages, and students."}</p>
+          <p className="font-bold text-foreground text-sm">{isAr ? "لا توجد مؤسسات ضمن نطاقك" : "No institutions in your scope"}</p>
+          <p className="mt-1">{isAr ? "أضف جامعة أو مدرسة جديدة لتصبح مسؤولاً عن إدارتها." : "Create an institution to become responsible for managing it."}</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
